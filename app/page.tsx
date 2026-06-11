@@ -559,7 +559,7 @@ export default function Home() {
                       {activeDropdownId === item.id && (
                         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-xl max-h-60 overflow-y-auto">
                           {katalog
-                            .filter(p => p.isActive && p.nama.toLowerCase().includes(item.sku.toLowerCase()))
+                            .filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()))
                             .map(p => (
                               <div
                                 key={p.id}
@@ -576,7 +576,7 @@ export default function Home() {
                                 <span className="text-xs font-bold text-[#D4A847]">{formatRp(p.harga)}</span>
                               </div>
                             ))}
-                          {katalog.filter(p => p.isActive && p.nama.toLowerCase().includes(item.sku.toLowerCase())).length === 0 && (
+                          {katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase())).length === 0 && (
                             <div className="px-3 py-3 text-sm text-center text-gray-400">Tidak ada produk cocok.</div>
                           )}
                         </div>
