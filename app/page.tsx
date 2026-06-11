@@ -838,7 +838,11 @@ export default function Home() {
                     className="text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-[#D4A847] outline-none text-gray-700 bg-white"
                   />
                   <button 
-                    onClick={() => { setFilterStartDate(''); setFilterEndDate(''); }}
+                    onClick={() => { 
+                      const today = new Date().toISOString().split('T')[0];
+                      setFilterStartDate(today); 
+                      setFilterEndDate(today); 
+                    }}
                     className="text-xs text-gray-400 hover:text-red-500 ml-1"
                     title="Reset Filter"
                   >
@@ -1004,7 +1008,11 @@ export default function Home() {
                       className="text-xs border border-gray-200 rounded-md px-2 py-1.5 focus:ring-1 focus:ring-[#D4A847] outline-none text-gray-700 bg-white"
                     />
                     <button 
-                      onClick={() => { setFilterStartDate(''); setFilterEndDate(''); }}
+                      onClick={() => { 
+                        const today = new Date().toISOString().split('T')[0];
+                        setFilterStartDate(today); 
+                        setFilterEndDate(today); 
+                      }}
                       className="text-xs text-gray-400 hover:text-red-500 ml-1"
                       title="Reset Filter"
                     >
