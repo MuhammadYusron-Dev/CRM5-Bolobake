@@ -109,6 +109,41 @@ body {
   .animate-fuse-3 { animation: fuse-spark-3 0.8s ease-out infinite 0.4s; }
   .animate-fuse-4 { animation: fuse-spark-4 0.5s ease-out infinite 0.1s; }
 
+  /* Animasi Lari dan Melambai (Kumpulan Orang) */
+  @keyframes run-across {
+    0% { left: 110%; }
+    40% { left: 40%; }
+    60% { left: 40%; }
+    100% { left: -30%; }
+  }
+  .animate-run-across {
+    position: absolute;
+    animation: run-across 12s linear infinite;
+  }
+
+  @keyframes run-bob {
+    0%, 4%, 8%, 12%, 16%, 20%, 24%, 28%, 32%, 36%, 64%, 68%, 72%, 76%, 80%, 84%, 88%, 92%, 96%, 100% { transform: translateY(0) rotate(-15deg); }
+    2%, 6%, 10%, 14%, 18%, 22%, 26%, 30%, 34%, 38%, 66%, 70%, 74%, 78%, 82%, 86%, 90%, 94%, 98% { transform: translateY(-4px) rotate(-15deg); }
+    40%, 60% { transform: translateY(0) rotate(0deg); }
+  }
+  .animate-run-bob {
+    animation: run-bob 12s linear infinite;
+  }
+
+  @keyframes arm-wave {
+    0%, 39% { opacity: 0; transform: rotate(0deg); transform-origin: bottom left; }
+    40% { opacity: 1; transform: rotate(0deg); }
+    44% { opacity: 1; transform: rotate(40deg); }
+    48% { opacity: 1; transform: rotate(-10deg); }
+    52% { opacity: 1; transform: rotate(40deg); }
+    56% { opacity: 1; transform: rotate(-10deg); }
+    60% { opacity: 0; transform: rotate(0deg); }
+    61%, 100% { opacity: 0; }
+  }
+  .animate-arm-wave {
+    animation: arm-wave 12s ease-in-out infinite;
+  }
+
   /* Progress Bar Garis Miring Bergerak */
   .progress-striped {
     position: relative;
