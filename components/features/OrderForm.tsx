@@ -48,6 +48,19 @@ export function OrderForm({
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
+  const getSkuPrice = (skuCode: string, customerTier: string = "STANDARD") => {
+    // Exception-based tier logic
+    const baseProduct = katalog.find(p => p.nama.toLowerCase() === skuCode.toLowerCase());
+    const basePrice = baseProduct ? baseProduct.harga : 0;
+    
+    // Future-proof: If customer tier is not STANDARD, check tierPrices dictionary
+    if (customerTier !== "STANDARD" && tierPrices[skuCode]) {
+      return tierPrices[skuCode];
+    }
+    
+    return basePrice;
+  };
+
   const fetchTierPrices = async (tier: string) => {
     try {
       const res = await fetch(`/api/pricing?tier_id=${tier}`);
@@ -116,9 +129,7 @@ export function OrderForm({
           const newItems = parsed.items.map((i: any, idx: number) => {
             const matchedProduct = katalog.find(p => p.nama.toLowerCase().includes(i.detected_sku.toLowerCase()));
             const finalSku = matchedProduct ? matchedProduct.nama : i.detected_sku;
-            let price = matchedProduct ? matchedProduct.harga : 0;
-            // Apply tier price if customer is selected
-            if (tierPrices[finalSku]) price = tierPrices[finalSku];
+            const price = getSkuPrice(finalSku, selectedCustomerObj?.tier || "STANDARD");
             
             return { id: Date.now() + idx, sku: finalSku, price, qty: Number(i.qty) || 1 };
           });
@@ -190,11 +201,7 @@ export function OrderForm({
       if (item.id === id) {
         const updated = { ...item, [field]: value };
         if (field === 'sku') {
-          const foundProduct = katalog.find(p => p.nama.toLowerCase() === value.toLowerCase());
-          if (foundProduct) {
-             const basePrice = foundProduct.harga;
-             updated.price = tierPrices[foundProduct.nama] || basePrice;
-          }
+          updated.price = getSkuPrice(value, selectedCustomerObj?.tier || "STANDARD");
         }
         return updated;
       }
@@ -480,9 +487,7 @@ export function OrderForm({
                             type="number" min="0" required
                             value={item.price}
                             onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
-                            disabled={isTierPrice}
-                            className={`pl-8 ${isTierPrice ? 'bg-muted cursor-not-allowed border-primary/30' : ''}`}
-                            title={isTierPrice ? "Harga dikunci sesuai Tier Customer" : ""}
+                            className="pl-8"
                           />
                         </div>
                       </div>
