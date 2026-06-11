@@ -54,8 +54,14 @@ export default function Home() {
   // Analytics Filters
   const [filterStartDate, setFilterStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [filterEndDate, setFilterEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [searchHistoryInput, setSearchHistoryInput] = useState('');
   const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
   const [highlightedOutlet, setHighlightedOutlet] = useState('');
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setSearchHistoryQuery(searchHistoryInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchHistoryInput]);
   
   // Fetch Katalog & Orders
   const fetchOrders = () => {
@@ -171,6 +177,12 @@ export default function Home() {
     };
 
     return orderHistory.filter(order => {
+      // 1. Prioritize search query so it works instantly regardless of dates
+      if (searchHistoryQuery && !order.customer.toLowerCase().includes(searchHistoryQuery.toLowerCase())) {
+        return false;
+      }
+
+      // 2. Then check dates
       const orderDate = order.productionDate || '';
       if (!orderDate) return true;
       
@@ -184,10 +196,6 @@ export default function Home() {
       if (filterEndDate) {
         const endTime = new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1;
         if (orderTime > endTime) return false;
-      }
-      
-      if (searchHistoryQuery && !order.customer.toLowerCase().includes(searchHistoryQuery.toLowerCase())) {
-        return false;
       }
 
       return true;
@@ -1012,19 +1020,19 @@ export default function Home() {
                   </div>
                   <input
                     type="text"
-                    value={searchHistoryQuery}
+                    value={searchHistoryInput}
                     onChange={(e) => {
-                      setSearchHistoryQuery(e.target.value);
+                      setSearchHistoryInput(e.target.value);
                       if (highlightedOutlet) setHighlightedOutlet('');
                     }}
                     placeholder="Cari nama outlet..."
                     className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400 font-medium"
                   />
-                  {searchHistoryQuery && (
+                  {searchHistoryInput && (
                     <button 
                       onClick={() => {
-                        setHighlightedOutlet(searchHistoryQuery);
-                        setSearchHistoryQuery('');
+                        setHighlightedOutlet(searchHistoryInput);
+                        setSearchHistoryInput('');
                       }}
                       className="px-3 py-1.5 text-gray-500 hover:text-[#D4A847] bg-gray-50 hover:bg-[#D4A847]/10 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1.5 border border-gray-200 hover:border-[#D4A847]/30"
                     >
@@ -1051,7 +1059,7 @@ export default function Home() {
                   .map(order => {
                     const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
                     return (
-                  <div key={order.id} className={`p-5 rounded-2xl border transition-all duration-300 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryQuery ? 'border-[#D4A847] bg-[#D4A847]/5 shadow-md shadow-[#D4A847]/20 ring-2 ring-[#D4A847]/40 scale-[1.01] z-10 relative' : 'border-gray-200 bg-white hover:border-[#D4A847]/50 hover:shadow-md'}`}>
+                  <div key={order.id} className={`p-5 rounded-2xl border transition-all duration-300 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-[#D4A847] bg-[#D4A847]/5 shadow-md shadow-[#D4A847]/20 ring-2 ring-[#D4A847]/40 scale-[1.01] z-10 relative' : 'border-gray-200 bg-white hover:border-[#D4A847]/50 hover:shadow-md'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
