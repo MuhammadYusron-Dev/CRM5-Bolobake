@@ -367,7 +367,7 @@ export default function Home() {
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
   return (
-    <div className="flex h-screen bg-[#FAF8F5] text-[#2C1810] font-sans selection:bg-[#D4A847] selection:text-white overflow-hidden relative">
+    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen bg-[#FAF8F5] text-[#2C1810] font-sans selection:bg-[#D4A847] selection:text-white lg:overflow-hidden relative">
       
       {/* Custom Scrollbar */}
       <style>{`
@@ -388,12 +388,12 @@ export default function Home() {
       {/* ============================================================== */}
       {/* PANEL KIRI: MODUL INPUT & ORDER MANAGEMENT                     */}
       {/* ============================================================== */}
-      <div className="w-[55%] flex flex-col h-full border-r border-[#e5e0d8] bg-[#FAF8F5]">
+      <div className="w-full lg:w-[55%] flex flex-col lg:h-full border-b lg:border-b-0 lg:border-r border-[#e5e0d8] bg-[#FAF8F5]">
         
         {/* Header Fixed */}
-        <div className="px-8 py-6 border-b border-[#e5e0d8] bg-white/50 backdrop-blur-sm z-10 flex items-center justify-between">
+        <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-[#e5e0d8] bg-white/50 backdrop-blur-sm z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
           <div>
-            <h1 className="text-3xl font-serif text-[#2C1810] flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-serif text-[#2C1810] flex items-center gap-2">
               <ChefHat className="w-8 h-8 text-[#D4A847]" />
               Bolobake
             </h1>
@@ -415,7 +415,7 @@ export default function Home() {
         </div>
 
         {/* Scrollable Form Area */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6">
           {editingOrderId && (
             <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-2">
@@ -453,12 +453,12 @@ export default function Home() {
                       if (next) { next.focus(); try { (next as any).showPicker(); } catch(e){} }
                     }
                   }}
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] focus:border-transparent outline-none transition-all"
+                  className="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] focus:border-transparent outline-none transition-all"
                   placeholder="Cari atau masukkan nama outlet..."
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="flex items-center gap-2 text-[11px] font-semibold text-gray-500 mb-2 uppercase tracking-wider">
                     <Calendar className="w-3.5 h-3.5" />
@@ -516,8 +516,8 @@ export default function Home() {
               
               <div className="space-y-3">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-3 items-start group relative bg-gray-50/50 p-2 rounded-lg border border-transparent hover:border-gray-200 transition-all">
-                    <div className="flex-1 relative">
+                  <div key={item.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end group relative bg-gray-50/50 p-3 sm:p-2 rounded-lg border border-transparent hover:border-gray-200 transition-all">
+                    <div className="w-full sm:flex-1 relative">
                       <label className="block text-[11px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Produk (SKU)</label>
                       <input
                         id={`skuInput-${item.id}`}
@@ -568,8 +568,9 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                    <div className="w-20">
-                      <label className="block text-[11px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Qty</label>
+                    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto items-end">
+                      <div className="flex-1 sm:w-20">
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Qty</label>
                       <input
                         id={`qtyInput-${item.id}`}
                         type="number"
@@ -579,9 +580,9 @@ export default function Home() {
                         onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
                         className="w-full p-2.5 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-[#D4A847] outline-none text-center"
                       />
-                    </div>
-                    <div className="w-36">
-                      <label className="block text-[11px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Harga Satuan</label>
+                      </div>
+                      <div className="flex-[2]">
+                        <label className="block text-[11px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Harga Satuan</label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                         <input
@@ -593,16 +594,17 @@ export default function Home() {
                           className="w-full p-2.5 pl-8 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-[#D4A847] outline-none"
                         />
                       </div>
-                    </div>
-                    
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveItem(item.id)} 
-                      disabled={items.length === 1}
-                      className={`mt-6 p-2.5 rounded-md transition-all ${items.length === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-red-400 hover:bg-red-50 hover:text-red-600'}`}
-                    >
+                      </div>
+                      
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveItem(item.id)} 
+                        disabled={items.length === 1}
+                        className={`mb-0.5 p-2.5 rounded-md transition-all ${items.length === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-red-400 hover:bg-red-50 hover:text-red-600'}`}
+                      >
                       <Trash2 className="w-4 h-4" />
                     </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -610,7 +612,7 @@ export default function Home() {
               <button 
                 type="button" 
                 onClick={handleAddItem}
-                className="mt-4 flex items-center gap-2 text-[#D4A847] font-semibold text-sm hover:text-[#b58e37] transition-colors px-2 py-1 rounded-md hover:bg-[#D4A847]/10"
+                className="mt-4 flex items-center gap-2 text-[#D4A847] font-semibold text-sm hover:text-[#b58e37] transition-colors px-2 py-1 sm:px-3 sm:py-2 rounded-md hover:bg-[#D4A847]/10"
               >
                 <Plus className="w-4 h-4" /> Tambah Baris Produk
               </button>
@@ -711,9 +713,9 @@ export default function Home() {
         </div>
 
         {/* Sticky Footer / Action Bar */}
-        <div className="bg-[#2C1810] text-white p-6 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20">
-            <div className="flex justify-between items-end">
-              <div className="space-y-1">
+        <div className="bg-[#2C1810] text-white p-4 sm:p-6 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20 sticky bottom-0 lg:static">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
+              <div className="space-y-1 w-full sm:w-auto border-b sm:border-0 border-[#40261b] pb-4 sm:pb-0">
                 <div className="flex items-center gap-4 text-sm text-gray-300">
                   <span className="w-24">Subtotal:</span>
                   <span>{formatRp(subtotal)}</span>
@@ -728,15 +730,15 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                 {editingOrderId && (
                   <button 
                     type="button" 
                     onClick={handleDeleteOrder}
                     disabled={isSubmitting}
-                    className="bg-red-50 hover:bg-red-100 active:scale-95 text-red-600 border border-red-200 px-5 py-4 rounded-xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="bg-red-50 hover:bg-red-100 active:scale-95 text-red-600 border border-red-200 px-3 sm:px-5 py-3 sm:py-4 rounded-xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 justify-center flex-1 sm:flex-none text-sm sm:text-base"
                   >
-                    <Trash2 className="w-5 h-5" /> Hapus
+                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Hapus</span>
                   </button>
                 )}
                 {editingOrderId && (
@@ -744,7 +746,7 @@ export default function Home() {
                     type="button" 
                     onClick={handleCancelEdit}
                     disabled={isSubmitting}
-                    className="bg-gray-700 hover:bg-gray-600 active:scale-95 text-white px-6 py-4 rounded-xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="bg-gray-700 hover:bg-gray-600 active:scale-95 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex-1 sm:flex-none text-sm sm:text-base"
                   >
                     Batal
                   </button>
@@ -753,7 +755,7 @@ export default function Home() {
                   form="orderForm"
                   type="submit" 
                   disabled={isSubmitting}
-                  className={`${editingOrderId ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/20' : 'bg-[#D4A847] hover:bg-[#b58e37] shadow-[#D4A847]/20'} active:scale-95 text-white px-8 py-4 rounded-xl font-bold transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg`}
+                  className={`${editingOrderId ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/20' : 'bg-[#D4A847] hover:bg-[#b58e37] shadow-[#D4A847]/20'} active:scale-95 text-white px-4 sm:px-8 py-2 sm:py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg flex-1 sm:flex-none text-sm sm:text-base`}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -762,8 +764,9 @@ export default function Home() {
                     </span>
                   ) : (
                     <>
-                      {editingOrderId ? 'Update Pesanan' : 'Kirim ke Dapur & Sheet'} 
-                      {editingOrderId ? <Edit className="w-5 h-5 ml-1" /> : <TrendingUp className="w-5 h-5 ml-1" />}
+                      {editingOrderId ? 'Update' : <span className="hidden sm:inline">Kirim ke Dapur & Sheet</span>} 
+                      {!editingOrderId && <span className="sm:hidden">Kirim</span>}
+                      {editingOrderId ? <Edit className="w-4 h-4 sm:w-5 sm:h-5 ml-1" /> : <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 ml-1" />}
                     </>
                   )}
                 </button>
@@ -775,8 +778,8 @@ export default function Home() {
       {/* ============================================================== */}
       {/* PANEL KANAN: MODUL ANALITIK & DASHBOARD (FIXED)                */}
       {/* ============================================================== */}
-      <div className="w-[45%] bg-white h-full overflow-y-auto flex flex-col">
-        <div className="p-8 pb-4 flex items-center justify-between border-b border-gray-100 sticky top-0 bg-white z-10">
+      <div className="w-full lg:w-[45%] bg-white h-auto lg:h-full lg:overflow-y-auto flex flex-col">
+        <div className="p-4 sm:p-8 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-gray-100 sticky top-0 bg-white z-10 gap-4 sm:gap-0">
           <h2 className="text-3xl font-serif text-[#2C1810]">Insights & Data</h2>
           
           {/* TAB NAVIGATION */}
@@ -797,7 +800,7 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="p-8 pt-6 flex-1">
+        <div className="p-4 sm:p-8 pt-6 flex-1">
           {activeTab === 'dashboard' ? (
             <div className="animate-in fade-in">
               {/* Analytics Date Filter */}
@@ -831,13 +834,13 @@ export default function Home() {
               </div>
 
               {/* Global Summary Cards */}
-              <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 <div className="bg-gradient-to-br from-[#2C1810] to-[#40261b] text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
                   <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                     <TrendingUp className="w-24 h-24" />
                   </div>
                   <p className="text-sm text-gray-300 mb-2 font-medium">Total Omset (Periode)</p>
-                  <p className="text-3xl font-bold text-[#D4A847]">{formatRp(dashboard.totalOmset)}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#D4A847]">{formatRp(dashboard.totalOmset)}</p>
                 </div>
                 
                 <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#e5e0d8] flex flex-col justify-center">
@@ -847,7 +850,7 @@ export default function Home() {
                     </div>
                     <p className="text-sm text-gray-500 font-medium">Jumlah Transaksi</p>
                   </div>
-                  <p className="text-3xl font-bold text-[#2C1810]">{dashboard.totalOrders} <span className="text-base font-normal text-gray-400">Order</span></p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#2C1810]">{dashboard.totalOrders} <span className="text-sm sm:text-base font-normal text-gray-400">Order</span></p>
                 </div>
 
                 <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#e5e0d8] flex flex-col justify-center">
@@ -857,7 +860,7 @@ export default function Home() {
                     </div>
                     <p className="text-sm text-gray-500 font-medium">Total Produk Terjual</p>
                   </div>
-                  <p className="text-3xl font-bold text-[#2C1810]">{dashboard.totalPcs} <span className="text-base font-normal text-gray-400">Pcs</span></p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#2C1810]">{dashboard.totalPcs} <span className="text-sm sm:text-base font-normal text-gray-400">Pcs</span></p>
                 </div>
 
                 <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#e5e0d8] flex flex-col justify-center">
@@ -867,7 +870,7 @@ export default function Home() {
                     </div>
                     <p className="text-sm text-gray-500 font-medium">Customer Aktif</p>
                   </div>
-                  <p className="text-3xl font-bold text-[#2C1810]">{dashboard.uniqueCustomers.length} <span className="text-base font-normal text-gray-400">Outlet</span></p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#2C1810]">{dashboard.uniqueCustomers.length} <span className="text-sm sm:text-base font-normal text-gray-400">Outlet</span></p>
                 </div>
               </div>
 
@@ -915,8 +918,8 @@ export default function Home() {
                   Top Customer Hari Ini
                 </h3>
                 
-                <div className="overflow-hidden">
-                  <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[300px]">
                     <thead>
                       <tr className="border-b-2 border-gray-100 text-xs uppercase tracking-wider text-gray-400">
                         <th className="pb-3 font-semibold">Nama Outlet / Customer</th>
