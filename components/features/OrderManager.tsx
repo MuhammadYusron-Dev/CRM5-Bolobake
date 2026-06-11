@@ -238,6 +238,14 @@ export function OrderManager({
     }
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Selamat Pagi, Admin ☀️';
+    if (hour >= 12 && hour < 15) return 'Selamat Siang, Admin 🌤️';
+    if (hour >= 15 && hour < 19) return 'Selamat Sore, Admin 🌅';
+    return 'Selamat Malam, Admin 🌙';
+  };
+
   return (
     <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
       <Sidebar 
@@ -269,14 +277,20 @@ export function OrderManager({
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-serif font-bold text-foreground">
-              {activeMenu === 'dashboard' ? 'Dashboard Analitik' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
-            </h1>
+            <div className="flex flex-col">
+              {activeMenu === 'dashboard' && <span className="text-slate-500 text-sm font-medium mb-0.5">{getGreeting()}</span>}
+              <h1 className="text-xl font-serif font-bold text-foreground">
+                {activeMenu === 'dashboard' ? 'Dashboard Analitik' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
+              </h1>
+            </div>
           </div>
           
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold items-center gap-2 border border-primary/20">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span className="relative flex h-2.5 w-2.5 mr-1">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
               System Online
             </div>
           </div>

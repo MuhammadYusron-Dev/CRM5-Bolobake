@@ -53,17 +53,20 @@ export function DashboardAnalytics({
   return (
     <div className="space-y-6 animate-in fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground relative overflow-hidden group border-0 shadow-md">
+        <Card className="bg-primary text-primary-foreground relative overflow-hidden group border-0 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
             <TrendingUp className="w-24 h-24" />
           </div>
-          <CardHeader className="pb-2">
+          <svg className="absolute bottom-0 right-0 w-full h-1/2 opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
+             <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+          </svg>
+          <CardHeader className="pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Total Omset</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
-            <div className="inline-flex items-center gap-1 text-xs font-bold text-[#39FF14] mt-2 drop-shadow-sm">
-              <svg className="w-4 h-4 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/30 text-emerald-800 backdrop-blur-sm border border-white/40 mt-2 shadow-sm">
+              <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 7H7M17 7V17"/>
               </svg>
               <span>+12% dari kemarin</span>
@@ -71,14 +74,17 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm group">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
+          <svg className="absolute bottom-0 right-0 w-full h-1/2 opacity-[0.03] pointer-events-none text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+             <path d="M0,100 C30,60 50,80 70,50 C90,20 100,40 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+          </svg>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground">Jumlah Transaksi</CardTitle>
-            <div className="p-2 bg-amber-100 rounded-lg text-amber-600 group-hover:-translate-y-1 transition-transform">
-              <ShoppingBag className="w-4 h-4" />
+            <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:-translate-y-1 transition-transform shadow-sm">
+              <ShoppingBag className="w-5 h-5" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{dashboard.totalOrders}</div>
             <div className="flex items-center mt-1">
               <span className="relative flex h-2 w-2 mr-2">
@@ -90,11 +96,11 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm group">
+        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Produk</CardTitle>
-            <div className="p-2 bg-secondary rounded-lg text-primary group-hover:rotate-12 transition-transform">
-              <Package className="w-4 h-4" />
+            <div className="p-3 bg-secondary rounded-xl text-primary group-hover:rotate-12 transition-transform shadow-sm">
+              <Package className="w-5 h-5" />
             </div>
           </CardHeader>
           <CardContent>
@@ -107,11 +113,11 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm group">
+        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Customer Aktif</CardTitle>
-            <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:scale-110 transition-transform duration-300">
-              <Users className="w-4 h-4" />
+            <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+              <Users className="w-5 h-5" />
             </div>
           </CardHeader>
           <CardContent>
@@ -151,7 +157,7 @@ export function DashboardAnalytics({
                         </div>
                         <div className={`w-full bg-secondary rounded-full h-2.5 overflow-hidden ${idx === 0 ? 'shimmer-bar' : ''}`}>
                           <div 
-                            className="bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full transition-all duration-1000 ease-out" 
+                            className={`bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full transition-all duration-1000 ease-out ${idx === 0 ? 'progress-striped relative' : ''}`}
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
