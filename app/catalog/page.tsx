@@ -236,10 +236,40 @@ export default function CatalogPage() {
     }
   };
 
-  const toggleCatalogActive = (id: string) => {
+  const toggleCatalogActive = async (id: string) => {
+    const item = catalog.find(c => c.id === id);
+    if (!item) return;
+
+    const newStatus = !item.aktif;
+
+    // Optimistic UI update
     setCatalog(prev =>
-      prev.map(item => (item.id === id ? { ...item, aktif: !item.aktif } : item))
+      prev.map(c => (c.id === id ? { ...c, aktif: newStatus } : c))
     );
+
+    try {
+      const response = await fetch('/api/catalog', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, aktif: newStatus })
+      });
+      
+      if (!response.ok) throw new Error("Gagal update");
+      
+      setToastType("success");
+      setToastMessage(`Status SKU ${id} berhasil diupdate!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      // Revert if failed
+      setCatalog(prev =>
+        prev.map(c => (c.id === id ? { ...c, aktif: !newStatus } : c))
+      );
+      setToastType("error");
+      setToastMessage("Gagal menyinkronkan status dengan server.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
   };
 
   const formatRp = (num: number) =>
