@@ -81,8 +81,11 @@ export function DashboardAnalytics({
 
         <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-[0.03] animate-wave origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C30,60 50,80 70,50 C90,20 100,40 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-[0.05] animate-wave origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-[0.08] animate-wave-reverse origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
             </svg>
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
