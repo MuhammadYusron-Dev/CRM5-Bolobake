@@ -238,7 +238,7 @@ export async function POST(request: Request) {
       await syncCapacity(body.productionDate);
     }
 
-    return NextResponse.json({ success: true, message: 'Order saved to Sheets', id: orderId });
+    return NextResponse.json({ success: true, message: 'Order saved to Sheets', id: body.id || Date.now() });
   } catch (error: any) {
     console.error('Error saving order:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
