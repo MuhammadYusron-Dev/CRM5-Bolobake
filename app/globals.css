@@ -75,6 +75,18 @@ body {
     100% { transform: translateX(100%); }
   }
 
+  /* Animasi Ombak Breathing */
+  @keyframes wave-breathing {
+    0%, 100% { transform: scaleX(1) scaleY(1) translateX(0); }
+    50% { transform: scaleX(1.1) scaleY(1.1) translateX(-2%); }
+  }
+  .animate-wave {
+    animation: wave-breathing 8s ease-in-out infinite;
+  }
+  .animate-wave-reverse {
+    animation: wave-breathing 12s ease-in-out infinite reverse;
+  }
+
   /* Progress Bar Garis Miring Bergerak */
   .progress-striped {
     position: relative;

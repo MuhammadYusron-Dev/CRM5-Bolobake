@@ -57,9 +57,14 @@ export function DashboardAnalytics({
           <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
             <TrendingUp className="w-24 h-24" />
           </div>
-          <svg className="absolute bottom-0 right-0 w-full h-1/2 opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
-             <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
-          </svg>
+          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-20 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+          </div>
           <CardHeader className="pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Total Omset</CardTitle>
           </CardHeader>
@@ -75,9 +80,11 @@ export function DashboardAnalytics({
         </Card>
 
         <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
-          <svg className="absolute bottom-0 right-0 w-full h-1/2 opacity-[0.03] pointer-events-none text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
-             <path d="M0,100 C30,60 50,80 70,50 C90,20 100,40 100,40 L100,100 L0,100 Z" fill="currentColor"/>
-          </svg>
+          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-[0.03] animate-wave origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C30,60 50,80 70,50 C90,20 100,40 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+          </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground">Jumlah Transaksi</CardTitle>
             <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:-translate-y-1 transition-transform shadow-sm">
