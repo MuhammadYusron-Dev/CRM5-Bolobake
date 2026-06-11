@@ -273,8 +273,8 @@ export default function CatalogPage() {
 
       {/* --- HEADER --- */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#e5e0d8] shadow-sm">
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-6">
             <Link
               href="/"
               className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-[#D4A847] transition-colors"
@@ -296,9 +296,9 @@ export default function CatalogPage() {
       </header>
 
       {/* --- MAIN CONTENT --- */}
-      <main className="max-w-7xl mx-auto px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
         {/* Tab Navigation */}
-        <div className="flex bg-gray-100 p-1 rounded-xl w-max mb-8">
+        <div className="flex overflow-x-auto hide-scrollbar bg-gray-100 p-1 rounded-xl w-full sm:w-max mb-6 sm:mb-8">
           <button
             onClick={() => setActiveTab("database")}
             className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "database" ? "bg-white text-[#2C1810] shadow-sm" : "text-gray-500 hover:text-[#2C1810]"}`}
@@ -324,8 +324,8 @@ export default function CatalogPage() {
 
         {/* ========== DATABASE TAB ========== */}
         {activeTab === "database" && (
-          <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
+          <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm overflow-hidden w-full">
+            <div className="p-4 sm:p-6 border-b border-gray-100">
               <h2 className="text-lg font-serif font-bold flex items-center gap-2">
                 <span className="w-1.5 h-6 bg-[#D4A847] rounded-full"></span>
                 Master Katalog Produk
@@ -338,12 +338,12 @@ export default function CatalogPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-400 border-b border-gray-100">
-                    <th className="px-6 py-4 font-semibold">SKU ID</th>
-                    <th className="px-6 py-4 font-semibold">Nama Produk</th>
-                    <th className="px-6 py-4 font-semibold">Kategori</th>
-                    <th className="px-6 py-4 font-semibold text-right">Harga Default</th>
-                    <th className="px-6 py-4 font-semibold text-center">Satuan</th>
-                    <th className="px-6 py-4 font-semibold text-center">Status</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap">SKU ID</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap min-w-[150px]">Nama Produk</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap">Kategori</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-right whitespace-nowrap">Harga Default</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-center whitespace-nowrap">Satuan</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-center whitespace-nowrap">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -352,20 +352,20 @@ export default function CatalogPage() {
                       key={item.id}
                       className="border-b border-gray-50 hover:bg-[#FAF8F5] transition-colors group"
                     >
-                      <td className="px-6 py-4 text-sm font-mono text-gray-400">{item.id}</td>
-                      <td className="px-6 py-4 text-sm font-bold text-[#2C1810]">{item.nama}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-mono text-gray-400 whitespace-nowrap">{item.id}</td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold text-[#2C1810] min-w-[150px]">{item.nama}</td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                         <span className="text-xs font-semibold bg-[#D4A847]/10 text-[#D4A847] px-2.5 py-1 rounded-full">
                           {item.kategori}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-[#2C1810] text-right">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-[#2C1810] text-right whitespace-nowrap">
                         {formatRp(item.harga)}
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-[#2C1810] text-center">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-[#2C1810] text-center whitespace-nowrap">
                         {item.satuan}
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">
                         <button
                           onClick={() => toggleCatalogActive(item.id)}
                           className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${item.aktif ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}
@@ -383,9 +383,9 @@ export default function CatalogPage() {
 
         {/* ========== AI SCANNER TAB ========== */}
         {activeTab === "scanner" && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8 w-full">
             {/* Upload Zone */}
-            <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm p-8">
+            <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm p-4 sm:p-8">
               <h2 className="text-lg font-serif font-bold flex items-center gap-2 mb-2">
                 <span className="w-1.5 h-6 bg-[#D4A847] rounded-full"></span>
                 Auto-Scanner (Catalog Screening)
@@ -398,7 +398,7 @@ export default function CatalogPage() {
                 onDragOver={(e) => { e.preventDefault(); if (!isScanning) setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { if (!isScanning) handleDrop(e); else { e.preventDefault(); } }}
-                className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all ${isScanning ? 'cursor-wait border-[#D4A847] bg-[#D4A847]/5' : 'cursor-pointer'} ${!isScanning && dragOver ? "border-[#D4A847] bg-[#D4A847]/5 scale-[1.01]" : ""} ${!isScanning && !dragOver ? "border-gray-200 hover:border-[#D4A847]/50 hover:bg-gray-50" : ""}`}
+                className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-12 text-center transition-all ${isScanning ? 'cursor-wait border-[#D4A847] bg-[#D4A847]/5' : 'cursor-pointer'} ${!isScanning && dragOver ? "border-[#D4A847] bg-[#D4A847]/5 scale-[1.01]" : ""} ${!isScanning && !dragOver ? "border-gray-200 hover:border-[#D4A847]/50 hover:bg-gray-50" : ""}`}
               >
                 <input
                   type="file"
@@ -471,40 +471,52 @@ export default function CatalogPage() {
                   {scannedItems.map((item) => (
                     <div
                       key={item.id}
-                      className={`flex items-center gap-4 px-6 py-4 transition-all ${item.confirmed ? "bg-green-50/50" : "hover:bg-gray-50"}`}
+                      className={`flex flex-col sm:flex-row sm:items-center gap-4 px-4 sm:px-6 py-4 transition-all ${item.confirmed ? "bg-green-50/50" : "hover:bg-gray-50"}`}
                     >
-                      <button
-                        onClick={() => toggleConfirm(item.id)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${item.confirmed ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-[#D4A847]"}`}
-                      >
-                        {item.confirmed && <CheckCircle2 className="w-4 h-4" />}
-                      </button>
+                      <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto">
+                        <button
+                          onClick={() => toggleConfirm(item.id)}
+                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${item.confirmed ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-[#D4A847]"}`}
+                        >
+                          {item.confirmed && <CheckCircle2 className="w-4 h-4" />}
+                        </button>
+                        <span className="sm:hidden font-bold text-sm text-[#2C1810]">Konfirmasi Item</span>
+                        <button
+                          onClick={() => removeScannedItem(item.id)}
+                          className="sm:hidden text-gray-300 hover:text-red-500 transition-colors p-2"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
 
-                      <div className="flex-1 grid grid-cols-3 gap-4">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full">
                         <input
                           value={item.nama}
                           onChange={(e) => updateScannedItem(item.id, "nama", e.target.value)}
-                          className="p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none font-semibold"
+                          className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none font-semibold"
+                          placeholder="Nama Produk"
                         />
                         <input
                           value={item.kategori}
                           onChange={(e) => updateScannedItem(item.id, "kategori", e.target.value)}
-                          className="p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none"
+                          className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none"
+                          placeholder="Kategori"
                         />
-                        <div className="relative">
+                        <div className="relative w-full">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rp</span>
                           <input
                             type="number"
                             value={item.harga}
                             onChange={(e) => updateScannedItem(item.id, "harga", Number(e.target.value))}
                             className="w-full p-2.5 pl-8 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none"
+                            placeholder="Harga"
                           />
                         </div>
                       </div>
 
                       <button
                         onClick={() => removeScannedItem(item.id)}
-                        className="text-gray-300 hover:text-red-500 transition-colors p-2"
+                        className="hidden sm:block text-gray-300 hover:text-red-500 transition-colors p-2 flex-shrink-0"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -518,8 +530,8 @@ export default function CatalogPage() {
 
         {/* ========== MANUAL ENTRY TAB ========== */}
         {activeTab === "manual" && (
-          <div className="max-w-2xl">
-            <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm p-8">
+          <div className="max-w-2xl w-full">
+            <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm p-4 sm:p-8">
               <h2 className="text-lg font-serif font-bold flex items-center gap-2 mb-2">
                 <span className="w-1.5 h-6 bg-[#D4A847] rounded-full"></span>
                 Input Manual Produk Baru
