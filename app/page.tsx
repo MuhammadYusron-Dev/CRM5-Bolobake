@@ -907,7 +907,7 @@ export default function Home() {
                     </div>
                   ) : (
                     Object.entries(dashboard.variantPerformance)
-                      .sort((a, b) => b[1].qty - a[1].qty)
+                      .sort((a, b) => b[1].omset - a[1].omset)
                       .map(([sku, data]) => {
                         const percentage = dashboard.totalOmset > 0 ? ((data.omset / dashboard.totalOmset) * 100).toFixed(1) : '0';
                         return (
