@@ -62,9 +62,9 @@ export function DashboardAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 mt-2">
-              <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H7M17 7V17"/>
+            <div className="inline-flex items-center gap-1 text-xs font-bold text-[#39FF14] mt-2 drop-shadow-sm">
+              <svg className="w-4 h-4 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 7H7M17 7V17"/>
               </svg>
               <span>+12% dari kemarin</span>
             </div>
