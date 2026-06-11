@@ -62,46 +62,61 @@ export function DashboardAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
-            <p className="text-xs text-primary-foreground/70 mt-1 flex items-center gap-1"><TrendingUp className="w-3 h-3"/> +12% dari kemarin</p>
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 mt-2">
+              <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+              <span>+12% dari kemarin</span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card className="border-border/50 shadow-sm group">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Jumlah Transaksi</CardTitle>
-            <div className="p-2 bg-secondary rounded-lg text-primary">
+            <div className="p-2 bg-amber-100 rounded-lg text-amber-600 group-hover:-translate-y-1 transition-transform">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboard.totalOrders}</div>
-            <p className="text-xs text-muted-foreground mt-1">Order diproses</p>
+            <div className="flex items-center mt-1">
+              <span className="relative flex h-2 w-2 mr-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <p className="text-xs text-muted-foreground">3 pesanan sedang diproduksi</p>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card className="border-border/50 shadow-sm group">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Produk</CardTitle>
-            <div className="p-2 bg-secondary rounded-lg text-primary">
+            <div className="p-2 bg-secondary rounded-lg text-primary group-hover:rotate-12 transition-transform">
               <Package className="w-4 h-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboard.totalPcs}</div>
-            <p className="text-xs text-muted-foreground mt-1">Pcs terjual</p>
+            <p className="text-xs text-muted-foreground mt-1 mb-1">Rasio Savoury vs Pastry</p>
+            <div className="w-full bg-secondary rounded-full h-1 mt-1 flex">
+               <div className="bg-amber-600 h-1 rounded-l-full" style={{ width: '60%' }}></div>
+               <div className="bg-amber-300 h-1 rounded-r-full" style={{ width: '40%' }}></div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card className="border-border/50 shadow-sm group">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Customer Aktif</CardTitle>
-            <div className="p-2 bg-secondary rounded-lg text-primary">
+            <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:scale-110 transition-transform duration-300">
               <Users className="w-4 h-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboard.uniqueCustomers.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Outlet bertransaksi</p>
+            <p className="text-xs text-muted-foreground mt-1">9 outlet baru bulan ini</p>
           </CardContent>
         </Card>
       </div>
@@ -126,7 +141,7 @@ export function DashboardAnalytics({
                 Object.entries(dashboard.variantPerformance)
                   .sort((a, b) => b[1].omset - a[1].omset)
                   .slice(0, 7) // Show top 7 max
-                  .map(([sku, data]) => {
+                  .map(([sku, data], idx) => {
                     const percentage = dashboard.totalOmset > 0 ? ((data.omset / dashboard.totalOmset) * 100).toFixed(1) : '0';
                     return (
                       <div key={sku} className="group">
@@ -134,9 +149,9 @@ export function DashboardAnalytics({
                           <span className="font-semibold">{sku} <span className="text-muted-foreground font-normal ml-1">({data.qty} pcs)</span></span>
                           <span className="font-medium text-primary">{percentage}% <span className="text-muted-foreground text-xs font-normal ml-1">({formatRp(data.omset)})</span></span>
                         </div>
-                        <div className="w-full bg-secondary rounded-full h-2.5 overflow-hidden">
+                        <div className={`w-full bg-secondary rounded-full h-2.5 overflow-hidden ${idx === 0 ? 'shimmer-bar' : ''}`}>
                           <div 
-                            className="bg-primary h-2.5 rounded-full transition-all duration-1000 ease-out" 
+                            className="bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full transition-all duration-1000 ease-out" 
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
@@ -186,11 +201,19 @@ export function DashboardAnalytics({
                     </tr>
                   ) : (
                     filteredLeaderboard.map(([cust, data], idx) => (
-                        <tr key={cust} className="border-b border-secondary last:border-0 hover:bg-muted/50 transition-colors">
+                        <tr key={cust} className="border-b border-secondary last:border-0 hover:bg-slate-50 transition-colors cursor-pointer">
                           <td className="py-3 px-4 text-sm font-semibold">
                             <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-full bg-secondary text-muted-foreground flex items-center justify-center text-xs font-bold shrink-0">
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                idx === 0 ? 'bg-amber-100 text-amber-700 border border-amber-300' :
+                                idx === 1 ? 'bg-slate-100 text-slate-700 border border-slate-300' :
+                                idx === 2 ? 'bg-orange-50 text-orange-700 border border-orange-200' :
+                                'bg-secondary text-muted-foreground'
+                              }`}>
                                 {idx + 1}
+                                {idx === 0 && <span className="ml-0.5 text-[8px]">👑</span>}
+                                {idx === 1 && <span className="ml-0.5 text-[8px]">🥈</span>}
+                                {idx === 2 && <span className="ml-0.5 text-[8px]">🥉</span>}
                               </div>
                               <span className="truncate">{cust}</span>
                             </div>
