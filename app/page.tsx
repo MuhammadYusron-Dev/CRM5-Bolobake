@@ -802,7 +802,7 @@ export default function Home() {
         
         <div className="p-4 sm:p-8 pt-6 flex-1">
           {activeTab === 'dashboard' ? (
-            <div className="animate-in fade-in">
+            <div key="dashboard-view" className="animate-in fade-in">
               {/* Analytics Date Filter */}
               <div className="flex items-center justify-between mb-6 bg-gray-50/80 p-3 rounded-xl border border-gray-100">
                 <div className="flex items-center gap-2 text-sm font-semibold text-[#2C1810]">
@@ -962,7 +962,7 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div key="history-view" className="space-y-4">
               <div className="space-y-4 mb-2">
                 <h3 className="text-lg font-serif flex items-center gap-2">
                   <History className="w-5 h-5 text-[#D4A847]" />
