@@ -24,6 +24,8 @@ export function OrderForm({
   isSubmitting
 }: OrderFormProps) {
   const [customer, setCustomer] = useState('');
+  const [customerInput, setCustomerInput] = useState('');
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
   const [selectedCustomerObj, setSelectedCustomerObj] = useState<Customer | null>(null);
   const [tierPrices, setTierPrices] = useState<Record<string, number>>({});
   
@@ -77,6 +79,7 @@ export function OrderForm({
 
   const handleCustomerChange = (custName: string) => {
     setCustomer(custName);
+    setCustomerInput(custName);
     const custObj = customers.find(c => c.name === custName);
     setSelectedCustomerObj(custObj || null);
     if (custObj && custObj.tier) {
@@ -261,6 +264,7 @@ export function OrderForm({
 
   const resetForm = () => {
     setCustomer('');
+    setCustomerInput('');
     setSelectedCustomerObj(null);
     setTierPrices({});
     setProductionDate('');
@@ -346,22 +350,50 @@ export function OrderForm({
         <form id="orderForm" onSubmit={handleSubmitRequest} className="space-y-6 pb-6">
           <Card>
             <CardContent className="p-6">
-              <div className="mb-4">
+              <div className="mb-4 relative">
                 <label className="flex items-center gap-2 text-sm font-bold mb-3">
                   <Users className="w-4 h-4 text-primary" />
                   Informasi Customer
                 </label>
-                <select
+                <Input
+                  autoComplete="off"
                   required
-                  value={customer}
-                  onChange={(e) => handleCustomerChange(e.target.value)}
-                  className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-background cursor-pointer text-sm font-medium"
-                >
-                  <option value="">Pilih Customer (Tier Auto-Pricing)...</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.name}>{c.name} - {c.tier}</option>
-                  ))}
-                </select>
+                  value={customerInput}
+                  onChange={(e) => {
+                    setCustomerInput(e.target.value);
+                    if (e.target.value !== customer) {
+                       setCustomer('');
+                       setSelectedCustomerObj(null);
+                       setTierPrices({});
+                    }
+                  }}
+                  onFocus={() => setIsCustomerDropdownOpen(true)}
+                  onBlur={() => setTimeout(() => setIsCustomerDropdownOpen(false), 200)}
+                  placeholder="Ketik untuk mencari nama outlet..."
+                  className="w-full p-3 h-auto"
+                />
+                {isCustomerDropdownOpen && (
+                  <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-xl max-h-60 overflow-y-auto">
+                    {(() => {
+                      const suggestions = customers.filter(c => c.name.toLowerCase().includes(customerInput.toLowerCase()));
+                      if (suggestions.length === 0) return <div className="px-3 py-3 text-sm text-center text-muted-foreground">Tidak ada outlet cocok.</div>;
+                      return suggestions.map(c => (
+                        <div
+                          key={c.id}
+                          className="px-3 py-2 hover:bg-primary/10 cursor-pointer flex justify-between items-center border-b border-border/30 last:border-0 transition-colors group"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleCustomerChange(c.name);
+                            setIsCustomerDropdownOpen(false);
+                          }}
+                        >
+                          <span className="font-medium text-sm group-hover:text-primary">{c.name}</span>
+                          <span className="text-xs font-bold text-muted-foreground">{c.tier}</span>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                )}
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
