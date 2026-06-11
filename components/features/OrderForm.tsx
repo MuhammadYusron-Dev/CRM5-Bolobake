@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Users, Calendar, Truck, Package, Trash2, Plus, Edit, X, FileText, TrendingUp, Sparkles, AlertTriangle, Send } from 'lucide-react';
+import { Users, Calendar, Truck, Package, Trash2, Plus, Edit, X, FileText, TrendingUp, Sparkles, AlertTriangle, Send, CheckCircle2 } from 'lucide-react';
 import { Order, OrderItem, Product, Customer } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
