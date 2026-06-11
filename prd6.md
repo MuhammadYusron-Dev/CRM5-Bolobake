@@ -1,140 +1,128 @@
-Spesifikasi Upgrade UI/UX: Dashboard Analitik Bolobake
+Spesifikasi Upgrade UI/UX: Dashboard Analitik Bolobake (v2.0 - Ultimate Aesthetics)
 
-Dokumen ini berisi panduan desain, komponen visual baru, serta kode utilitas animasi (Tailwind CSS) untuk meningkatkan estetika dashboard Bolobake, khususnya pada kartu KPI, daftar produk, dan tabel pelanggan.
+Dokumen ini berisi panduan desain level lanjutan (advanced), komponen visual baru, serta kode utilitas animasi (Tailwind CSS) untuk membuat dashboard Bolobake terasa lebih premium, interaktif, dan tidak membosankan bagi admin.
 
-1. Upgrade Kartu KPI (Key Performance Indicators)
+1. Perbaikan Kontras & Kedalaman Visual (Depth & Shadows)
 
-A. Kartu "Total Omset" (Indikator Tren Dinamis & Animasi)
+Berdasarkan implementasi saat ini, elemen-elemen masih terasa "flat". Kita perlu menambahkan dimensi.
 
-Saat ini, teks "+12% dari kemarin" masih polos. Kita akan mengubahnya menjadi Tren Badge dinamis dengan indikator warna dan animasi mikro.
+A. Perbaikan Badge "Total Omset"
 
-Logika Warna & Ikon:
+Teks hijau (+12% dari kemarin) langsung di atas background emas (gold) memiliki kontras yang rendah dan sulit dibaca.
 
-Jika Tren Positif (Naik): * Background Badge: Hijau lembut (bg-emerald-500/20 atau bg-green-100)
+Solusi: Gunakan efek Glassmorphism (kapsul transparan) untuk badge tersebut.
 
-Teks & Ikon: Hijau emerald (text-emerald-400 jika kartu warna gelap, atau text-emerald-600 jika kartu warna terang)
+Kode Tailwind (Revisi):
 
-Ikon: Panah serong atas-kanan ($\nearrow$ / ArrowUpRight)
-
-Jika Tren Negatif (Turun):
-
-Background Badge: Merah lembut (bg-rose-500/20 atau bg-rose-100)
-
-Teks & Ikon: Merah rose (text-rose-400 atau text-rose-600)
-
-Ikon: Panah serong bawah-kanan ($\searrow$ / ArrowDownRight)
-
-Efek Animasi Mikro (Floating Arrow):
-Buat ikon panah bergerak naik-turun secara halus menggunakan custom keyframe CSS atau Tailwind utility classes.
-
-Tambahkan utility keyframe berikut pada global CSS Anda:
-
-@keyframes floatUp {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-3px) translateX(3px); }
-}
-.animate-float-up {
-  animation: floatUp 2s ease-in-out infinite;
-}
-
-@keyframes floatDown {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(3px) translateX(3px); }
-}
-.animate-float-down {
-  animation: floatDown 2s ease-in-out infinite;
-}
-
-
-Struktur Komponen HTML/React (Tailwind):
-
-<!-- Contoh jika tren POSITIF -->
-<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 mt-2">
+<!-- Pada kartu emas/kuning, gunakan background putih transparan -->
+<div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/30 text-emerald-800 backdrop-blur-sm border border-white/40 mt-2 shadow-sm">
   <svg class="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 17L17 7M17 7H7M17 7V17"/>
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M7 17L17 7M17 7H7M17 7V17"/>
   </svg>
   <span>+12% dari kemarin</span>
 </div>
 
 
-B. Ide Upgrade & Ikon Kreatif untuk Kartu Lainnya
+B. Soft Shadows & Hover Lift pada Kartu KPI
 
-1. Kartu "Jumlah Transaksi"
+Semua kartu putih ("Jumlah Transaksi", "Total Produk", dll) harus memiliki interaksi ketika kursor melewatinya.
 
-Ikon Tambahan: Gunakan ikon tas belanja (Shopping Bag) dengan warna aksen kuning/amber hangat.
+Tambahkan class ini pada container setiap kartu KPI:
+transition-all duration-300 hover:-translate-y-1 hover:shadow-lg shadow-sm border border-slate-100
 
-Efek Hover: Saat kursor diarahkan (hover) ke kartu ini, buat ikon tas belanja melakukan gerakan memantul kecil sekali (single bounce).
+Ini akan membuat kartu seolah-olah "terangkat" saat disorot mouse.
 
-Subteks Dinamis: Di bawah angka "15", tambahkan keterangan kecil:
-• 3 pesanan sedang diproduksi dengan dot hijau berkedip (pulsing green dot).
+2. Penambahan Elemen Visual "Wow Factor"
 
-<span class="relative flex h-2 w-2 mr-1">
+A. Background Sparklines (Grafik Mini)
+
+Dashboard modern tidak membiarkan ruang kosong di dalam kartu KPI.
+
+Instruksi untuk AI Agent: Tambahkan Sparkline (grafik garis mini) yang sangat tipis dan pudar di bagian bawah (background) kartu "Total Omset" atau "Jumlah Transaksi".
+
+Ini bisa menggunakan pustaka ringan seperti Recharts (TinyLineChart) atau sekadar file SVG bergelombang statis dengan opacity 10% di pojok kanan bawah kartu.
+
+B. Animasi "Striped" pada Progress Bar Produk Terlaris
+
+Ubah progress bar polos menjadi progress bar bergaris miring yang bergerak secara konstan (seperti tiang tempat cukur/barbershop, tapi elegan).
+
+Kode Tailwind untuk Elemen Bar:
+
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+  <div class="h-full bg-amber-500 rounded-full progress-striped w-[49.2%] relative"></div>
+</div>
+
+
+C. Efek Pulsing pada Indikator "System Online"
+
+Indikator hijau di pojok kanan atas ("System Online") harus terasa "hidup".
+
+Tambahkan animasi animate-pulse pada lingkaran hijaunya, atau gunakan dot berkedip seperti radar:
+
+<span class="relative flex h-2.5 w-2.5 mr-2">
   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
 </span>
 
 
-2. Kartu "Total Produk"
+3. Personalisasi & Tipografi
 
-Ikon Tambahan: Gunakan ikon Box terbuka atau Croissant mini.
+A. Dynamic Greeting (Sapaan Waktu)
 
-Efek Hover: Buat ikon sedikit berputar (rotate-12) saat di-hover.
+Di atas kata "Dashboard Analitik", tambahkan sapaan yang berubah sesuai jam sistem perangkat admin. Ini memberikan kesan aplikasi yang "pintar".
 
-Informasi Tambahan: Di bawah angka "24.347", tambahkan visualisasi mini bar horizontal tipis yang menunjukkan rasio produk Savoury vs Pastry yang terjual.
+Pagi (05:00 - 11:59): Selamat Pagi, Admin ☀️
 
-3. Kartu "Customer Aktif"
+Siang (12:00 - 14:59): Selamat Siang, Admin 🌤️
 
-Ikon Tambahan: Ikon grup pelanggan (Users) dengan aksen warna biru lembut.
+Sore (15:00 - 18:59): Selamat Sore, Admin 🌅
 
-Efek Hover: Buat ikon membesar sedikit secara halus (transition-transform duration-300 hover:scale-110).
+Malam (19:00 - 04:59): Selamat Malam, Admin 🌙
 
-Informasi Tambahan: Tambahkan teks "9 outlet baru bulan ini" untuk menunjukkan pertumbuhan customer B2B Anda.
+Styling: Gunakan warna teks abu-abu lembut (text-slate-500 text-sm font-medium).
 
-2. Peningkatan Visual pada Area Lainnya
+B. Ikonografi yang Lebih Berani (Bold Icons)
 
-A. Progress Bar pada "Performa Varian Terlaris"
+Gunakan versi dua warna (duotone) atau ikon dengan background lingkaran membulat (rounded square) untuk ikon-ikon di dalam kartu.
 
-Gradasi Warna Progress Bar: Ubah warna progress bar polos menjadi gradasi warna (gradient color) hangat yang menggugah selera (contoh: dari cokelat tua ke emas panggang bg-gradient-to-r from-amber-600 to-amber-400).
+Contoh untuk Ikon Tas Belanja ("Jumlah Transaksi"):
 
-Efek Shimmer (Kilau): Tambahkan efek kilau menyapu pada progress bar teratas (peringkat 1) secara berkala agar terlihat sebagai produk terlaris utama.
+<div class="p-3 bg-amber-50 rounded-xl">
+  <svg class="w-6 h-6 text-amber-600" ... />
+</div>
 
-B. Peringkat Estetik pada "Top Customer"
 
-Saat ini nomor peringkat (1, 2, 3) pada daftar pelanggan terbaik menggunakan angka biasa. Mari kita buat sistem Medal Badge:
+4. Ringkasan Kelas Animasi Tailwind Tambahan (Global CSS)
 
-Peringkat 1: Lingkaran kecil berwarna emas mengkilap (bg-amber-100 text-amber-700 font-bold border border-amber-300) berserta ikon mahkota kecil atau bintang kuning 👑.
-
-Peringkat 2: Lingkaran berwarna perak (bg-slate-100 text-slate-700 border border-slate-300) 🥈.
-
-Peringkat 3: Lingkaran berwarna perunggu (bg-orange-50 text-orange-700 border border-orange-200) 🥉.
-
-Efek Interaktif: Baris pelanggan akan berubah warna latarnya menjadi abu-abu tipis transparan (hover:bg-slate-50 transition-colors cursor-pointer) saat disorot kursor, membuat tabel terasa lebih responsif.
-
-3. Ringkasan Kelas Tailwind Tambahan yang Diperlukan
-
-Berikan kelas-kelas berikut kepada pengembang Anda untuk disalin ke file global CSS/Tailwind configuration:
+Tambahkan atau perbarui CSS Global Anda dengan utilitas berikut agar animasi bergaris dan floating berjalan lancar:
 
 @layer utilities {
-  /* Efek Kilau Shimmer pada Progress Bar */
-  .shimmer-bar {
-    position: relative;
-    overflow: hidden;
+  /* Efek Mengapung */
+  @keyframes floatUp {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-3px) translateX(3px); }
   }
-  .shimmer-bar::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
-    transform: translateX(-100%);
+  .animate-float-up {
+    animation: floatUp 2s ease-in-out infinite;
+  }
+  
+  /* Progress Bar Garis Miring Bergerak */
+  .progress-striped {
     background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.3) 20%,
-      rgba(255, 255, 255, 0.5) 60%,
-      rgba(255, 255, 255, 0) 100%
+      45deg,
+      rgba(255, 255, 255, 0.15) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.15) 75%,
+      transparent 75%,
+      transparent
     );
-    animation: shimmer 2.5s infinite;
+    background-size: 1rem 1rem;
+    animation: progress-stripes 1s linear infinite;
   }
-  @keyframes shimmer {
-    100% { transform: translateX(100%); }
+  @keyframes progress-stripes {
+    from { background-position: 1rem 0; }
+    to { background-position: 0 0; }
   }
 }

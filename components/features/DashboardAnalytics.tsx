@@ -248,17 +248,22 @@ export function DashboardAnalytics({
                     filteredLeaderboard.map(([cust, data], idx) => (
                         <tr key={cust} className="border-b border-secondary last:border-0 hover:bg-slate-50 transition-colors cursor-pointer">
                           <td className="py-3 px-4 text-sm font-semibold">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                                idx === 0 ? 'bg-amber-100 text-amber-700 border border-amber-300' :
-                                idx === 1 ? 'bg-slate-100 text-slate-700 border border-slate-300' :
-                                idx === 2 ? 'bg-orange-50 text-orange-700 border border-orange-200' :
-                                'bg-secondary text-muted-foreground'
+                            <div className="flex items-center gap-4">
+                              <div className={`rounded-full flex items-center justify-center font-extrabold shrink-0 relative transition-all duration-300 ${
+                                idx === 0 ? 'w-11 h-11 text-xl bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-white shadow-[0_0_15px_rgba(251,191,36,0.8)] border border-yellow-200 scale-110 z-10' :
+                                idx === 1 ? 'w-9 h-9 text-base bg-gradient-to-br from-slate-100 via-slate-300 to-slate-400 text-slate-700 shadow-md border border-white z-10' :
+                                idx === 2 ? 'w-7 h-7 text-sm bg-gradient-to-br from-orange-100 via-orange-300 to-orange-400 text-orange-900 shadow-md border border-white z-10' :
+                                'w-6 h-6 text-xs bg-secondary text-muted-foreground'
                               }`}>
-                                {idx + 1}
-                                {idx === 0 && <span className="ml-0.5 text-[8px]">👑</span>}
-                                {idx === 1 && <span className="ml-0.5 text-[8px]">🥈</span>}
-                                {idx === 2 && <span className="ml-0.5 text-[8px]">🥉</span>}
+                                <span className={idx <= 2 ? 'drop-shadow-md' : ''}>{idx + 1}</span>
+                                {idx === 0 && (
+                                  <>
+                                    <span className="absolute -top-3 -right-2 text-lg drop-shadow-md animate-bounce">👑</span>
+                                    <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-yellow-400"></span>
+                                  </>
+                                )}
+                                {idx === 1 && <span className="absolute -top-1.5 -right-1.5 text-xs drop-shadow-sm">🥈</span>}
+                                {idx === 2 && <span className="absolute -top-1 -right-1 text-[10px] drop-shadow-sm">🥉</span>}
                               </div>
                               <span className="truncate">{cust}</span>
                             </div>
