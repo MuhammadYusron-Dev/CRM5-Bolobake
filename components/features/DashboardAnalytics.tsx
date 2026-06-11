@@ -138,14 +138,22 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-[0.04] animate-wave origin-bottom text-blue-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-[0.06] animate-wave-reverse origin-bottom text-blue-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground">Customer Aktif</CardTitle>
             <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300 shadow-sm">
               <Users className="w-5 h-5" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{dashboard.uniqueCustomers.length}</div>
             <p className="text-xs text-muted-foreground mt-1">9 outlet baru bulan ini</p>
           </CardContent>
