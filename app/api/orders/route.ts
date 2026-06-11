@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
-import { syncRekapSheet } from '@/lib/rekap-sync';
+import { syncRekapSheet, syncCapacity } from '@/lib/rekap-sync';
 
 export async function GET() {
   try {
@@ -150,6 +150,11 @@ export async function PUT(request: Request) {
 
     // Sync human-readable Rekap Produksi sheet
     await syncRekapSheet();
+    
+    // Sync Production Capacity sheet
+    if (body.productionDate) {
+      await syncCapacity(body.productionDate);
+    }
 
     return NextResponse.json({ success: true, message: 'Order updated in Sheets' });
   } catch (error: any) {
@@ -228,7 +233,12 @@ export async function POST(request: Request) {
     // Sync human-readable Rekap Produksi sheet
     await syncRekapSheet();
 
-    return NextResponse.json({ success: true, message: 'Order saved to Sheets' });
+    // Sync Production Capacity sheet
+    if (body.productionDate) {
+      await syncCapacity(body.productionDate);
+    }
+
+    return NextResponse.json({ success: true, message: 'Order saved to Sheets', id: orderId });
   } catch (error: any) {
     console.error('Error saving order:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

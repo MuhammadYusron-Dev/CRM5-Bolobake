@@ -328,3 +328,62 @@ export async function syncRekapSheet() {
     return false;
   }
 }
+
+export async function syncCapacity(targetDate: string) {
+  try {
+    if (!SPREADSHEET_ID || !targetDate) return false;
+
+    // 1. Calculate total booked_pcs for this date from Laporan Transaksi Harian
+    const ordersRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Laporan Transaksi Harian!A2:M',
+    });
+    const orderRows = ordersRes.data.values || [];
+    
+    let totalBooked = 0;
+    orderRows.forEach(row => {
+      const status = row[10] || '';
+      if (status.toLowerCase() !== 'cancelled') {
+        const rowDate = row[11] || ''; // Tanggal Produksi
+        if (rowDate === targetDate) {
+          const totalPcs = parseInt(row[5] || '0', 10);
+          totalBooked += isNaN(totalPcs) ? 0 : totalPcs;
+        }
+      }
+    });
+
+    // 2. Update production_capacities
+    const capRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'production_capacities!A2:C',
+    });
+    const capRows = capRes.data.values || [];
+    const rowIndex = capRows.findIndex(row => row[0] === targetDate);
+
+    if (rowIndex !== -1) {
+      // Update existing row (Row 2 is index 0)
+      const sheetRow = rowIndex + 2;
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `production_capacities!C${sheetRow}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [[totalBooked]] }
+      });
+    } else {
+      // Append new row
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'production_capacities!A:C',
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: [[targetDate, 1000, totalBooked]]
+        }
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error syncing capacity:', error);
+    return false;
+  }
+}
