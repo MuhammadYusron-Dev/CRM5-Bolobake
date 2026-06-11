@@ -94,6 +94,34 @@ export default function Home() {
       
     fetchOrders();
   }, []);
+
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+  React.useEffect(() => {
+    const draft = localStorage.getItem('bolobakeOrderDraft');
+    if (draft && !editingOrderId) {
+      try {
+        const parsed = JSON.parse(draft);
+        if (parsed.customer) setCustomer(parsed.customer);
+        if (parsed.productionDate) setProductionDate(parsed.productionDate);
+        if (parsed.deliveryDate) setDeliveryDate(parsed.deliveryDate);
+        if (parsed.items && parsed.items.length > 0) setItems(parsed.items);
+        if (parsed.notes) setNotes(parsed.notes);
+        if (parsed.deliveryOption) setDeliveryOption(parsed.deliveryOption);
+        if (parsed.deliveryRoute) setDeliveryRoute(parsed.deliveryRoute);
+        if (parsed.isFreeShipping !== undefined) setIsFreeShipping(parsed.isFreeShipping);
+        if (parsed.shippingCost) setShippingCost(parsed.shippingCost);
+      } catch (e) {}
+    }
+    setIsDraftLoaded(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (isDraftLoaded && !editingOrderId) {
+      localStorage.setItem('bolobakeOrderDraft', JSON.stringify({
+        customer, productionDate, deliveryDate, items, notes, deliveryOption, deliveryRoute, isFreeShipping, shippingCost
+      }));
+    }
+  }, [customer, productionDate, deliveryDate, items, notes, deliveryOption, deliveryRoute, isFreeShipping, shippingCost, isDraftLoaded, editingOrderId]);
   
   // --- STATE MODUL ANALITIK (PANEL KANAN) DIKALKULASI OTOMATIS ---
   const dashboard = useMemo(() => {
@@ -269,6 +297,7 @@ export default function Home() {
   };
 
   const handleCancelEdit = () => {
+    localStorage.removeItem('bolobakeOrderDraft');
     setCustomer('');
     setProductionDate('');
     setDeliveryDate('');
@@ -369,6 +398,7 @@ export default function Home() {
         fetchOrders();
 
         // Reset Form setelah sukses
+        localStorage.removeItem('bolobakeOrderDraft');
         handleCancelEdit();
         
         setIsSubmitting(false);
@@ -555,6 +585,10 @@ export default function Home() {
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
+                            const suggestions = katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()));
+                            if (activeDropdownId === item.id && suggestions.length > 0) {
+                              handleItemChange(item.id, 'sku', suggestions[0].nama);
+                            }
                             const next = document.getElementById(`qtyInput-${item.id}`);
                             if (next) next.focus();
                             setActiveDropdownId(null);
@@ -570,7 +604,7 @@ export default function Home() {
                             .map(p => (
                               <div
                                 key={p.id}
-                                className="px-3 py-2 text-sm hover:bg-[#D4A847]/10 cursor-pointer flex justify-between items-center border-b border-gray-50 last:border-0"
+                                className="px-3 py-2 hover:bg-[#D4A847]/10 cursor-pointer flex justify-between items-center border-b border-gray-50 last:border-0 transition-colors group"
                                 onMouseDown={(e) => {
                                   e.preventDefault();
                                   handleItemChange(item.id, 'sku', p.nama);
@@ -579,8 +613,11 @@ export default function Home() {
                                   if (next) next.focus();
                                 }}
                               >
-                                <span className="font-medium text-[#2C1810]">{p.nama}</span>
-                                <span className="text-xs font-bold text-[#D4A847]">{formatRp(p.harga)}</span>
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-sm text-[#2C1810] group-hover:text-[#D4A847]">{p.nama}</span>
+                                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">{p.kategori}</span>
+                                </div>
+                                <span className="text-xs font-bold text-[#D4A847]">{formatRp(p.harga)}/{p.satuan || 'pcs'}</span>
                               </div>
                             ))}
                           {katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase())).length === 0 && (
@@ -599,6 +636,22 @@ export default function Home() {
                         required
                         value={item.qty}
                         onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const isLast = items.indexOf(item) === items.length - 1;
+                            if (isLast) {
+                               const newItemId = Date.now();
+                               setItems(prev => [...prev, { id: newItemId, sku: '', price: 0, qty: 1 }]);
+                               setTimeout(() => {
+                                 document.getElementById(`skuInput-${newItemId}`)?.focus();
+                               }, 50);
+                            } else {
+                               const nextItem = items[items.indexOf(item) + 1];
+                               document.getElementById(`skuInput-${nextItem.id}`)?.focus();
+                            }
+                          }
+                        }}
                         className="w-full p-2.5 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-[#D4A847] outline-none text-center"
                       />
                       </div>
