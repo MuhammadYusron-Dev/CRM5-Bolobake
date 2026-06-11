@@ -29,3 +29,11 @@ export interface Product {
   satuan: string;
   aktif: boolean;
 }
+
+export interface Customer {
+  id: string;
+  name: string;
+  tier: string;
+  whatsapp: string;
+  address: string;
+}

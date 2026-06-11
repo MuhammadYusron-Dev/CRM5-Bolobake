@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { ChefHat, CheckCircle2, ScanLine, Menu } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
-import { Order, Product } from '@/lib/types';
+import { Order, Product, Customer } from '@/lib/types';
 import { OrderForm } from './OrderForm';
 import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
@@ -11,12 +11,15 @@ import { Sidebar } from '@/components/layout/Sidebar';
 
 export function OrderManager({ 
   initialOrders, 
-  initialCatalog 
+  initialCatalog,
+  initialCustomers = []
 }: { 
   initialOrders: Order[], 
-  initialCatalog: Product[] 
+  initialCatalog: Product[],
+  initialCustomers?: Customer[]
 }) {
   const [katalog] = useState<Product[]>(initialCatalog);
+  const [customers] = useState<Customer[]>(initialCustomers);
   const [orderHistory, setOrderHistory] = useState<Order[]>(initialOrders);
   
   const [activeMenu, setActiveMenu] = useState('new_order');
@@ -25,11 +28,13 @@ export function OrderManager({
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastOptions, setToastOptions] = useState<{show: boolean; message: string; isUndoable?: boolean; onUndo?: () => void}>({show: false, message: ''});
   
   const [filterStartDate, setFilterStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [filterEndDate, setFilterEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+
+  const undoTimeoutsRef = useRef<Record<number, NodeJS.Timeout>>({});
+  const backupOrdersRef = useRef<Record<number, Order>>({});
 
   const dashboard = useMemo(() => {
     let totalOmset = 0;
@@ -53,30 +58,16 @@ export function OrderManager({
     const filteredOrders = orderHistory.filter(order => {
       let orderDate = order.productionDate;
       if (!orderDate) {
-        try {
-          orderDate = new Date(order.timestamp).toISOString().split('T')[0];
-        } catch (e) {
-          orderDate = '2026-01-01';
-        }
+        try { orderDate = new Date(order.timestamp).toISOString().split('T')[0]; } catch (e) { orderDate = '2026-01-01'; }
       }
       
       const orderTime = getTimestamp(orderDate);
-      
-      if (filterStartDate) {
-        const startTime = new Date(filterStartDate).getTime();
-        if (orderTime < startTime) return false;
-      }
-      
-      if (filterEndDate) {
-        const endTime = new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1;
-        if (orderTime > endTime) return false;
-      }
-      
+      if (filterStartDate && orderTime < new Date(filterStartDate).getTime()) return false;
+      if (filterEndDate && orderTime > new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1) return false;
       return true;
     });
 
     totalOrders = filteredOrders.length;
-
     filteredOrders.forEach(order => {
       totalOmset += order.grandTotal;
       totalPcs += order.totalPcs;
@@ -93,48 +84,91 @@ export function OrderManager({
       customerLeaderboard[order.customer].totalBelanja += order.grandTotal;
     });
 
-    return {
-      totalOmset,
-      totalOrders,
-      totalPcs,
-      uniqueCustomers: Array.from(uniqueCustomers),
-      variantPerformance,
-      customerLeaderboard
-    };
+    return { totalOmset, totalOrders, totalPcs, uniqueCustomers: Array.from(uniqueCustomers), variantPerformance, customerLeaderboard };
   }, [orderHistory, filterStartDate, filterEndDate]);
 
-  const handleSaveOrder = async (order: Order) => {
-    setIsSubmitting(true);
+  const showToast = (message: string, isUndoable = false, onUndo?: () => void) => {
+    setToastOptions({ show: true, message, isUndoable, onUndo });
+    if (!isUndoable) {
+      setTimeout(() => setToastOptions(prev => ({...prev, show: false})), 3000);
+    }
+  };
+
+  const persistOrderToDb = async (order: Order, isEdit: boolean) => {
     try {
       const response = await fetch('/api/orders', {
-        method: editingOrder ? 'PUT' : 'POST',
+        method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
       });
-      
       if (!response.ok) throw new Error('Failed to save to Sheets');
-
-      setToastMessage(editingOrder ? 'Pesanan berhasil diperbarui (Sync to Sheets)!' : 'Pesanan berhasil dikirim ke Dapur & Sheet!');
       
-      // Re-fetch data
-      const resOrders = await fetch('/api/orders');
-      const data = await resOrders.json();
-      if (data.success) {
-        setOrderHistory(data.data);
-      }
+      // Log Action
+      fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: 'ADMIN', user_name: 'Admin', action_type: isEdit ? 'EDIT_ORDER' : 'CREATE_ORDER', details: JSON.stringify(order) })
+      }).catch(e => console.error("Failed to log:", e));
 
-      setEditingOrder(null);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-      
-      // Auto redirect to history after save new order? (Optional)
-      // if (!editingOrder) setActiveMenu('history');
     } catch (err) {
       console.error(err);
       alert('Gagal menyimpan ke Google Sheets. Periksa koneksi internet Anda.');
-    } finally {
-      setIsSubmitting(false);
     }
+  };
+
+  const handleSaveOrder = async (order: Order) => {
+    setIsSubmitting(true);
+    
+    const isEdit = !!editingOrder;
+    
+    // Optimistic Update
+    const prevHistory = [...orderHistory];
+    if (isEdit) {
+      backupOrdersRef.current[order.id] = orderHistory.find(o => o.id === order.id)!;
+      setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
+    } else {
+      setOrderHistory(prev => [order, ...prev]);
+    }
+
+    setEditingOrder(null);
+    setIsSubmitting(false);
+
+    // Undo Logic
+    const undoAction = () => {
+      if (undoTimeoutsRef.current[order.id]) {
+        clearTimeout(undoTimeoutsRef.current[order.id]);
+        delete undoTimeoutsRef.current[order.id];
+      }
+      setOrderHistory(prevHistory);
+      setToastOptions({ show: false, message: '' });
+      fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: 'ADMIN', user_name: 'Admin', action_type: 'UNDO_ACTION', details: 'Undo order save' })
+      }).catch(e => {});
+    };
+
+    showToast('Pesanan ditambahkan ke antrean pengiriman. Menunggu 10 detik...', true, undoAction);
+
+    // Set Timeout 10s to persist
+    undoTimeoutsRef.current[order.id] = setTimeout(() => {
+      persistOrderToDb(order, isEdit);
+      setToastOptions({ show: false, message: '' });
+      delete undoTimeoutsRef.current[order.id];
+      showToast(isEdit ? 'Pesanan berhasil diperbarui di server!' : 'Pesanan berhasil dikirim ke Dapur & Sheet!');
+    }, 10000);
+  };
+
+  const handleReorder = (order: Order) => {
+    const duplicatedOrder = {
+      ...order,
+      id: Date.now(),
+      productionDate: '', // Clear date
+      deliveryDate: '', // Clear date
+      rowNumber: undefined,
+    };
+    setEditingOrder(duplicatedOrder);
+    setActiveMenu('new_order');
   };
 
   const renderContent = () => {
@@ -174,8 +208,9 @@ export function OrderManager({
               editingOrderId={editingOrder?.id || null}
               handleEditOrder={(order) => {
                 setEditingOrder(order);
-                setActiveMenu('new_order'); // Redirect to form when editing
+                setActiveMenu('new_order');
               }}
+              handleReorder={handleReorder}
               filterStartDate={filterStartDate}
               setFilterStartDate={setFilterStartDate}
               filterEndDate={filterEndDate}
@@ -188,26 +223,18 @@ export function OrderManager({
         return (
           <div className="max-w-5xl mx-auto">
             <OrderForm 
-              katalog={katalog} 
+              katalog={katalog}
+              customers={customers}
               orderToEdit={editingOrder} 
               onSave={handleSaveOrder} 
               onCancelEdit={() => {
                 setEditingOrder(null);
-                setActiveMenu('history'); // Back to history if cancelled
+                setActiveMenu('history');
               }} 
               isSubmitting={isSubmitting} 
             />
           </div>
         );
-    }
-  };
-
-  const getPageTitle = () => {
-    switch (activeMenu) {
-      case 'dashboard': return 'Dashboard Analitik';
-      case 'history': return 'Riwayat Pesanan';
-      case 'new_order': return editingOrder ? 'Edit Pesanan' : 'Buat Pesanan Baru';
-      default: return 'Bolobake B2B';
     }
   };
 
@@ -220,10 +247,16 @@ export function OrderManager({
         setIsMobileOpen={setIsMobileMenuOpen}
       />
 
-      <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[60] transition-all duration-500 transform ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0 pointer-events-none'}`}>
-        <div className="bg-foreground text-background px-6 py-3 rounded-full shadow-xl flex items-center gap-3">
+      <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] transition-all duration-500 transform ${toastOptions.show ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}>
+        <div className="bg-foreground text-background px-6 py-3 rounded-full shadow-2xl flex items-center gap-4">
           <CheckCircle2 className="w-5 h-5 text-primary" />
-          <span className="font-medium text-sm">{toastMessage}</span>
+          <span className="font-medium text-sm">{toastOptions.message}</span>
+          {toastOptions.isUndoable && (
+            <button onClick={toastOptions.onUndo} className="flex items-center gap-1 text-xs font-bold text-black bg-primary px-3 py-1.5 rounded-full hover:bg-primary/90 transition-colors ml-2">
+              <RotateCcw className="w-3.5 h-3.5" />
+              BATALKAN (UNDO)
+            </button>
+          )}
         </div>
       </div>
 
@@ -236,7 +269,9 @@ export function OrderManager({
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-serif font-bold text-foreground">{getPageTitle()}</h1>
+            <h1 className="text-xl font-serif font-bold text-foreground">
+              {activeMenu === 'dashboard' ? 'Dashboard Analitik' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
+            </h1>
           </div>
           
           <div className="flex items-center gap-3">

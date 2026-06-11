@@ -11,6 +11,7 @@ export default async function Home() {
 
   let initialOrders = [];
   let initialCatalog = [];
+  let initialCustomers = [];
 
   try {
     const resOrders = await fetch(`${baseUrl}/api/orders`, { cache: 'no-store' });
@@ -28,5 +29,13 @@ export default async function Home() {
     console.error("Failed to fetch initial catalog:", e);
   }
 
-  return <OrderManager initialOrders={initialOrders} initialCatalog={initialCatalog} />;
+  try {
+    const resCust = await fetch(`${baseUrl}/api/customers`, { cache: 'no-store' });
+    const custData = await resCust.json();
+    if (custData.success) initialCustomers = custData.data;
+  } catch (e) {
+    console.error("Failed to fetch initial customers:", e);
+  }
+
+  return <OrderManager initialOrders={initialOrders} initialCatalog={initialCatalog} initialCustomers={initialCustomers} />;
 }

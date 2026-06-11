@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Users, Calendar, Truck, Package, Trash2, Plus, Edit, X, FileText, TrendingUp } from 'lucide-react';
-import { Order, OrderItem, Product } from '@/lib/types';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Users, Calendar, Truck, Package, Trash2, Plus, Edit, X, FileText, TrendingUp, Sparkles, AlertTriangle, Send } from 'lucide-react';
+import { Order, OrderItem, Product, Customer } from '@/lib/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 interface OrderFormProps {
   katalog: Product[];
+  customers: Customer[];
   orderToEdit: Order | null;
   onSave: (order: Order) => Promise<void>;
   onCancelEdit: () => void;
@@ -16,13 +17,19 @@ interface OrderFormProps {
 
 export function OrderForm({
   katalog,
+  customers,
   orderToEdit,
   onSave,
   onCancelEdit,
   isSubmitting
 }: OrderFormProps) {
   const [customer, setCustomer] = useState('');
+  const [selectedCustomerObj, setSelectedCustomerObj] = useState<Customer | null>(null);
+  const [tierPrices, setTierPrices] = useState<Record<string, number>>({});
+  
   const [productionDate, setProductionDate] = useState('');
+  const [capacityWarning, setCapacityWarning] = useState('');
+  
   const [deliveryDate, setDeliveryDate] = useState('');
   const [items, setItems] = useState<OrderItem[]>([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
   const [isFreeShipping, setIsFreeShipping] = useState(true);
@@ -33,41 +40,104 @@ export function OrderForm({
   const [activeDropdownId, setActiveDropdownId] = useState<number | null>(null);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [lastSavedOrder, setLastSavedOrder] = useState<Order | null>(null);
+
+  const [aiText, setAiText] = useState('');
+  const [isParsingAi, setIsParsingAi] = useState(false);
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
-  
-  useEffect(() => {
-    const draft = localStorage.getItem('bolobakeOrderDraft');
-    if (draft && !orderToEdit) {
-      try {
-        const parsed = JSON.parse(draft);
-        if (parsed.customer) setCustomer(parsed.customer);
-        if (parsed.productionDate) setProductionDate(parsed.productionDate);
-        if (parsed.deliveryDate) setDeliveryDate(parsed.deliveryDate);
-        if (parsed.items && parsed.items.length > 0) setItems(parsed.items);
-        if (parsed.notes) setNotes(parsed.notes);
-        if (parsed.deliveryOption) setDeliveryOption(parsed.deliveryOption);
-        if (parsed.deliveryRoute) setDeliveryRoute(parsed.deliveryRoute);
-        if (parsed.isFreeShipping !== undefined) setIsFreeShipping(parsed.isFreeShipping);
-        if (parsed.shippingCost) setShippingCost(parsed.shippingCost);
-      } catch (e) {}
+  const fetchTierPrices = async (tier: string) => {
+    try {
+      const res = await fetch(`/api/pricing?tier_id=${tier}`);
+      const data = await res.json();
+      if (data.success) {
+        const prices: Record<string, number> = {};
+        data.data.forEach((p: any) => { prices[p.sku] = p.price; });
+        setTierPrices(prices);
+      }
+    } catch (e) {
+      console.error(e);
     }
-    setIsDraftLoaded(true);
-  }, []); // Run once on mount
+  };
 
-  useEffect(() => {
-    if (isDraftLoaded && !orderToEdit) {
-      localStorage.setItem('bolobakeOrderDraft', JSON.stringify({
-        customer, productionDate, deliveryDate, items, notes, deliveryOption, deliveryRoute, isFreeShipping, shippingCost
-      }));
+  const handleCustomerChange = (custName: string) => {
+    setCustomer(custName);
+    const custObj = customers.find(c => c.name === custName);
+    setSelectedCustomerObj(custObj || null);
+    if (custObj && custObj.tier) {
+      fetchTierPrices(custObj.tier);
+    } else {
+      setTierPrices({});
     }
-  }, [customer, productionDate, deliveryDate, items, notes, deliveryOption, deliveryRoute, isFreeShipping, shippingCost, isDraftLoaded, orderToEdit]);
+  };
+
+  const checkCapacity = async (date: string, pcs: number) => {
+    if (!date) {
+      setCapacityWarning('');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/capacity?date=${date}`);
+      const data = await res.json();
+      if (data.success) {
+        const { max_capacity_pcs, booked_pcs } = data.data;
+        if (booked_pcs + pcs > max_capacity_pcs) {
+          const available = max_capacity_pcs - booked_pcs;
+          setCapacityWarning(`Peringatan: Kapasitas produksi tanggal ${date} tersisa ${available < 0 ? 0 : available} pcs. Total pesanan ini adalah ${pcs} pcs! Harap konfirmasi ke Dapur.`);
+        } else {
+          setCapacityWarning('');
+        }
+      }
+    } catch(e) {
+      setCapacityWarning('');
+    }
+  };
+
+  const handleParseAi = async () => {
+    if (!aiText.trim()) return;
+    setIsParsingAi(true);
+    try {
+      const res = await fetch('/api/parse-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_text: aiText })
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        const parsed = data.data;
+        if (parsed.customer_name) handleCustomerChange(parsed.customer_name);
+        if (parsed.delivery_date) {
+           setDeliveryDate(parsed.delivery_date);
+           setProductionDate(parsed.delivery_date); // Default logic
+        }
+        if (parsed.items && Array.isArray(parsed.items)) {
+          const newItems = parsed.items.map((i: any, idx: number) => {
+            const matchedProduct = katalog.find(p => p.nama.toLowerCase().includes(i.detected_sku.toLowerCase()));
+            const finalSku = matchedProduct ? matchedProduct.nama : i.detected_sku;
+            let price = matchedProduct ? matchedProduct.harga : 0;
+            // Apply tier price if customer is selected
+            if (tierPrices[finalSku]) price = tierPrices[finalSku];
+            
+            return { id: Date.now() + idx, sku: finalSku, price, qty: Number(i.qty) || 1 };
+          });
+          if (newItems.length > 0) setItems(newItems);
+        }
+        setAiText('');
+      } else {
+        alert("Gagal mem-parsing teks. Coba gunakan deskripsi yang lebih jelas.");
+      }
+    } catch(e) {
+      alert("Error menghubungi AI Parser.");
+    } finally {
+      setIsParsingAi(false);
+    }
+  };
 
   useEffect(() => {
     if (orderToEdit) {
-      setCustomer(orderToEdit.customer);
+      handleCustomerChange(orderToEdit.customer);
       setProductionDate(orderToEdit.productionDate || '');
       setDeliveryDate(orderToEdit.deliveryDate || '');
       setItems(orderToEdit.items);
@@ -87,23 +157,33 @@ export function OrderForm({
       }
       setNotes(orderNotes);
     } else {
-      if (isDraftLoaded && !localStorage.getItem('bolobakeOrderDraft')) {
-        setCustomer('');
-        setProductionDate('');
-        setDeliveryDate('');
-        setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
-        setNotes('');
-        setDeliveryOption('');
-        setDeliveryRoute('');
-        setIsFreeShipping(true);
-        setShippingCost('');
-      }
+      setCustomer('');
+      setSelectedCustomerObj(null);
+      setTierPrices({});
+      setProductionDate('');
+      setDeliveryDate('');
+      setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
+      setNotes('');
+      setDeliveryOption('');
+      setDeliveryRoute('');
+      setIsFreeShipping(true);
+      setShippingCost('');
+      setCapacityWarning('');
     }
-  }, [orderToEdit, isDraftLoaded]);
+  }, [orderToEdit]);
 
-  const handleAddItem = () => {
-    setItems([...items, { id: Date.now(), sku: '', price: 0, qty: 1 }]);
-  };
+  const totalPcsOrder = items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+
+  useEffect(() => {
+    if (productionDate && totalPcsOrder > 0) {
+      checkCapacity(productionDate, totalPcsOrder);
+    } else {
+      setCapacityWarning('');
+    }
+  }, [productionDate, totalPcsOrder]);
+
+
+  const handleAddItem = () => setItems([...items, { id: Date.now(), sku: '', price: 0, qty: 1 }]);
 
   const handleItemChange = (id: number, field: string, value: string) => {
     const updatedItems = items.map(item => {
@@ -111,7 +191,10 @@ export function OrderForm({
         const updated = { ...item, [field]: value };
         if (field === 'sku') {
           const foundProduct = katalog.find(p => p.nama.toLowerCase() === value.toLowerCase());
-          if (foundProduct) updated.price = foundProduct.harga;
+          if (foundProduct) {
+             const basePrice = foundProduct.harga;
+             updated.price = tierPrices[foundProduct.nama] || basePrice;
+          }
         }
         return updated;
       }
@@ -121,15 +204,12 @@ export function OrderForm({
   };
 
   const handleRemoveItem = (id: number) => {
-    if (items.length > 1) {
-      setItems(items.filter(item => item.id !== id));
-    }
+    if (items.length > 1) setItems(items.filter(item => item.id !== id));
   };
 
   const subtotal = items.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
   const finalShipping = isFreeShipping ? 0 : Number(shippingCost) || 0;
   const grandTotal = subtotal + finalShipping;
-  const totalPcsOrder = items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
   const handleSubmitRequest = (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,8 +242,15 @@ export function OrderForm({
     };
 
     onSave(newOrder).then(() => {
-        localStorage.removeItem('bolobakeOrderDraft');
+      setLastSavedOrder(newOrder);
+      if (!orderToEdit) {
+        setShowSuccessModal(true);
+      }
+      // Reset form
+      if (!orderToEdit) {
         setCustomer('');
+        setSelectedCustomerObj(null);
+        setTierPrices({});
         setProductionDate('');
         setDeliveryDate('');
         setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
@@ -172,7 +259,35 @@ export function OrderForm({
         setDeliveryRoute('');
         setIsFreeShipping(true);
         setShippingCost('');
+        setCapacityWarning('');
+      }
     });
+  };
+
+  const handleWAShare = () => {
+    if (!lastSavedOrder || !selectedCustomerObj || !selectedCustomerObj.whatsapp) {
+       alert("Data customer atau nomor WA tidak tersedia.");
+       return;
+    }
+    
+    let msg = `*BOLOBAKE ORDER CONFIRMATION* 🥖\n\n`;
+    msg += `Pelanggan: ${lastSavedOrder.customer}\n`;
+    msg += `Tgl Pengiriman: ${lastSavedOrder.deliveryDate}\n`;
+    msg += `Ekspedisi: ${deliveryOption || '-'}\n\n`;
+    msg += `*Detail Pesanan:*\n`;
+    lastSavedOrder.items.forEach(i => {
+       msg += `- ${i.qty}x ${i.sku} (@${formatRp(i.price)}) = ${formatRp(i.qty * i.price)}\n`;
+    });
+    msg += `\nSubtotal: ${formatRp(lastSavedOrder.subtotal)}\n`;
+    msg += `Ongkir: ${formatRp(lastSavedOrder.shippingCost)}\n`;
+    msg += `*Total Pembayaran: ${formatRp(lastSavedOrder.grandTotal)}*\n\n`;
+    msg += `Catatan Dapur: ${notes || '-'}\n\n`;
+    msg += `_Pesanan telah dicatat di sistem dan masuk antrean produksi. Terima kasih!_`;
+
+    const encoded = encodeURIComponent(msg);
+    const waUrl = `https://api.whatsapp.com/send?phone=${selectedCustomerObj.whatsapp}&text=${encoded}`;
+    window.open(waUrl, '_blank');
+    setShowSuccessModal(false);
   };
 
   return (
@@ -183,8 +298,8 @@ export function OrderForm({
             <div className="flex items-center gap-2">
               <Edit className="w-5 h-5 text-blue-600" />
               <div>
-                <p className="text-sm font-bold">Mode Edit Pesanan Aktif</p>
-                <p className="text-xs text-blue-600">Perubahan akan memperbarui data di Google Sheets otomatis.</p>
+                <p className="text-sm font-bold">Mode Edit/Reorder Pesanan Aktif</p>
+                <p className="text-xs text-blue-600">Perhatikan Tanggal Produksi dan Pengiriman.</p>
               </div>
             </div>
             <button type="button" onClick={onCancelEdit} className="p-2 hover:bg-blue-100 rounded-full transition-colors">
@@ -192,6 +307,31 @@ export function OrderForm({
             </button>
           </div>
         )}
+
+        <Card className="mb-6 border-primary/20 bg-primary/5 shadow-sm overflow-visible">
+          <CardContent className="p-4 sm:p-6">
+            <label className="flex items-center gap-2 text-sm font-bold mb-3 text-primary">
+              <Sparkles className="w-4 h-4" />
+              Smart Text Parser AI (Gemini)
+            </label>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <textarea 
+                value={aiText}
+                onChange={e => setAiText(e.target.value)}
+                placeholder="Paste chat WA pembeli di sini. Contoh: 'Pesan moci tiramisu 10 sama croissant butter 5 dikirim besok ya kak'"
+                className="flex-1 p-3 text-sm border border-primary/30 rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background shadow-inner h-20"
+              />
+              <Button 
+                type="button" 
+                onClick={handleParseAi} 
+                disabled={isParsingAi || !aiText.trim()}
+                className="h-20 sm:w-32 font-bold shadow-md"
+              >
+                {isParsingAi ? <LoaderSpin /> : 'Proses Pesanan AI'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <form id="orderForm" onSubmit={handleSubmitRequest} className="space-y-6 pb-6">
           <Card>
@@ -201,42 +341,37 @@ export function OrderForm({
                   <Users className="w-4 h-4 text-primary" />
                   Informasi Customer
                 </label>
-                <Input 
-                  id="customerInput"
+                <select
                   required
                   value={customer}
-                  onChange={(e) => setCustomer(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const next = document.getElementById('productionDateInput');
-                      if (next) { next.focus(); try { (next as any).showPicker(); } catch(e){} }
-                    }
-                  }}
-                  placeholder="Cari atau masukkan nama outlet..."
-                />
+                  onChange={(e) => handleCustomerChange(e.target.value)}
+                  className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-background cursor-pointer text-sm font-medium"
+                >
+                  <option value="">Pilih Customer (Tier Auto-Pricing)...</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.name}>{c.name} - {c.tier}</option>
+                  ))}
+                </select>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
                 <div>
                   <label className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                     <Calendar className="w-3.5 h-3.5" />
                     Tgl Produksi
                   </label>
                   <Input 
-                    id="productionDateInput"
                     type="date"
                     required
                     value={productionDate}
                     onChange={(e) => setProductionDate(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const next = document.getElementById('deliveryDateInput');
-                        if (next) { next.focus(); try { (next as any).showPicker(); } catch(e){} }
-                      }
-                    }}
                   />
+                  {capacityWarning && (
+                    <div className="absolute z-10 left-0 right-0 mt-2 bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs p-2 rounded-lg flex items-start gap-2 shadow-sm animate-in fade-in slide-in-from-top-2">
+                       <AlertTriangle className="w-4 h-4 shrink-0 text-yellow-600 mt-0.5" />
+                       <span className="font-medium">{capacityWarning}</span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
@@ -244,18 +379,10 @@ export function OrderForm({
                     Tgl Pengiriman
                   </label>
                   <Input 
-                    id="deliveryDateInput"
                     type="date"
                     required
                     value={deliveryDate}
                     onChange={(e) => setDeliveryDate(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const next = document.getElementById(`skuInput-${items[0].id}`);
-                        if (next) next.focus();
-                      }
-                    }}
                   />
                 </div>
               </div>
@@ -267,18 +394,19 @@ export function OrderForm({
               <div className="flex justify-between items-center mb-4 border-b border-border pb-3">
                 <label className="flex items-center gap-2 text-sm font-bold">
                   <Package className="w-4 h-4 text-primary" />
-                  Detail Pesanan (Katalog Pintar)
+                  Detail Pesanan
                 </label>
-                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">{katalog.length > 0 ? katalog.length : 0} SKU</span>
+                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">{katalog.length} SKU Aktif</span>
               </div>
               
               <div className="space-y-3">
-                {items.map((item) => (
+                {items.map((item) => {
+                  const isTierPrice = !!tierPrices[item.sku];
+                  return (
                   <div key={item.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end group relative bg-muted/30 p-3 sm:p-2 rounded-lg border border-transparent hover:border-border transition-all">
                     <div className="w-full sm:flex-1 relative">
                       <label className="block text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Produk (SKU)</label>
                       <Input
-                        id={`skuInput-${item.id}`}
                         autoComplete="off"
                         required
                         value={item.sku}
@@ -288,27 +416,13 @@ export function OrderForm({
                         }}
                         onFocus={() => setActiveDropdownId(item.id)}
                         onBlur={() => setTimeout(() => setActiveDropdownId(null), 200)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            const suggestions = katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()));
-                            if (activeDropdownId === item.id && suggestions.length > 0) {
-                              handleItemChange(item.id, 'sku', suggestions[0].nama);
-                            }
-                            const next = document.getElementById(`qtyInput-${item.id}`);
-                            if (next) next.focus();
-                            setActiveDropdownId(null);
-                          }
-                        }}
                         placeholder="Ketik kata kunci..."
                       />
                       {activeDropdownId === item.id && (
                         <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-xl max-h-60 overflow-y-auto">
                           {(() => {
                             const suggestions = katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()));
-                            if (suggestions.length === 0) {
-                              return <div className="px-3 py-3 text-sm text-center text-muted-foreground">Tidak ada produk cocok.</div>;
-                            }
+                            if (suggestions.length === 0) return <div className="px-3 py-3 text-sm text-center text-muted-foreground">Tidak ada produk cocok.</div>;
                             
                             const grouped = suggestions.reduce((acc, p) => {
                               const cat = p.kategori || 'Lainnya';
@@ -328,14 +442,12 @@ export function OrderForm({
                                       e.preventDefault();
                                       handleItemChange(item.id, 'sku', p.nama);
                                       setActiveDropdownId(null);
-                                      const next = document.getElementById(`qtyInput-${item.id}`);
-                                      if (next) next.focus();
                                     }}
                                   >
                                     <div className="flex flex-col">
                                       <span className="font-medium text-sm group-hover:text-primary">{p.nama}</span>
                                     </div>
-                                    <span className="text-xs font-bold text-primary">{formatRp(p.harga)}/{p.satuan || 'pcs'}</span>
+                                    <span className="text-xs font-bold text-primary">{formatRp(tierPrices[p.nama] || p.harga)}/{p.satuan || 'pcs'}</span>
                                   </div>
                                 ))}
                               </div>
@@ -348,58 +460,32 @@ export function OrderForm({
                       <div className="flex-1 sm:w-20">
                         <label className="block text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Qty</label>
                         <Input
-                          id={`qtyInput-${item.id}`}
-                          type="number"
-                          min="1"
-                          required
+                          type="number" min="1" required
                           value={item.qty}
                           onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              const next = document.getElementById(`priceInput-${item.id}`);
-                              if (next) next.focus();
-                            }
-                          }}
                           className="text-center"
                         />
                       </div>
-                      <div className="flex-[2]">
-                        <label className="block text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Harga Satuan</label>
+                      <div className="flex-[2] relative group/price">
+                        <label className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">
+                          Harga Satuan
+                          {isTierPrice && <span className="bg-primary text-primary-foreground text-[8px] px-1 rounded">TIER</span>}
+                        </label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
                           <Input
-                            id={`priceInput-${item.id}`}
-                            type="number"
-                            min="0"
-                            required
+                            type="number" min="0" required
                             value={item.price}
                             onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const isLast = items.indexOf(item) === items.length - 1;
-                                if (isLast) {
-                                   const newItemId = Date.now();
-                                   setItems(prev => [...prev, { id: newItemId, sku: '', price: 0, qty: 1 }]);
-                                   setTimeout(() => {
-                                     document.getElementById(`skuInput-${newItemId}`)?.focus();
-                                   }, 50);
-                                } else {
-                                   const nextItem = items[items.indexOf(item) + 1];
-                                   document.getElementById(`skuInput-${nextItem.id}`)?.focus();
-                                }
-                              }
-                            }}
-                            className="pl-8"
+                            disabled={isTierPrice}
+                            className={`pl-8 ${isTierPrice ? 'bg-muted cursor-not-allowed border-primary/30' : ''}`}
+                            title={isTierPrice ? "Harga dikunci sesuai Tier Customer" : ""}
                           />
                         </div>
                       </div>
                       
                       <Button 
-                        type="button" 
-                        variant="ghost"
-                        size="icon"
+                        type="button" variant="ghost" size="icon"
                         onClick={() => handleRemoveItem(item.id)} 
                         disabled={items.length === 1}
                         className={`mb-0.5 hover:bg-destructive/10 hover:text-destructive ${items.length === 1 ? 'opacity-50' : 'text-destructive/70'}`}
@@ -408,12 +494,11 @@ export function OrderForm({
                       </Button>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
               
               <Button 
-                type="button" 
-                variant="ghost"
+                type="button" variant="ghost"
                 onClick={handleAddItem}
                 className="mt-4 text-primary hover:text-primary hover:bg-primary/10 px-3 py-2 text-sm"
               >
@@ -482,9 +567,7 @@ export function OrderForm({
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
                         <Input 
-                          type="number" 
-                          min="0"
-                          placeholder="Nominal ongkir"
+                          type="number" min="0" placeholder="Nominal ongkir"
                           value={shippingCost} 
                           onChange={(e) => setShippingCost(e.target.value)}
                           className="pl-8"
@@ -511,7 +594,6 @@ export function OrderForm({
               />
             </CardContent>
           </Card>
-          
           <div className="h-10"></div>
         </form>
       </div>
@@ -536,26 +618,18 @@ export function OrderForm({
             <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
               {orderToEdit && (
                 <Button 
-                  type="button" 
-                  variant="secondary"
-                  onClick={onCancelEdit}
-                  disabled={isSubmitting}
+                  type="button" variant="secondary" onClick={onCancelEdit} disabled={isSubmitting}
                   className="bg-gray-700 hover:bg-gray-600 text-white font-bold h-12 flex-1 sm:flex-none"
                 >
                   Batal
                 </Button>
               )}
               <Button 
-                form="orderForm"
-                type="submit" 
-                disabled={isSubmitting}
+                form="orderForm" type="submit" disabled={isSubmitting}
                 className={`font-bold h-12 flex-1 sm:flex-none ${orderToEdit ? 'bg-blue-600 hover:bg-blue-500 text-white' : ''}`}
               >
                 {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Menyimpan...
-                  </span>
+                  <span className="flex items-center gap-2"><LoaderSpin /> Menyimpan...</span>
                 ) : (
                   <>
                     {orderToEdit ? 'Update' : <span className="hidden sm:inline">Kirim ke Dapur & Sheet</span>} 
@@ -572,20 +646,13 @@ export function OrderForm({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="text-xl">Konfirmasi Pesanan</DialogTitle>
-            <DialogDescription>
-              Pastikan detail pesanan sudah sesuai sebelum mengirim ke dapur.
-            </DialogDescription>
+            <DialogDescription>Pastikan detail pesanan sudah sesuai sebelum mengirim ke dapur.</DialogDescription>
           </DialogHeader>
           
           <div className="my-4 space-y-4">
             <div className="bg-muted p-4 rounded-lg">
               <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer / Outlet</p>
               <p className="font-semibold text-lg">{customer}</p>
-              {deliveryOption && (
-                <p className="text-sm mt-1 flex items-center gap-2 text-muted-foreground">
-                  <Truck className="w-4 h-4" /> {deliveryOption} {deliveryRoute ? `- ${deliveryRoute}` : ''}
-                </p>
-              )}
             </div>
 
             <div>
@@ -604,14 +671,6 @@ export function OrderForm({
             </div>
 
             <div className="border-t border-border pt-4">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-muted-foreground">Subtotal Produk ({totalPcsOrder} pcs)</span>
-                <span>{formatRp(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-muted-foreground">Ongkos Kirim</span>
-                <span>{formatRp(finalShipping)}</span>
-              </div>
               <div className="flex justify-between font-bold text-xl text-primary mt-2">
                 <span>Grand Total</span>
                 <span>{formatRp(grandTotal)}</span>
@@ -621,12 +680,36 @@ export function OrderForm({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfirmModal(false)}>Batal</Button>
-            <Button onClick={confirmSubmit} className="font-bold">
-              Kirim Pesanan Sekarang
-            </Button>
+            <Button onClick={confirmSubmit} className="font-bold">Kirim Sekarang</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-[400px] text-center border-green-500/20">
+          <div className="py-6 flex flex-col items-center">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <DialogTitle className="text-xl mb-2 text-foreground">Pesanan Berhasil Dicatat!</DialogTitle>
+            <DialogDescription className="mb-6">
+              Sistem akan memprosesnya dalam 10 detik. Anda dapat membagikan resi ini ke pelanggan sekarang.
+            </DialogDescription>
+            <div className="flex flex-col w-full gap-3">
+              <Button onClick={handleWAShare} className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold h-12 flex items-center gap-2">
+                <Send className="w-5 h-5" /> Kirim Konfirmasi WA
+              </Button>
+              <Button variant="outline" onClick={() => setShowSuccessModal(false)} className="w-full">
+                Tutup
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
+
+const LoaderSpin = () => (
+  <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+);

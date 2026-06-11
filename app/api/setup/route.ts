@@ -3,7 +3,6 @@ import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
 
 export async function GET() {
   try {
-    // Check existing sheets
     const response = await sheets.spreadsheets.get({
       spreadsheetId: SPREADSHEET_ID,
     });
@@ -11,96 +10,124 @@ export async function GET() {
     const existingSheets = response.data.sheets?.map((s) => s.properties?.title) || [];
     
     const requests: any[] = [];
+    const sheetsToCreate = [
+      { title: 'Laporan Transaksi Harian', cols: 10 },
+      { title: 'Master Katalog', cols: 5 },
+      { title: 'customer_tiers', cols: 3 },
+      { title: 'customers', cols: 6 },
+      { title: 'tier_prices', cols: 4 },
+      { title: 'production_capacities', cols: 3 },
+      { title: 'audit_logs', cols: 6 },
+    ];
 
-    // Create Laporan Transaksi Harian if not exists
-    if (!existingSheets.includes('Laporan Transaksi Harian')) {
-      requests.push({
-        addSheet: {
-          properties: {
-            title: 'Laporan Transaksi Harian',
-            gridProperties: { rowCount: 1000, columnCount: 10 }
+    sheetsToCreate.forEach(sheetDef => {
+      if (!existingSheets.includes(sheetDef.title)) {
+        requests.push({
+          addSheet: {
+            properties: {
+              title: sheetDef.title,
+              gridProperties: { rowCount: 1000, columnCount: sheetDef.cols }
+            }
           }
-        }
-      });
-    }
-
-    // Create Master Katalog if not exists
-    if (!existingSheets.includes('Master Katalog')) {
-      requests.push({
-        addSheet: {
-          properties: {
-            title: 'Master Katalog',
-            gridProperties: { rowCount: 500, columnCount: 5 }
-          }
-        }
-      });
-    }
+        });
+      }
+    });
 
     if (requests.length > 0) {
       await sheets.spreadsheets.batchUpdate({
         spreadsheetId: SPREADSHEET_ID,
-        requestBody: {
-          requests,
-        },
+        requestBody: { requests },
       });
     }
 
-    // Now, let's set the headers if they are empty
-    // For Laporan Transaksi Harian
-    const laporanResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A1:I1',
-    });
-
-    if (!laporanResponse.data.values || laporanResponse.data.values.length === 0) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
+    // Now set headers and default data
+    const headerUpdates = [
+      {
         range: 'Laporan Transaksi Harian!A1:I1',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            ['Timestamp', 'Customer', 'Rincian Produksi', 'Total Pcs', 'Subtotal', 'Ongkos Kirim', 'Grand Total', 'Catatan Produksi', 'Status']
-          ],
-        },
-      });
-    }
-
-    // For Master Katalog
-    const katalogResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Master Katalog!A1:E1',
-    });
-
-    if (!katalogResponse.data.values || katalogResponse.data.values.length === 0) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SPREADSHEET_ID,
+        values: [['Timestamp', 'Customer', 'Rincian Produksi', 'Total Pcs', 'Subtotal', 'Ongkos Kirim', 'Grand Total', 'Catatan Produksi', 'Status']]
+      },
+      {
         range: 'Master Katalog!A1:E1',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            ['SKU ID', 'Nama Produk', 'Kategori', 'Harga Default', 'Status Aktif']
-          ],
-        },
-      });
-      
-      // Seed some initial data so the dashboard doesn't break
-      await sheets.spreadsheets.values.update({
+        values: [['SKU ID', 'Nama Produk', 'Kategori', 'Harga Default', 'Status Aktif']]
+      },
+      {
+        range: 'customer_tiers!A1:C1',
+        values: [['tier_id', 'tier_name', 'default_discount_pct']]
+      },
+      {
+        range: 'customers!A1:F1',
+        values: [['customer_id', 'customer_name', 'tier_id', 'whatsapp_number', 'shipping_address', 'created_at']]
+      },
+      {
+        range: 'tier_prices!A1:D1',
+        values: [['price_id', 'tier_id', 'sku_code', 'custom_price']]
+      },
+      {
+        range: 'production_capacities!A1:C1',
+        values: [['date', 'max_capacity_pcs', 'booked_pcs']]
+      },
+      {
+        range: 'audit_logs!A1:F1',
+        values: [['log_id', 'timestamp', 'user_id', 'user_name', 'action_type', 'details']]
+      }
+    ];
+
+    for (const update of headerUpdates) {
+      const getRes = await sheets.spreadsheets.values.get({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'Master Katalog!A2:E9',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [
-            ['SKU-001', 'Classic Bagel', 'Bread', '15000', 'TRUE'],
-            ['SKU-002', 'Sourdough Loaf', 'Bread', '45000', 'TRUE'],
-            ['SKU-003', 'Butter Croissant', 'Pastry', '20000', 'TRUE'],
-            ['SKU-004', 'Cinnamon Roll', 'Pastry', '22000', 'TRUE'],
-            ['SKU-005', 'Baguette Traditional', 'Bread', '25000', 'TRUE'],
-            ['SKU-006', 'Pain au Chocolat', 'Pastry', '24000', 'TRUE'],
-            ['SKU-007', 'Focaccia Rosemary', 'Bread', '35000', 'TRUE'],
-            ['SKU-008', 'Brioche Bun (Pack of 6)', 'Bread', '40000', 'TRUE'],
-          ],
-        },
+        range: update.range,
       });
+
+      if (!getRes.data.values || getRes.data.values.length === 0) {
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: update.range,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: update.values },
+        });
+
+        // Seed initial data for new tables
+        if (update.range.includes('customer_tiers!')) {
+          await sheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'customer_tiers!A2:C4',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+              values: [
+                ['TIER_A', 'Distributor Utama', '10'],
+                ['TIER_B', 'Reseller Kafe', '5'],
+                ['RETAIL', 'Retail Walk-in', '0']
+              ]
+            }
+          });
+        }
+        if (update.range.includes('customers!')) {
+          await sheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'customers!A2:F3',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+              values: [
+                ['CUST_001', 'Loom Coffee', 'TIER_B', '6281234567890', 'Solo', new Date().toISOString()],
+                ['CUST_002', 'Budi Umum', 'RETAIL', '6280987654321', 'Boyolali', new Date().toISOString()]
+              ]
+            }
+          });
+        }
+        if (update.range.includes('tier_prices!')) {
+          await sheets.spreadsheets.values.update({
+            spreadsheetId: SPREADSHEET_ID,
+            range: 'tier_prices!A2:D3',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+              values: [
+                ['PRICE_001', 'TIER_B', 'Butter Croissant', '18000'],
+                ['PRICE_002', 'TIER_A', 'Butter Croissant', '16000']
+              ]
+            }
+          });
+        }
+      }
     }
 
     return NextResponse.json({ success: true, message: 'Spreadsheet setup complete!' });

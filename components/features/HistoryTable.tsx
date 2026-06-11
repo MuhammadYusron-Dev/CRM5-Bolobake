@@ -13,6 +13,7 @@ interface HistoryTableProps {
   setFilterStartDate: (date: string) => void;
   filterEndDate: string;
   setFilterEndDate: (date: string) => void;
+  handleReorder?: (order: Order) => void;
 }
 
 export function HistoryTable({
@@ -22,7 +23,8 @@ export function HistoryTable({
   filterStartDate,
   setFilterStartDate,
   filterEndDate,
-  setFilterEndDate
+  setFilterEndDate,
+  handleReorder
 }: HistoryTableProps) {
   const [searchHistoryInput, setSearchHistoryInput] = useState('');
   const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
@@ -178,14 +180,26 @@ export function HistoryTable({
                         </div>
                       )}
                     </div>
-                    <Button 
-                      variant={editingOrderId === order.id ? "secondary" : "outline"}
-                      size="sm"
-                      onClick={() => handleEditOrder(order)}
-                      className="h-8 text-xs font-bold gap-1.5"
-                    >
-                      {editingOrderId === order.id ? 'Sedang Diedit' : <><Edit className="w-3.5 h-3.5" /> Edit</>}
-                    </Button>
+                    <div className="flex gap-2">
+                      {handleReorder && (
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReorder(order)}
+                          className="h-8 text-xs font-bold gap-1.5"
+                        >
+                          <History className="w-3.5 h-3.5" /> Ulangi
+                        </Button>
+                      )}
+                      <Button 
+                        variant={editingOrderId === order.id ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() => handleEditOrder(order)}
+                        className="h-8 text-xs font-bold gap-1.5"
+                      >
+                        {editingOrderId === order.id ? 'Sedang Diedit' : <><Edit className="w-3.5 h-3.5" /> Edit</>}
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="bg-muted p-3 rounded-lg text-sm space-y-1 mb-3 border border-border">
