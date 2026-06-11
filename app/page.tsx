@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, ShoppingBag, TrendingUp, Users, Package, ChefHat, CheckCircle2, Truck, FileText, History, Edit, X, Clock, ScanLine, Calendar, Filter } from 'lucide-react';
+import { Plus, Trash2, ShoppingBag, TrendingUp, Users, Package, ChefHat, CheckCircle2, Truck, FileText, History, Edit, X, Clock, ScanLine, Calendar, Filter, Search } from 'lucide-react';
 import Link from 'next/link';
 
 // --- MOCK DATA KATALOG (Representasi 110+ SKU) ---
@@ -54,6 +54,8 @@ export default function Home() {
   // Analytics Filters
   const [filterStartDate, setFilterStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [filterEndDate, setFilterEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
+  const [highlightedOutlet, setHighlightedOutlet] = useState('');
   
   // Fetch Katalog & Orders
   const fetchOrders = () => {
@@ -184,9 +186,13 @@ export default function Home() {
         if (orderTime > endTime) return false;
       }
       
+      if (searchHistoryQuery && !order.customer.toLowerCase().includes(searchHistoryQuery.toLowerCase())) {
+        return false;
+      }
+
       return true;
     });
-  }, [orderHistory, filterStartDate, filterEndDate]);
+  }, [orderHistory, filterStartDate, filterEndDate, searchHistoryQuery]);
 
   // --- HANDLER MULTI-ITEM PICKER ---
   const handleAddItem = () => {
@@ -998,6 +1004,35 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
+
+                {/* Search Filter */}
+                <div className="flex items-center bg-white p-2 rounded-xl border border-gray-100 shadow-sm focus-within:border-[#D4A847]/50 focus-within:ring-2 focus-within:ring-[#D4A847]/20 transition-all">
+                  <div className="pl-3 pr-2 text-gray-400">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchHistoryQuery}
+                    onChange={(e) => {
+                      setSearchHistoryQuery(e.target.value);
+                      if (highlightedOutlet) setHighlightedOutlet('');
+                    }}
+                    placeholder="Cari nama outlet..."
+                    className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400 font-medium"
+                  />
+                  {searchHistoryQuery && (
+                    <button 
+                      onClick={() => {
+                        setHighlightedOutlet(searchHistoryQuery);
+                        setSearchHistoryQuery('');
+                      }}
+                      className="px-3 py-1.5 text-gray-500 hover:text-[#D4A847] bg-gray-50 hover:bg-[#D4A847]/10 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1.5 border border-gray-200 hover:border-[#D4A847]/30"
+                    >
+                      Tampilkan Semua
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {filteredHistory.length === 0 ? (
@@ -1013,8 +1048,10 @@ export default function Home() {
                     if (dateA !== dateB) return dateB.localeCompare(dateA);
                     return b.id - a.id;
                   })
-                  .map(order => (
-                  <div key={order.id} className={`p-5 rounded-2xl border transition-all ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 shadow-md transform scale-[1.02]' : 'border-gray-200 bg-white hover:border-[#D4A847]/50 hover:shadow-md'}`}>
+                  .map(order => {
+                    const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
+                    return (
+                  <div key={order.id} className={`p-5 rounded-2xl border transition-all duration-300 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryQuery ? 'border-[#D4A847] bg-[#D4A847]/5 shadow-md shadow-[#D4A847]/20 ring-2 ring-[#D4A847]/40 scale-[1.01] z-10 relative' : 'border-gray-200 bg-white hover:border-[#D4A847]/50 hover:shadow-md'}`}>
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -1061,7 +1098,8 @@ export default function Home() {
                       <span className="text-[#D4A847] text-lg">{formatRp(order.grandTotal)}</span>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
