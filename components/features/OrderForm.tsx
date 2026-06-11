@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Users, Calendar, Truck, Package, Trash2, Plus, Edit, X, FileText, TrendingUp } from 'lucide-react';
 import { Order, OrderItem, Product } from '@/lib/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 
 interface OrderFormProps {
   katalog: Product[];
@@ -30,6 +31,8 @@ export function OrderForm({
   const [deliveryOption, setDeliveryOption] = useState('');
   const [deliveryRoute, setDeliveryRoute] = useState('');
   const [activeDropdownId, setActiveDropdownId] = useState<number | null>(null);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
@@ -84,7 +87,6 @@ export function OrderForm({
       }
       setNotes(orderNotes);
     } else {
-      // Clear if not editing and draft was cleared (e.g. after submit)
       if (isDraftLoaded && !localStorage.getItem('bolobakeOrderDraft')) {
         setCustomer('');
         setProductionDate('');
@@ -129,13 +131,17 @@ export function OrderForm({
   const grandTotal = subtotal + finalShipping;
   const totalPcsOrder = items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitRequest = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customer.trim() || items.length === 0 || items.some(i => !i.sku.trim())) {
       alert('Mohon lengkapi nama customer dan detail produk.');
       return;
     }
+    setShowConfirmModal(true);
+  };
 
+  const confirmSubmit = () => {
+    setShowConfirmModal(false);
     const deliveryString = deliveryOption ? `[Delivery: ${deliveryOption}${deliveryRoute ? ` - ${deliveryRoute}` : ''}]` : '';
     const finalNotes = deliveryString ? `${deliveryString}\n${notes}` : notes;
 
@@ -187,7 +193,7 @@ export function OrderForm({
           </div>
         )}
 
-        <form id="orderForm" onSubmit={handleSubmit} className="space-y-6 pb-6">
+        <form id="orderForm" onSubmit={handleSubmitRequest} className="space-y-6 pb-6">
           <Card>
             <CardContent className="p-6">
               <div className="mb-4">
@@ -298,30 +304,43 @@ export function OrderForm({
                       />
                       {activeDropdownId === item.id && (
                         <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-xl max-h-60 overflow-y-auto">
-                          {katalog
-                            .filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()))
-                            .map(p => (
-                              <div
-                                key={p.id}
-                                className="px-3 py-2 hover:bg-primary/10 cursor-pointer flex justify-between items-center border-b border-border last:border-0 transition-colors group"
-                                onMouseDown={(e) => {
-                                  e.preventDefault();
-                                  handleItemChange(item.id, 'sku', p.nama);
-                                  setActiveDropdownId(null);
-                                  const next = document.getElementById(`qtyInput-${item.id}`);
-                                  if (next) next.focus();
-                                }}
-                              >
-                                <div className="flex flex-col">
-                                  <span className="font-medium text-sm group-hover:text-primary">{p.nama}</span>
-                                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{p.kategori}</span>
-                                </div>
-                                <span className="text-xs font-bold text-primary">{formatRp(p.harga)}/{p.satuan || 'pcs'}</span>
+                          {(() => {
+                            const suggestions = katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()));
+                            if (suggestions.length === 0) {
+                              return <div className="px-3 py-3 text-sm text-center text-muted-foreground">Tidak ada produk cocok.</div>;
+                            }
+                            
+                            const grouped = suggestions.reduce((acc, p) => {
+                              const cat = p.kategori || 'Lainnya';
+                              if (!acc[cat]) acc[cat] = [];
+                              acc[cat].push(p);
+                              return acc;
+                            }, {} as Record<string, Product[]>);
+
+                            return Object.entries(grouped).map(([category, prods]) => (
+                              <div key={category}>
+                                <div className="px-3 py-1 bg-muted/50 text-[10px] font-bold text-muted-foreground uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-y border-border/50">{category}</div>
+                                {prods.map(p => (
+                                  <div
+                                    key={p.id}
+                                    className="px-3 py-2 hover:bg-primary/10 cursor-pointer flex justify-between items-center border-b border-border/30 last:border-0 transition-colors group"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      handleItemChange(item.id, 'sku', p.nama);
+                                      setActiveDropdownId(null);
+                                      const next = document.getElementById(`qtyInput-${item.id}`);
+                                      if (next) next.focus();
+                                    }}
+                                  >
+                                    <div className="flex flex-col">
+                                      <span className="font-medium text-sm group-hover:text-primary">{p.nama}</span>
+                                    </div>
+                                    <span className="text-xs font-bold text-primary">{formatRp(p.harga)}/{p.satuan || 'pcs'}</span>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          {katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase())).length === 0 && (
-                            <div className="px-3 py-3 text-sm text-center text-muted-foreground">Tidak ada produk cocok.</div>
-                          )}
+                            ));
+                          })()}
                         </div>
                       )}
                     </div>
@@ -338,17 +357,8 @@ export function OrderForm({
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault();
-                              const isLast = items.indexOf(item) === items.length - 1;
-                              if (isLast) {
-                                 const newItemId = Date.now();
-                                 setItems(prev => [...prev, { id: newItemId, sku: '', price: 0, qty: 1 }]);
-                                 setTimeout(() => {
-                                   document.getElementById(`skuInput-${newItemId}`)?.focus();
-                                 }, 50);
-                              } else {
-                                 const nextItem = items[items.indexOf(item) + 1];
-                                 document.getElementById(`skuInput-${nextItem.id}`)?.focus();
-                              }
+                              const next = document.getElementById(`priceInput-${item.id}`);
+                              if (next) next.focus();
                             }
                           }}
                           className="text-center"
@@ -359,11 +369,28 @@ export function OrderForm({
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
                           <Input
+                            id={`priceInput-${item.id}`}
                             type="number"
                             min="0"
                             required
                             value={item.price}
                             onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const isLast = items.indexOf(item) === items.length - 1;
+                                if (isLast) {
+                                   const newItemId = Date.now();
+                                   setItems(prev => [...prev, { id: newItemId, sku: '', price: 0, qty: 1 }]);
+                                   setTimeout(() => {
+                                     document.getElementById(`skuInput-${newItemId}`)?.focus();
+                                   }, 50);
+                                } else {
+                                   const nextItem = items[items.indexOf(item) + 1];
+                                   document.getElementById(`skuInput-${nextItem.id}`)?.focus();
+                                }
+                              }
+                            }}
                             className="pl-8"
                           />
                         </div>
@@ -540,6 +567,66 @@ export function OrderForm({
             </div>
           </div>
       </div>
+
+      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Konfirmasi Pesanan</DialogTitle>
+            <DialogDescription>
+              Pastikan detail pesanan sudah sesuai sebelum mengirim ke dapur.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="my-4 space-y-4">
+            <div className="bg-muted p-4 rounded-lg">
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer / Outlet</p>
+              <p className="font-semibold text-lg">{customer}</p>
+              {deliveryOption && (
+                <p className="text-sm mt-1 flex items-center gap-2 text-muted-foreground">
+                  <Truck className="w-4 h-4" /> {deliveryOption} {deliveryRoute ? `- ${deliveryRoute}` : ''}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Rincian Produk</p>
+              <div className="max-h-48 overflow-y-auto space-y-2 border border-border rounded-lg p-2">
+                {items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center text-sm p-2 hover:bg-muted/50 rounded-md">
+                    <div className="flex flex-col">
+                      <span className="font-medium">{item.sku}</span>
+                      <span className="text-xs text-muted-foreground">{formatRp(Number(item.price))}</span>
+                    </div>
+                    <span className="font-bold bg-secondary px-2 py-1 rounded text-xs">{item.qty} pcs</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-muted-foreground">Subtotal Produk ({totalPcsOrder} pcs)</span>
+                <span>{formatRp(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-muted-foreground">Ongkos Kirim</span>
+                <span>{formatRp(finalShipping)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-xl text-primary mt-2">
+                <span>Grand Total</span>
+                <span>{formatRp(grandTotal)}</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>Batal</Button>
+            <Button onClick={confirmSubmit} className="font-bold">
+              Kirim Pesanan Sekarang
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
