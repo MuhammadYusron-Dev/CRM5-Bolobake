@@ -245,23 +245,26 @@ export function OrderForm({
       setLastSavedOrder(newOrder);
       if (!orderToEdit) {
         setShowSuccessModal(true);
-      }
-      // Reset form
-      if (!orderToEdit) {
-        setCustomer('');
-        setSelectedCustomerObj(null);
-        setTierPrices({});
-        setProductionDate('');
-        setDeliveryDate('');
-        setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
-        setNotes('');
-        setDeliveryOption('');
-        setDeliveryRoute('');
-        setIsFreeShipping(true);
-        setShippingCost('');
-        setCapacityWarning('');
+      } else {
+        // Only reset immediately if it's an edit and no success modal is shown
+        resetForm();
       }
     });
+  };
+
+  const resetForm = () => {
+    setCustomer('');
+    setSelectedCustomerObj(null);
+    setTierPrices({});
+    setProductionDate('');
+    setDeliveryDate('');
+    setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
+    setNotes('');
+    setDeliveryOption('');
+    setDeliveryRoute('');
+    setIsFreeShipping(true);
+    setShippingCost('');
+    setCapacityWarning('');
   };
 
   const handleWAShare = () => {
@@ -685,7 +688,10 @@ export function OrderForm({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+      <Dialog open={showSuccessModal} onOpenChange={(open) => {
+        setShowSuccessModal(open);
+        if (!open) resetForm();
+      }}>
         <DialogContent className="sm:max-w-[400px] text-center border-green-500/20">
           <div className="py-6 flex flex-col items-center">
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
@@ -699,7 +705,10 @@ export function OrderForm({
               <Button onClick={handleWAShare} className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold h-12 flex items-center gap-2">
                 <Send className="w-5 h-5" /> Kirim Konfirmasi WA
               </Button>
-              <Button variant="outline" onClick={() => setShowSuccessModal(false)} className="w-full">
+              <Button variant="outline" onClick={() => {
+                setShowSuccessModal(false);
+                resetForm();
+              }} className="w-full">
                 Tutup
               </Button>
             </div>
