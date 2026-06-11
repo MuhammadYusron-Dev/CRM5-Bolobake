@@ -89,16 +89,41 @@ export default function Home() {
     const variantPerformance: Record<string, { qty: number; omset: number }> = {};
     const customerLeaderboard: Record<string, { freq: number; totalBelanja: number }> = {};
 
-    const filteredOrders = orderHistory.filter(order => {
-      let parsedDate = '';
-      try {
-        parsedDate = new Date(order.timestamp).toISOString().split('T')[0];
-      } catch (e) {
-        parsedDate = '2026-01-01';
+    // Helper to safely parse mixed date formats (YYYY-MM-DD or DD/MM/YYYY)
+    const getTimestamp = (dateStr: string) => {
+      if (!dateStr) return 0;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(dateStr).getTime();
+      const parts = dateStr.split(/[\/\-]/);
+      if (parts.length === 3 && parts[2].length === 4) {
+        return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`).getTime();
       }
-      const orderDate = order.productionDate || parsedDate;
-      if (filterStartDate && orderDate < filterStartDate) return false;
-      if (filterEndDate && orderDate > filterEndDate) return false;
+      const ts = new Date(dateStr).getTime();
+      return isNaN(ts) ? 0 : ts;
+    };
+
+    const filteredOrders = orderHistory.filter(order => {
+      let orderDate = order.productionDate;
+      if (!orderDate) {
+        try {
+          orderDate = new Date(order.timestamp).toISOString().split('T')[0];
+        } catch (e) {
+          orderDate = '2026-01-01';
+        }
+      }
+      
+      const orderTime = getTimestamp(orderDate);
+      
+      if (filterStartDate) {
+        const startTime = new Date(filterStartDate).getTime();
+        if (orderTime < startTime) return false;
+      }
+      
+      if (filterEndDate) {
+        // Tambahkan 24 jam untuk mencakup seluruh hari pada tanggal akhir
+        const endTime = new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1;
+        if (orderTime > endTime) return false;
+      }
+      
       return true;
     });
 
@@ -132,11 +157,33 @@ export default function Home() {
 
   // Filtered history for Riwayat tab (shares the same date filter as Dashboard)
   const filteredHistory = useMemo(() => {
+    const getTimestamp = (dateStr: string) => {
+      if (!dateStr) return 0;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(dateStr).getTime();
+      const parts = dateStr.split(/[\/\-]/);
+      if (parts.length === 3 && parts[2].length === 4) {
+        return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`).getTime();
+      }
+      const ts = new Date(dateStr).getTime();
+      return isNaN(ts) ? 0 : ts;
+    };
+
     return orderHistory.filter(order => {
       const orderDate = order.productionDate || '';
       if (!orderDate) return true;
-      if (filterStartDate && orderDate < filterStartDate) return false;
-      if (filterEndDate && orderDate > filterEndDate) return false;
+      
+      const orderTime = getTimestamp(orderDate);
+      
+      if (filterStartDate) {
+        const startTime = new Date(filterStartDate).getTime();
+        if (orderTime < startTime) return false;
+      }
+      
+      if (filterEndDate) {
+        const endTime = new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1;
+        if (orderTime > endTime) return false;
+      }
+      
       return true;
     });
   }, [orderHistory, filterStartDate, filterEndDate]);

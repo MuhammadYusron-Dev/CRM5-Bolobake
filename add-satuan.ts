@@ -26,10 +26,11 @@ async function updateKatalogSatuan() {
 
     const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Master Katalog');
-    
+
     if (sheet?.properties?.sheetId !== undefined) {
       // First, check if column F exists, if not, append 1 column
-      if ((sheet.properties.gridProperties?.columnCount || 0) < 6) {
+      const columnCount = sheet.properties?.gridProperties?.columnCount ?? 0;
+      if (columnCount < 6) {
         await sheets.spreadsheets.batchUpdate({
           spreadsheetId: SPREADSHEET_ID,
           requestBody: {
@@ -38,7 +39,7 @@ async function updateKatalogSatuan() {
                 appendDimension: {
                   sheetId: sheet.properties.sheetId,
                   dimension: 'COLUMNS',
-                  length: 6 - sheet.properties.gridProperties.columnCount
+                  length: 6 - columnCount
                 }
               }
             ]

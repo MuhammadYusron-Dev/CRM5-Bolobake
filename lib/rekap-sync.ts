@@ -285,7 +285,7 @@ export async function syncRekapSheet() {
         const outletVal = row[2] as string;
         if (outletVal) {
           const parts = outletVal.split('\n');
-          const runs = [ { startIndex: 0, format: { bold: true } } ];
+          const runs: any[] = [ { startIndex: 0, format: { bold: true } } ];
           if (parts.length > 1) {
             runs.push({ startIndex: parts[0].length, format: { bold: false, italic: true } });
           }
