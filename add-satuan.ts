@@ -29,7 +29,7 @@ async function updateKatalogSatuan() {
     
     if (sheet?.properties?.sheetId !== undefined) {
       // First, check if column F exists, if not, append 1 column
-      if (sheet.properties.gridProperties.columnCount < 6) {
+      if ((sheet.properties.gridProperties?.columnCount || 0) < 6) {
         await sheets.spreadsheets.batchUpdate({
           spreadsheetId: SPREADSHEET_ID,
           requestBody: {
