@@ -131,7 +131,7 @@ export function DashboardAnalytics({
         {/* Variant Performance */}
         <Card className="shadow-sm border-border/50">
           <CardHeader>
-            <CardTitle className="text-lg font-serif flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2">
               <span className="w-1.5 h-6 bg-primary rounded-full"></span>
               Performa Varian Terlaris
             </CardTitle>
@@ -173,7 +173,7 @@ export function DashboardAnalytics({
         <Card className="shadow-sm border-border/50 flex flex-col">
           <CardHeader className="pb-3 border-b border-border/50">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <CardTitle className="text-lg font-serif flex items-center gap-2">
+              <CardTitle className="text-lg flex items-center gap-2">
                 <span className="w-1.5 h-6 bg-foreground rounded-full"></span>
                 Top Customer
               </CardTitle>

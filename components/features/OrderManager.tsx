@@ -279,7 +279,7 @@ export function OrderManager({
             </button>
             <div className="flex flex-col">
               {activeMenu === 'dashboard' && <span className="text-slate-500 text-sm font-medium mb-0.5">{getGreeting()}</span>}
-              <h1 className="text-xl font-serif font-bold text-foreground">
+              <h1 className="text-xl font-bold text-foreground">
                 {activeMenu === 'dashboard' ? 'Dashboard Analitik' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
               </h1>
             </div>
