@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo } from 'react';
-import { Plus, Trash2, ShoppingBag, TrendingUp, Users, Package, ChefHat, CheckCircle2, Truck, FileText, History, Edit, X, Clock, ScanLine, Calendar, Filter, Search } from 'lucide-react';
+import { Plus, Trash2, ShoppingBag, TrendingUp, Users, Package, ChefHat, CheckCircle2, Truck, FileText, History, Edit, X, Clock, ScanLine, Calendar, Filter, Search, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 // --- MOCK DATA KATALOG (Representasi 110+ SKU) ---
@@ -50,6 +50,8 @@ export default function Home() {
   const [orderHistory, setOrderHistory] = useState<Order[]>([]);
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [activeDropdownId, setActiveDropdownId] = useState<number | null>(null);
+  const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
   
   // Analytics Filters
   const [filterStartDate, setFilterStartDate] = useState(() => new Date().toISOString().split('T')[0]);
@@ -65,14 +67,19 @@ export default function Home() {
   
   // Fetch Katalog & Orders
   const fetchOrders = () => {
+    setIsLoadingDashboard(true);
+    setDashboardError(null);
     fetch('/api/orders')
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           setOrderHistory(data.data);
+        } else {
+          setDashboardError(data.error || 'Gagal memuat data. Pastikan Env Vars terpasang.');
         }
       })
-      .catch(err => console.error("Failed to load orders", err));
+      .catch(err => setDashboardError('Koneksi terputus atau server error'))
+      .finally(() => setIsLoadingDashboard(false));
   };
 
   React.useEffect(() => {
@@ -525,7 +532,7 @@ export default function Home() {
                   <Package className="w-4 h-4 text-[#D4A847]" />
                   Detail Pesanan (Katalog Pintar)
                 </label>
-                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">110+ SKU</span>
+                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">{katalog.length > 0 ? katalog.length : 0} SKU</span>
               </div>
               
               <div className="space-y-3">
@@ -852,8 +859,22 @@ export default function Home() {
               </div>
 
               {/* Global Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                <div className="bg-gradient-to-br from-[#2C1810] to-[#40261b] text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
+              {isLoadingDashboard ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="bg-gray-100 p-5 rounded-2xl h-[104px] animate-pulse"></div>
+                  ))}
+                </div>
+              ) : dashboardError ? (
+                <div className="mb-8 bg-red-50 text-red-600 p-4 rounded-xl border border-red-200">
+                  <div className="flex items-center gap-2 mb-2 font-bold">
+                    <AlertCircle className="w-5 h-5" /> Error memuat data Google Sheets:
+                  </div>
+                  <p className="text-sm">{dashboardError}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  <div className="bg-gradient-to-br from-[#2C1810] to-[#40261b] text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
                   <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                     <TrendingUp className="w-24 h-24" />
                   </div>
@@ -891,6 +912,7 @@ export default function Home() {
                   <p className="text-2xl sm:text-3xl font-bold text-[#2C1810]">{dashboard.uniqueCustomers.length} <span className="text-sm sm:text-base font-normal text-gray-400">Outlet</span></p>
                 </div>
               </div>
+              )}
 
               {/* Variant Performance */}
               <div className="mb-10 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
