@@ -22,9 +22,12 @@ export const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_SPREADSHEET_ID || proces
 
 export async function uploadImage(file: File): Promise<string | null> {
   try {
+    const buffer = await file.arrayBuffer();
+    const blob = new Blob([buffer], { type: file.type || 'image/png' });
+    
     const formData = new FormData();
     formData.append('reqtype', 'fileupload');
-    formData.append('fileToUpload', file);
+    formData.append('fileToUpload', blob, file.name || 'image.png');
 
     const res = await fetch('https://catbox.moe/user/api.php', {
       method: 'POST',
