@@ -711,7 +711,7 @@ export function OrderForm({
             <DialogDescription>Pastikan detail pesanan sudah sesuai sebelum mengirim ke dapur.</DialogDescription>
           </DialogHeader>
           
-          <div className="my-4 space-y-4">
+          <div className="my-2 space-y-3 overflow-y-auto max-h-[60vh] pr-1">
             <div className="bg-muted p-3 sm:p-4 rounded-lg space-y-3">
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Customer / Outlet</p>
@@ -743,7 +743,7 @@ export function OrderForm({
 
             <div>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1.5">Rincian Produk</p>
-              <div className="max-h-40 overflow-y-auto space-y-1.5 border border-border rounded-lg p-2">
+              <div className="max-h-32 overflow-y-auto space-y-1.5 border border-border rounded-lg p-2">
                 {items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center text-xs p-2 hover:bg-muted/50 rounded-md">
                     <div className="flex flex-col">
