@@ -20,38 +20,24 @@ export const drive = google.drive({ version: 'v3', auth });
 
 export const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_SPREADSHEET_ID || process.env.GOOGLE_SHEETS_ID;
 
-export async function uploadImageToDrive(file: File): Promise<string | null> {
+export async function uploadImage(file: File): Promise<string | null> {
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Upload the file
-    const response = await drive.files.create({
-      requestBody: {
-        name: file.name,
-        mimeType: file.type,
-      },
-      media: {
-        mimeType: file.type,
-        body: require('stream').Readable.from(buffer),
-      },
-      fields: 'id',
+    const formData = new FormData();
+    formData.append('reqtype', 'fileupload');
+    formData.append('fileToUpload', file);
+
+    const res = await fetch('https://catbox.moe/user/api.php', {
+      method: 'POST',
+      body: formData,
     });
     
-    const fileId = response.data.id;
-    if (!fileId) return null;
-
-    // Make it public
-    await drive.permissions.create({
-      fileId: fileId,
-      requestBody: {
-        role: 'reader',
-        type: 'anyone',
-      },
-    });
-
-    return `https://drive.google.com/uc?id=${fileId}`;
+    if (res.ok) {
+      const url = await res.text();
+      return url;
+    }
+    return `ERROR_UPLOAD: ${res.statusText}`;
   } catch (error: any) {
-    console.error('Error uploading image to Drive:', error);
-    return `ERROR_DRIVE: ${error.message}`;
+    console.error('Error uploading image:', error);
+    return `ERROR_UPLOAD: ${error.message}`;
   }
 }

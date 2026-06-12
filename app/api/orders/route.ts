@@ -176,8 +176,8 @@ export async function POST(request: Request) {
       const formData = await request.formData();
       const imageFile = formData.get('image') as File | null;
       if (imageFile && imageFile.size > 0) {
-        const { uploadImageToDrive } = await import('@/lib/google-sheets');
-        imageUrl = await uploadImageToDrive(imageFile);
+        const { uploadImage } = await import('@/lib/google-sheets');
+        imageUrl = await uploadImage(imageFile);
       }
       body = JSON.parse(formData.get('data') as string);
     } else {

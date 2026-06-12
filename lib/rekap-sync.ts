@@ -195,8 +195,10 @@ export async function syncRekapSheet() {
         let outletContent = '';
         if (isFirst) {
           outletContent = displayCustomer;
+        } else if (isSecond && imageUrl && !imageUrl.startsWith('ERROR')) {
+          outletContent = `=HYPERLINK("${imageUrl}", "🖼️ Lihat Foto Lampiran")`;
         } else if (isSecond && imageUrl) {
-          outletContent = `=IMAGE("${imageUrl}")`;
+          outletContent = imageUrl;
         }
 
         rekapRows.push([
