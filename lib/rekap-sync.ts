@@ -162,7 +162,11 @@ export async function syncRekapSheet() {
       const rightItems = [];
 
       for (const item of order.items) {
-        const data = skuData[item.sku] || { category: '', satuan: 'pcs' };
+        let baseSku = item.sku;
+        if (baseSku.endsWith(' (sample)')) {
+          baseSku = baseSku.replace(' (sample)', '');
+        }
+        const data = skuData[baseSku] || { category: '', satuan: 'pcs' };
         if (isCakeOrOther(data.category)) {
           rightItems.push({ ...item, satuan: data.satuan });
         } else {
@@ -315,9 +319,11 @@ export async function syncRekapSheet() {
         });
       }
 
-      // Add rich text format for Outlet column (C: index 2)
+      // Add rich text format for Outlet and Sample columns
       for (let i = 1; i < rekapRows.length; i++) { // skip header at 0
         const row = rekapRows[i];
+        
+        // Outlet (C: index 2)
         const outletVal = row[2] as string;
         if (outletVal) {
           const parts = outletVal.split('\n');
@@ -343,6 +349,50 @@ export async function syncRekapSheet() {
                 rowIndex: i,
                 columnIndex: 2
               }
+            }
+          });
+        }
+
+        // Croissant SKU (E: index 4)
+        const sku1 = row[4] as string;
+        if (sku1 && sku1.includes('(sample)')) {
+          const sampleIndex = sku1.indexOf('(sample)');
+          const runs: any[] = [ 
+            { startIndex: 0, format: { foregroundColor: { red: 0, green: 0, blue: 0 } } },
+            { startIndex: sampleIndex, format: { italic: true, fontSize: 8, foregroundColor: { red: 1, green: 0, blue: 0 } } }
+          ];
+          formatRequests.push({
+            updateCells: {
+              rows: [{
+                values: [{
+                  userEnteredValue: { stringValue: sku1 },
+                  textFormatRuns: runs
+                }]
+              }],
+              fields: 'userEnteredValue,textFormatRuns',
+              start: { sheetId: rekapSheet.properties.sheetId, rowIndex: i, columnIndex: 4 }
+            }
+          });
+        }
+
+        // Cake SKU (H: index 7)
+        const sku2 = row[7] as string;
+        if (sku2 && sku2.includes('(sample)')) {
+          const sampleIndex = sku2.indexOf('(sample)');
+          const runs: any[] = [ 
+            { startIndex: 0, format: { foregroundColor: { red: 0, green: 0, blue: 0 } } },
+            { startIndex: sampleIndex, format: { italic: true, fontSize: 8, foregroundColor: { red: 1, green: 0, blue: 0 } } }
+          ];
+          formatRequests.push({
+            updateCells: {
+              rows: [{
+                values: [{
+                  userEnteredValue: { stringValue: sku2 },
+                  textFormatRuns: runs
+                }]
+              }],
+              fields: 'userEnteredValue,textFormatRuns',
+              start: { sheetId: rekapSheet.properties.sheetId, rowIndex: i, columnIndex: 7 }
             }
           });
         }

@@ -3,6 +3,7 @@ export interface OrderItem {
   sku: string;
   price: number;
   qty: number;
+  isSample?: boolean;
 }
 
 export interface Order {

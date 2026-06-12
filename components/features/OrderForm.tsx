@@ -33,7 +33,7 @@ export function OrderForm({
   const [capacityWarning, setCapacityWarning] = useState('');
   
   const [deliveryDate, setDeliveryDate] = useState('');
-  const [items, setItems] = useState<OrderItem[]>([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
+  const [items, setItems] = useState<OrderItem[]>([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
   const [isFreeShipping, setIsFreeShipping] = useState(true);
   const [shippingCost, setShippingCost] = useState('');
   const [notes, setNotes] = useState('');
@@ -154,7 +154,15 @@ export function OrderForm({
       handleCustomerChange(orderToEdit.customer);
       setProductionDate(orderToEdit.productionDate || '');
       setDeliveryDate(orderToEdit.deliveryDate || '');
-      setItems(orderToEdit.items);
+      setItems(orderToEdit.items.map(item => {
+        let sku = item.sku;
+        let isSample = false;
+        if (sku.endsWith(' (sample)')) {
+          sku = sku.replace(' (sample)', '');
+          isSample = true;
+        }
+        return { ...item, sku, isSample };
+      }));
       setIsFreeShipping(orderToEdit.isFreeShipping);
       setShippingCost(orderToEdit.shippingCost === 0 ? '' : String(orderToEdit.shippingCost));
       
@@ -176,7 +184,7 @@ export function OrderForm({
       setTierPrices({});
       setProductionDate('');
       setDeliveryDate('');
-      setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
+      setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
       setNotes('');
       setDeliveryOption('');
       setDeliveryRoute('');
@@ -197,14 +205,14 @@ export function OrderForm({
   }, [productionDate, totalPcsOrder]);
 
 
-  const handleAddItem = () => setItems([...items, { id: Date.now(), sku: '', price: 0, qty: 1 }]);
+  const handleAddItem = () => setItems([...items, { id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
 
-  const handleItemChange = (id: number, field: string, value: string) => {
+  const handleItemChange = (id: number, field: string, value: string | boolean | number) => {
     const updatedItems = items.map(item => {
       if (item.id === id) {
         const updated = { ...item, [field]: value };
         if (field === 'sku') {
-          updated.price = getSkuPrice(value, selectedCustomerObj?.tier || "STANDARD");
+          updated.price = getSkuPrice(value as string, selectedCustomerObj?.tier || "STANDARD");
         }
         return updated;
       }
@@ -234,13 +242,18 @@ export function OrderForm({
     const deliveryString = deliveryOption ? `[Delivery: ${deliveryOption}${deliveryRoute ? ` - ${deliveryRoute}` : ''}]` : '';
     const finalNotes = deliveryString ? `${deliveryString}\n${notes}` : notes;
 
+    const finalItems = items.map(item => {
+      const finalSku = item.isSample ? `${item.sku} (sample)` : item.sku;
+      return { ...item, sku: finalSku };
+    });
+
     const newOrder: Order = {
       id: orderToEdit?.id || Date.now(),
       rowNumber: orderToEdit?.rowNumber,
       customer: customer.trim(),
       productionDate,
       deliveryDate,
-      items: [...items],
+      items: finalItems,
       isFreeShipping,
       shippingCost: finalShipping,
       notes: finalNotes,
@@ -268,7 +281,7 @@ export function OrderForm({
     setTierPrices({});
     setProductionDate('');
     setDeliveryDate('');
-    setItems([{ id: Date.now(), sku: '', price: 0, qty: 1 }]);
+    setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
     setNotes('');
     setDeliveryOption('');
     setDeliveryRoute('');
@@ -523,6 +536,16 @@ export function OrderForm({
                         </div>
                       </div>
                       
+                      <Button
+                        type="button"
+                        variant={item.isSample ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleItemChange(item.id, 'isSample', !item.isSample)}
+                        className={`mb-0.5 h-10 px-3 text-xs font-semibold ${item.isSample ? 'bg-primary text-primary-foreground border-primary' : 'text-muted-foreground hover:bg-primary/10'}`}
+                      >
+                        Sample
+                      </Button>
+
                       <Button 
                         type="button" variant="ghost" size="icon"
                         onClick={() => handleRemoveItem(item.id)} 
