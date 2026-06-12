@@ -41,7 +41,7 @@ export async function syncRekapSheet() {
     const orderRows = ordersRes.data.values || [];
     
     // Parse orders into structured data
-    const orders = orderRows.map((row) => {
+    const orders = orderRows.map((row, index) => {
       let items: any[] = [];
       const colC = row[2] || '';
       const colD = row[3] || '';
@@ -92,18 +92,17 @@ export async function syncRekapSheet() {
         notes: row[9] || '',
         productionDate: prodDate,
         deliveryDateStr: delivDateStr,
-        status: row[10] || ''
+        status: row[10] || '',
+        originalIndex: index
       };
     });
 
-    // Sort orders by production date, then customer name
+    // Sort orders by production date, then original input order
     orders.sort((a, b) => {
-      // Very basic string sort if they are in YYYY-MM-DD, otherwise alphabetical
+      // Very basic string sort if they are in YYYY-MM-DD, otherwise input order
       if (a.productionDate < b.productionDate) return -1;
       if (a.productionDate > b.productionDate) return 1;
-      if (a.customer < b.customer) return -1;
-      if (a.customer > b.customer) return 1;
-      return 0;
+      return a.originalIndex - b.originalIndex;
     });
 
     // 3. Generate Rekap Rows
