@@ -245,6 +245,13 @@ export async function syncRekapSheet() {
     // Formatting Header & Cells (Black background, white text, bold, centered)
     if (rekapSheet?.properties?.sheetId !== undefined) {
       const formatRequests: any[] = [
+        // Column Widths
+        { updateDimensionProperties: { range: { sheetId: rekapSheet.properties.sheetId, dimension: 'COLUMNS', startIndex: 2, endIndex: 3 }, properties: { pixelSize: 300 }, fields: 'pixelSize' } },
+        { updateDimensionProperties: { range: { sheetId: rekapSheet.properties.sheetId, dimension: 'COLUMNS', startIndex: 3, endIndex: 4 }, properties: { pixelSize: 100 }, fields: 'pixelSize' } },
+        { updateDimensionProperties: { range: { sheetId: rekapSheet.properties.sheetId, dimension: 'COLUMNS', startIndex: 4, endIndex: 5 }, properties: { pixelSize: 250 }, fields: 'pixelSize' } },
+        { updateDimensionProperties: { range: { sheetId: rekapSheet.properties.sheetId, dimension: 'COLUMNS', startIndex: 5, endIndex: 7 }, properties: { pixelSize: 70 }, fields: 'pixelSize' } },
+        { updateDimensionProperties: { range: { sheetId: rekapSheet.properties.sheetId, dimension: 'COLUMNS', startIndex: 7, endIndex: 8 }, properties: { pixelSize: 250 }, fields: 'pixelSize' } },
+        { updateDimensionProperties: { range: { sheetId: rekapSheet.properties.sheetId, dimension: 'COLUMNS', startIndex: 8, endIndex: 10 }, properties: { pixelSize: 70 }, fields: 'pixelSize' } },
         {
           repeatCell: {
             range: {
