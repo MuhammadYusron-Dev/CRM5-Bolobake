@@ -50,8 +50,8 @@ export async function uploadImageToDrive(file: File): Promise<string | null> {
     });
 
     return `https://drive.google.com/uc?id=${fileId}`;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading image to Drive:', error);
-    return null;
+    return `ERROR_DRIVE: ${error.message}`;
   }
 }
