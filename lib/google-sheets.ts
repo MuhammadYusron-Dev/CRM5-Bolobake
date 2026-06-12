@@ -22,23 +22,28 @@ export const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_SPREADSHEET_ID || proces
 
 export async function uploadImage(file: File): Promise<string | null> {
   try {
-    const buffer = await file.arrayBuffer();
-    const blob = new Blob([buffer], { type: file.type || 'image/png' });
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Data = buffer.toString('base64');
     
-    const formData = new FormData();
-    formData.append('reqtype', 'fileupload');
-    formData.append('fileToUpload', blob, file.name || 'image.png');
+    const body = new URLSearchParams();
+    body.append('image', base64Data);
+    body.append('type', 'base64');
 
-    const res = await fetch('https://catbox.moe/user/api.php', {
+    const res = await fetch('https://api.imgur.com/3/image', {
       method: 'POST',
-      body: formData,
+      body: body,
+      headers: {
+        'Authorization': 'Client-ID 546c25a59c58ad7'
+      }
     });
     
     if (res.ok) {
-      const url = await res.text();
-      return url;
+      const data = await res.json();
+      return data.data.link;
     }
-    return `ERROR_UPLOAD: ${res.statusText}`;
+    
+    const errorText = await res.text();
+    return `ERROR_UPLOAD: ${res.status} - ${errorText}`;
   } catch (error: any) {
     console.error('Error uploading image:', error);
     return `ERROR_UPLOAD: ${error.message}`;
