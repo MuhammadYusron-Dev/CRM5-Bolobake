@@ -50,11 +50,31 @@ export function HistoryTable({
     };
 
     return orderHistory.filter(order => {
-      if (searchHistoryQuery && !order.customer.toLowerCase().includes(searchHistoryQuery.toLowerCase())) {
-        return false;
+      if (searchHistoryQuery) {
+        const query = searchHistoryQuery.toLowerCase();
+        const matchCustomer = order.customer.toLowerCase().includes(query);
+        const matchNotes = order.notes?.toLowerCase().includes(query);
+        const matchItems = order.items.some(item => item.sku.toLowerCase().includes(query));
+        
+        if (!matchCustomer && !matchNotes && !matchItems) {
+          return false;
+        }
       }
-      const orderDate = order.productionDate || '';
+      
+      let orderDate = order.productionDate;
+      if (!orderDate) {
+        try { 
+          const ts = new Date(order.timestamp);
+          if (!isNaN(ts.getTime())) {
+            orderDate = ts.toISOString().split('T')[0];
+          }
+        } catch (e) { 
+          // fallback
+        }
+      }
+      
       if (!orderDate) return true;
+      
       const orderTime = getTimestamp(orderDate);
       if (filterStartDate) {
         const startTime = new Date(filterStartDate).getTime();
@@ -124,7 +144,7 @@ export function HistoryTable({
               setSearchHistoryInput(e.target.value);
               if (highlightedOutlet) setHighlightedOutlet('');
             }}
-            placeholder="Cari nama outlet..."
+            placeholder="Cari nama outlet, produk, atau catatan..."
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground font-medium"
           />
           {searchHistoryInput && (
