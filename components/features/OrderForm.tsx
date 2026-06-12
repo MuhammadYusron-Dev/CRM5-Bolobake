@@ -712,68 +712,63 @@ export function OrderForm({
           </DialogHeader>
           
           <div className="my-4 space-y-4">
-            <div className="bg-muted p-4 rounded-lg space-y-3">
+            <div className="bg-muted p-3 sm:p-4 rounded-lg space-y-3">
               <div>
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer / Outlet</p>
-                <p className="font-semibold text-lg">{customer}</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Customer / Outlet</p>
+                <p className="font-bold text-base sm:text-lg">{customer}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-border/50">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 pt-2.5 border-t border-border/50">
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Tgl Produksi</p>
-                  <p className="font-medium text-sm">{productionDate || '-'}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Tgl Produksi</p>
+                  <p className="font-medium text-xs">{productionDate || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Tgl Pengiriman</p>
-                  <p className="font-medium text-sm">{deliveryDate || '-'}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Tgl Pengiriman</p>
+                  <p className="font-medium text-xs">{deliveryDate || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Opsi Delivery</p>
+                  <p className="font-medium text-xs">{deliveryOption ? (deliveryRoute ? `${deliveryOption} - ${deliveryRoute}` : deliveryOption) : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Logistik & Ongkir</p>
+                  <p className="font-medium text-xs">{isFreeShipping ? 'Gratis Ongkir (Solo)' : formatRp(finalShipping)}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Instruksi Dapur (Note)</p>
+                  <p className="font-medium text-xs whitespace-pre-wrap">{notes || '-'}</p>
                 </div>
               </div>
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Rincian Produk</p>
-              <div className="max-h-48 overflow-y-auto space-y-2 border border-border rounded-lg p-2">
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1.5">Rincian Produk</p>
+              <div className="max-h-40 overflow-y-auto space-y-1.5 border border-border rounded-lg p-2">
                 {items.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-sm p-2 hover:bg-muted/50 rounded-md">
+                  <div key={idx} className="flex justify-between items-center text-xs p-2 hover:bg-muted/50 rounded-md">
                     <div className="flex flex-col">
                       <span className="font-medium">
                         {item.sku}
-                        {item.isSample && <span className="italic text-xs ml-1 text-primary">(sample)</span>}
+                        {item.isSample && <span className="italic text-[10px] ml-1 text-primary">(sample)</span>}
                       </span>
-                      <span className="text-xs text-muted-foreground">{formatRp(Number(item.price))}</span>
+                      <span className="text-[10px] text-muted-foreground">{formatRp(Number(item.price))}</span>
                     </div>
-                    <span className="font-bold bg-secondary px-2 py-1 rounded text-xs">{item.qty} pcs</span>
+                    <span className="font-bold bg-secondary px-2 py-1 rounded text-[10px]">{item.qty} pcs</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-muted p-4 rounded-lg space-y-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Opsi Delivery</p>
-                  <p className="font-medium text-sm">{deliveryOption ? (deliveryRoute ? `${deliveryOption} - ${deliveryRoute}` : deliveryOption) : '-'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Logistik & Ongkir</p>
-                  <p className="font-medium text-sm">{isFreeShipping ? 'Gratis Ongkir (Solo)' : formatRp(finalShipping)}</p>
-                </div>
-              </div>
-              <div className="pt-3 border-t border-border/50">
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Instruksi Dapur (Note)</p>
-                <p className="font-medium text-sm whitespace-pre-wrap">{notes || '-'}</p>
-              </div>
-            </div>
-
-            <div className="border-t border-border pt-4">
-              <div className="flex justify-between text-sm text-muted-foreground mb-1">
+            <div className="border-t border-border pt-3">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1">
                 <span>Subtotal</span>
                 <span>{formatRp(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground mb-2">
+              <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                 <span>Ongkir</span>
                 <span>{formatRp(finalShipping)}</span>
               </div>
-              <div className="flex justify-between font-bold text-xl text-primary mt-2">
+              <div className="flex justify-between font-bold text-lg text-primary mt-1">
                 <span>Grand Total</span>
                 <span>{formatRp(grandTotal)}</span>
               </div>
