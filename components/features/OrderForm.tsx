@@ -737,7 +737,7 @@ export function OrderForm({
                     <div className="flex flex-col">
                       <span className="font-medium">
                         {item.sku}
-                        {item.isSample && <span className="italic text-xs ml-1">(sample)</span>}
+                        {item.isSample && <span className="italic text-xs ml-1 text-primary">(sample)</span>}
                       </span>
                       <span className="text-xs text-muted-foreground">{formatRp(Number(item.price))}</span>
                     </div>
@@ -747,7 +747,32 @@ export function OrderForm({
               </div>
             </div>
 
+            <div className="bg-muted p-4 rounded-lg space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Opsi Delivery</p>
+                  <p className="font-medium text-sm">{deliveryOption ? (deliveryRoute ? `${deliveryOption} - ${deliveryRoute}` : deliveryOption) : '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Logistik & Ongkir</p>
+                  <p className="font-medium text-sm">{isFreeShipping ? 'Gratis Ongkir (Solo)' : formatRp(finalShipping)}</p>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-border/50">
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Instruksi Dapur (Note)</p>
+                <p className="font-medium text-sm whitespace-pre-wrap">{notes || '-'}</p>
+              </div>
+            </div>
+
             <div className="border-t border-border pt-4">
+              <div className="flex justify-between text-sm text-muted-foreground mb-1">
+                <span>Subtotal</span>
+                <span>{formatRp(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                <span>Ongkir</span>
+                <span>{formatRp(finalShipping)}</span>
+              </div>
               <div className="flex justify-between font-bold text-xl text-primary mt-2">
                 <span>Grand Total</span>
                 <span>{formatRp(grandTotal)}</span>
