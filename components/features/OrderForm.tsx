@@ -10,7 +10,7 @@ interface OrderFormProps {
   katalog: Product[];
   customers: Customer[];
   orderToEdit: Order | null;
-  onSave: (order: Order) => Promise<void>;
+  onSave: (order: Order, imageFile?: File | null) => Promise<void>;
   onCancelEdit: () => void;
   isSubmitting: boolean;
 }
@@ -36,6 +36,9 @@ export function OrderForm({
   const [items, setItems] = useState<OrderItem[]>([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
   const [isFreeShipping, setIsFreeShipping] = useState(true);
   const [shippingCost, setShippingCost] = useState('');
+  
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  
   const [notes, setNotes] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('');
   const [deliveryRoute, setDeliveryRoute] = useState('');
@@ -191,6 +194,7 @@ export function OrderForm({
       setIsFreeShipping(true);
       setShippingCost('');
       setCapacityWarning('');
+      setImageFile(null);
     }
   }, [orderToEdit]);
 
@@ -263,7 +267,7 @@ export function OrderForm({
       timestamp: orderToEdit ? orderToEdit.timestamp : new Date().toISOString()
     };
 
-    onSave(newOrder).then(() => {
+    onSave(newOrder, imageFile).then(() => {
       setShowConfirmModal(false);
       setLastSavedOrder(newOrder);
       if (!orderToEdit?.rowNumber) {
@@ -288,6 +292,7 @@ export function OrderForm({
     setIsFreeShipping(true);
     setShippingCost('');
     setCapacityWarning('');
+    setImageFile(null);
   };
 
   const handleWAShare = () => {
@@ -650,9 +655,24 @@ export function OrderForm({
               <textarea 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full p-3 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background"
+                className="w-full p-3 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background mb-4"
                 rows={4}
                 placeholder="Misal: Kirim jam 06.00 pagi, packing box terpisah, dll..."
+              />
+              <label className="flex items-center gap-2 text-sm font-bold mb-2">
+                Foto / Bukti Tambahan (Opsional)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setImageFile(e.target.files[0]);
+                  } else {
+                    setImageFile(null);
+                  }
+                }}
+                className="w-full p-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-background"
               />
             </CardContent>
           </Card>

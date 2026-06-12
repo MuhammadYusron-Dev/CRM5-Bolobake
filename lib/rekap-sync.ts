@@ -140,10 +140,18 @@ export async function syncRekapSheet() {
       
       // Parse delivery from notes
       let rawNotes = order.notes || '';
+      
+      let imageUrl = '';
+      const imageMatch = rawNotes.match(/\[IMAGE_URL:(.*?)\]/);
+      if (imageMatch) {
+        imageUrl = imageMatch[1];
+        rawNotes = rawNotes.replace(/\[IMAGE_URL:.*?\]/, '').trim();
+      }
+
       const deliveryMatch = rawNotes.match(/^\[Delivery: (.*?)\]\n?/);
       if (deliveryMatch) {
         displayCustomer += `\n${deliveryMatch[1]}`;
-        rawNotes = rawNotes.replace(/^\[Delivery: (.*?)\]\n?/, '');
+        rawNotes = rawNotes.replace(/^\[Delivery: (.*?)\]\n?/, '').trim();
       }
       
       if (order.deliveryDateStr) {
@@ -176,17 +184,25 @@ export async function syncRekapSheet() {
       }
 
       // Figure out how many rows this order takes
-      const rowCount = Math.max(leftItems.length, rightItems.length, 1);
+      const rowCount = Math.max(leftItems.length, rightItems.length, imageUrl ? 2 : 1);
 
       for (let i = 0; i < rowCount; i++) {
         const isFirst = i === 0;
+        const isSecond = i === 1;
         const leftItem = leftItems[i];
         const rightItem = rightItems[i];
+
+        let outletContent = '';
+        if (isFirst) {
+          outletContent = displayCustomer;
+        } else if (isSecond && imageUrl) {
+          outletContent = `=IMAGE("${imageUrl}")`;
+        }
 
         rekapRows.push([
           isFirst ? displayDate : '',                     // A: DATE
           isFirst ? displayNo : '',                       // B: NO
-          isFirst ? displayCustomer : '',                 // C: OUTLET
+          outletContent,                                  // C: OUTLET
           isFirst ? displayOngkir : '',                   // D: ONGKIR/NOTE
           leftItem ? leftItem.sku : '',                   // E: CROISSANT
           leftItem ? leftItem.qty : '',                   // F: QTY

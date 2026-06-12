@@ -168,7 +168,21 @@ export async function PUT(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    let body: any;
+    let imageUrl: string | null = null;
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const imageFile = formData.get('image') as File | null;
+      if (imageFile && imageFile.size > 0) {
+        const { uploadImageToDrive } = await import('@/lib/google-sheets');
+        imageUrl = await uploadImageToDrive(imageFile);
+      }
+      body = JSON.parse(formData.get('data') as string);
+    } else {
+      body = await request.json();
+    }
     
     // Format items as a readable list including price
     const productNames = body.items.map((item: any) => item.sku).join('\n');
@@ -189,6 +203,8 @@ export async function POST(request: Request) {
     const delivDateStr = formatDate(body.deliveryDate);
     const timeColumnDisplay = `Produksi: ${prodDateStr}\nPengiriman: ${delivDateStr}`;
 
+    const finalNotes = imageUrl ? `${body.notes || ''}\n[IMAGE_URL:${imageUrl}]` : (body.notes || '');
+
     const rowData = [
       timeColumnDisplay, // Timestamp (Column A)
       body.customer,            // Customer
@@ -199,7 +215,7 @@ export async function POST(request: Request) {
       body.subtotal,            // Subtotal
       body.shippingCost,        // Ongkos Kirim
       body.grandTotal,          // Grand Total
-      body.notes || '',         // Catatan Produksi
+      finalNotes,               // Catatan Produksi
       status,                   // Status
       body.productionDate || '',// Tanggal Produksi
       body.deliveryDate || ''   // Tanggal Pengiriman

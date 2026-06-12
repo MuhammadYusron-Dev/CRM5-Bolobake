@@ -94,12 +94,25 @@ export function OrderManager({
     }
   };
 
-  const persistOrderToDb = async (order: Order, isEdit: boolean) => {
+  const persistOrderToDb = async (order: Order, isEdit: boolean, imageFile?: File | null) => {
     try {
+      let body: any;
+      let headers: HeadersInit = {};
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('data', JSON.stringify(order));
+        body = formData;
+      } else {
+        headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(order);
+      }
+
       const response = await fetch('/api/orders', {
         method: isEdit ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(order)
+        headers,
+        body
       });
       if (!response.ok) throw new Error('Failed to save to Sheets');
       
@@ -116,13 +129,13 @@ export function OrderManager({
     }
   };
 
-  const handleSaveOrder = async (order: Order) => {
+  const handleSaveOrder = async (order: Order, imageFile?: File | null) => {
     setIsSubmitting(true);
     
     const isEdit = !!order.rowNumber;
     
     try {
-      await persistOrderToDb(order, isEdit);
+      await persistOrderToDb(order, isEdit, imageFile);
       
       try {
         const res = await fetch('/api/orders');
