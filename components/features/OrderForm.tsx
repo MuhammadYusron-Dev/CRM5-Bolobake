@@ -771,11 +771,24 @@ export function OrderForm({
       </Dialog>
 
       {isSubmitting && (
-        <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-card p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 border border-border min-w-[300px] text-center">
-            <svg className="animate-spin text-primary h-12 w-12" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <p className="font-bold text-xl animate-pulse text-primary">Mengirim Data...</p>
-            <p className="text-sm text-muted-foreground">Mohon tunggu, jangan tutup halaman ini.</p>
+        <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-md flex items-center justify-center animate-in fade-in duration-300">
+          <div className="bg-card p-10 rounded-[2rem] shadow-2xl flex flex-col items-center gap-6 border border-primary/10 min-w-[320px] text-center transform transition-all scale-100 relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl animate-pulse"></div>
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+            
+            <div className="relative">
+              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+                <span className="text-5xl animate-bounce" style={{ animationDuration: '1.5s' }}>🥖</span>
+              </div>
+              <svg className="absolute inset-0 w-24 h-24 animate-spin text-primary opacity-50" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="70 200" strokeLinecap="round" />
+              </svg>
+            </div>
+            
+            <div className="relative z-10">
+              <p className="font-black text-2xl text-primary tracking-tight mb-2">Mengirim Pesanan...</p>
+              <p className="text-sm text-muted-foreground font-medium">Mohon tunggu, pesanan sedang diteruskan ke dapur 👨‍🍳</p>
+            </div>
           </div>
         </div>
       )}
