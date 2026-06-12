@@ -154,10 +154,9 @@ export async function syncRekapSheet() {
         displayCustomer += `\nNote: ${rawNotes}`;
       }
       
-      let ongkirNote = [];
+      let displayOngkir = '';
       const ongkirNum = Number(String(order.shippingCost).replace(/\D/g, ''));
-      if (ongkirNum > 0) ongkirNote.push(`Ongkir: Rp${ongkirNum.toLocaleString('id-ID')}`);
-      let displayOngkir = ongkirNote.join('\n');
+      if (ongkirNum > 0) displayOngkir = `Rp${ongkirNum.toLocaleString('id-ID')}`;
 
       // Split items into categories
       const leftItems = [];
