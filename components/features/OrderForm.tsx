@@ -689,9 +689,21 @@ export function OrderForm({
           </DialogHeader>
           
           <div className="my-4 space-y-4">
-            <div className="bg-muted p-4 rounded-lg">
-              <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer / Outlet</p>
-              <p className="font-semibold text-lg">{customer}</p>
+            <div className="bg-muted p-4 rounded-lg space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer / Outlet</p>
+                <p className="font-semibold text-lg">{customer}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-border/50">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Tgl Produksi</p>
+                  <p className="font-medium text-sm">{productionDate || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Tgl Pengiriman</p>
+                  <p className="font-medium text-sm">{deliveryDate || '-'}</p>
+                </div>
+              </div>
             </div>
 
             <div>
