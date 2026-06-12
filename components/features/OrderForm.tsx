@@ -253,10 +253,9 @@ export function OrderForm({
     onSave(newOrder).then(() => {
       setShowConfirmModal(false);
       setLastSavedOrder(newOrder);
-      if (!orderToEdit) {
+      if (!orderToEdit?.rowNumber) {
         setShowSuccessModal(true);
       } else {
-        // Only reset immediately if it's an edit and no success modal is shown
         resetForm();
       }
     });
@@ -672,9 +671,9 @@ export function OrderForm({
                   <span className="flex items-center gap-2"><LoaderSpin /> Mengirim...</span>
                 ) : (
                   <>
-                    {orderToEdit ? 'Update' : <span className="hidden sm:inline">Kirim ke Dapur & Sheet</span>} 
-                    {!orderToEdit && <span className="sm:hidden">Kirim</span>}
-                    {orderToEdit ? <Edit className="w-4 h-4 sm:w-5 sm:h-5 ml-1" /> : <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 ml-1" />}
+                    {orderToEdit?.rowNumber ? 'Update' : <span className="hidden sm:inline">Kirim ke Dapur & Sheet</span>} 
+                    {!orderToEdit?.rowNumber && <span className="sm:hidden">Kirim</span>}
+                    {orderToEdit?.rowNumber ? <Edit className="w-4 h-4 sm:w-5 sm:h-5 ml-1" /> : <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 ml-1" />}
                   </>
                 )}
               </Button>

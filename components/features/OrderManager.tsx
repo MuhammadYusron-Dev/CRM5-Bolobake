@@ -119,15 +119,28 @@ export function OrderManager({
   const handleSaveOrder = async (order: Order) => {
     setIsSubmitting(true);
     
-    const isEdit = !!editingOrder;
+    const isEdit = !!order.rowNumber;
     
     try {
       await persistOrderToDb(order, isEdit);
       
-      if (isEdit) {
-        setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
-      } else {
-        setOrderHistory(prev => [order, ...prev]);
+      try {
+        const res = await fetch('/api/orders');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setOrderHistory(data.data);
+          }
+        } else {
+          throw new Error('Fetch failed');
+        }
+      } catch (fetchErr) {
+        // Optimistic fallback
+        if (isEdit) {
+          setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
+        } else {
+          setOrderHistory(prev => [order, ...prev]);
+        }
       }
 
       setEditingOrder(null);
