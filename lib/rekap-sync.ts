@@ -118,6 +118,7 @@ export async function syncRekapSheet() {
 
     let currentDate = '';
     let currentCustomerCount = 0;
+    const dateStartRows: number[] = [];
 
     for (const order of orders) {
       if (order.status?.toLowerCase() === 'cancelled') continue; // Skip cancelled
@@ -128,6 +129,10 @@ export async function syncRekapSheet() {
         currentDate = order.productionDate;
         displayDate = currentDate;
         currentCustomerCount = 1;
+        
+        if (rekapRows.length > 1) {
+          dateStartRows.push(rekapRows.length);
+        }
       } else {
         currentCustomerCount++;
       }
@@ -276,8 +281,40 @@ export async function syncRekapSheet() {
             properties: { pixelSize: 200 },
             fields: 'pixelSize'
           }
+        },
+        {
+          updateBorders: {
+            range: {
+              sheetId: rekapSheet.properties.sheetId,
+              startRowIndex: 1,
+              startColumnIndex: 0,
+              endColumnIndex: 10
+            },
+            top: { style: 'NONE' },
+            bottom: { style: 'NONE' },
+            innerHorizontal: { style: 'NONE' }
+          }
         }
       ];
+
+      for (const rowIndex of dateStartRows) {
+        formatRequests.push({
+          updateBorders: {
+            range: {
+              sheetId: rekapSheet.properties.sheetId,
+              startRowIndex: rowIndex,
+              endRowIndex: rowIndex + 1,
+              startColumnIndex: 0,
+              endColumnIndex: 10
+            },
+            top: {
+              style: 'SOLID',
+              width: 1,
+              color: { red: 0, green: 0, blue: 0 }
+            }
+          }
+        });
+      }
 
       // Add rich text format for Outlet column (C: index 2)
       for (let i = 1; i < rekapRows.length; i++) { // skip header at 0
