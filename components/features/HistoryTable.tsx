@@ -225,7 +225,11 @@ export function HistoryTable({
                   <div className="bg-muted p-3 rounded-lg text-sm space-y-1 mb-3 border border-border">
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between">
-                        <span>{item.qty}x {item.sku}</span>
+                        <span>
+                          {item.qty}x {item.sku.endsWith(' (sample)') ? (
+                            <>{item.sku.replace(' (sample)', '')} <span className="italic text-xs">(sample)</span></>
+                          ) : item.sku}
+                        </span>
                         <span className="text-muted-foreground">{formatRp(item.qty * item.price)}</span>
                       </div>
                     ))}

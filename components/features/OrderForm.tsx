@@ -735,7 +735,10 @@ export function OrderForm({
                 {items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center text-sm p-2 hover:bg-muted/50 rounded-md">
                     <div className="flex flex-col">
-                      <span className="font-medium">{item.sku}</span>
+                      <span className="font-medium">
+                        {item.sku}
+                        {item.isSample && <span className="italic text-xs ml-1">(sample)</span>}
+                      </span>
                       <span className="text-xs text-muted-foreground">{formatRp(Number(item.price))}</span>
                     </div>
                     <span className="font-bold bg-secondary px-2 py-1 rounded text-xs">{item.qty} pcs</span>
