@@ -231,7 +231,6 @@ export function OrderForm({
   };
 
   const confirmSubmit = () => {
-    setShowConfirmModal(false);
     const deliveryString = deliveryOption ? `[Delivery: ${deliveryOption}${deliveryRoute ? ` - ${deliveryRoute}` : ''}]` : '';
     const finalNotes = deliveryString ? `${deliveryString}\n${notes}` : notes;
 
@@ -252,6 +251,7 @@ export function OrderForm({
     };
 
     onSave(newOrder).then(() => {
+      setShowConfirmModal(false);
       setLastSavedOrder(newOrder);
       if (!orderToEdit) {
         setShowSuccessModal(true);
@@ -669,7 +669,7 @@ export function OrderForm({
                 className={`font-bold h-12 flex-1 sm:flex-none ${orderToEdit ? 'bg-blue-600 hover:bg-blue-500 text-white' : ''}`}
               >
                 {isSubmitting ? (
-                  <span className="flex items-center gap-2"><LoaderSpin /> Menyimpan...</span>
+                  <span className="flex items-center gap-2"><LoaderSpin /> Mengirim...</span>
                 ) : (
                   <>
                     {orderToEdit ? 'Update' : <span className="hidden sm:inline">Kirim ke Dapur & Sheet</span>} 
@@ -719,8 +719,14 @@ export function OrderForm({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmModal(false)}>Batal</Button>
-            <Button onClick={confirmSubmit} className="font-bold">Kirim Sekarang</Button>
+            <Button variant="outline" onClick={() => setShowConfirmModal(false)} disabled={isSubmitting}>Batal</Button>
+            <Button onClick={confirmSubmit} disabled={isSubmitting} className="font-bold">
+              {isSubmitting ? (
+                <span className="flex items-center gap-2"><LoaderSpin /> Mengirim...</span>
+              ) : (
+                "Kirim Sekarang"
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -752,6 +758,16 @@ export function OrderForm({
           </div>
         </DialogContent>
       </Dialog>
+
+      {isSubmitting && (
+        <div className="fixed inset-0 z-[9999] bg-background/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-card p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 border border-border min-w-[300px] text-center">
+            <svg className="animate-spin text-primary h-12 w-12" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p className="font-bold text-xl animate-pulse text-primary">Mengirim Data...</p>
+            <p className="text-sm text-muted-foreground">Mohon tunggu, jangan tutup halaman ini.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

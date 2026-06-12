@@ -121,42 +121,23 @@ export function OrderManager({
     
     const isEdit = !!editingOrder;
     
-    // Optimistic Update
-    const prevHistory = [...orderHistory];
-    if (isEdit) {
-      backupOrdersRef.current[order.id] = orderHistory.find(o => o.id === order.id)!;
-      setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
-    } else {
-      setOrderHistory(prev => [order, ...prev]);
-    }
-
-    setEditingOrder(null);
-    setIsSubmitting(false);
-
-    // Undo Logic
-    const undoAction = () => {
-      if (undoTimeoutsRef.current[order.id]) {
-        clearTimeout(undoTimeoutsRef.current[order.id]);
-        delete undoTimeoutsRef.current[order.id];
+    try {
+      await persistOrderToDb(order, isEdit);
+      
+      if (isEdit) {
+        setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
+      } else {
+        setOrderHistory(prev => [order, ...prev]);
       }
-      setOrderHistory(prevHistory);
-      setToastOptions({ show: false, message: '' });
-      fetch('/api/logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: 'ADMIN', user_name: 'Admin', action_type: 'UNDO_ACTION', details: 'Undo order save' })
-      }).catch(e => {});
-    };
 
-    showToast('Pesanan ditambahkan ke antrean pengiriman. Menunggu 10 detik...', true, undoAction);
-
-    // Set Timeout 10s to persist
-    undoTimeoutsRef.current[order.id] = setTimeout(() => {
-      persistOrderToDb(order, isEdit);
-      setToastOptions({ show: false, message: '' });
-      delete undoTimeoutsRef.current[order.id];
+      setEditingOrder(null);
       showToast(isEdit ? 'Pesanan berhasil diperbarui di server!' : 'Pesanan berhasil dikirim ke Dapur & Sheet!');
-    }, 10000);
+    } catch (error) {
+      console.error("Save failed", error);
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReorder = (order: Order) => {
