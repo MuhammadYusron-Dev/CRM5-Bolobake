@@ -108,9 +108,8 @@ export async function syncRekapSheet() {
     // 3. Generate Rekap Rows
     const rekapRows: any[][] = [];
     
-    // Header Row
     rekapRows.push([
-      'DATE', 'NO', 'OUTLET', 'ONGKIR/NOTE', 
+      'DATE', 'NO', 'OUTLET', 'ONGKIR', 
       'CROISSANT / ARTISAN BAKERY', 'QTY', 'SATUAN', 
       'CAKE / OTHER', 'QTY', 'SATUAN'
     ]);
@@ -151,10 +150,13 @@ export async function syncRekapSheet() {
         displayCustomer += `\nKirim: ${order.deliveryDateStr}`;
       }
       
+      if (rawNotes) {
+        displayCustomer += `\nNote: ${rawNotes}`;
+      }
+      
       let ongkirNote = [];
       const ongkirNum = Number(String(order.shippingCost).replace(/\D/g, ''));
       if (ongkirNum > 0) ongkirNote.push(`Ongkir: Rp${ongkirNum.toLocaleString('id-ID')}`);
-      if (rawNotes) ongkirNote.push(`Note: ${rawNotes}`);
       let displayOngkir = ongkirNote.join('\n');
 
       // Split items into categories
@@ -327,10 +329,22 @@ export async function syncRekapSheet() {
         const outletVal = row[2] as string;
         if (outletVal) {
           const parts = outletVal.split('\n');
-          const runs: any[] = [ { startIndex: 0, format: { bold: true } } ];
-          if (parts.length > 1) {
-            runs.push({ startIndex: parts[0].length, format: { bold: false, italic: true } });
+          const runs: any[] = [];
+          
+          let currentIdx = 0;
+          runs.push({ startIndex: currentIdx, format: { bold: true, foregroundColor: { red: 0, green: 0, blue: 0 } } });
+          currentIdx += parts[0].length;
+          
+          for (let p = 1; p < parts.length; p++) {
+            currentIdx += 1; // Account for the newline character
+            if (parts[p].startsWith('Note:')) {
+              runs.push({ startIndex: currentIdx, format: { bold: false, italic: true, foregroundColor: { red: 1, green: 0, blue: 0 } } });
+            } else {
+              runs.push({ startIndex: currentIdx, format: { bold: false, italic: true, foregroundColor: { red: 0, green: 0, blue: 0 } } });
+            }
+            currentIdx += parts[p].length;
           }
+
           formatRequests.push({
             updateCells: {
               rows: [{
