@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
-import { syncRekapSheet, syncCapacity } from '@/lib/rekap-sync';
+import { syncRekapSheet, syncCapacity, syncLaporanBorders } from '@/lib/rekap-sync';
 
 export async function GET() {
   try {
@@ -151,6 +151,9 @@ export async function PUT(request: Request) {
     // Sync human-readable Rekap Produksi sheet
     await syncRekapSheet();
     
+    // Sync Laporan Transaksi Harian Borders
+    await syncLaporanBorders();
+    
     // Sync Production Capacity sheet
     if (body.productionDate) {
       await syncCapacity(body.productionDate);
@@ -233,6 +236,9 @@ export async function POST(request: Request) {
     // Sync human-readable Rekap Produksi sheet
     await syncRekapSheet();
 
+    // Sync Laporan Transaksi Harian Borders
+    await syncLaporanBorders();
+
     // Sync Production Capacity sheet
     if (body.productionDate) {
       await syncCapacity(body.productionDate);
@@ -290,6 +296,9 @@ export async function DELETE(request: Request) {
 
     // Sync human-readable Rekap Produksi sheet
     await syncRekapSheet();
+
+    // Sync Laporan Transaksi Harian Borders
+    await syncLaporanBorders();
 
     return NextResponse.json({ success: true, message: 'Order deleted successfully' });
   } catch (error: any) {

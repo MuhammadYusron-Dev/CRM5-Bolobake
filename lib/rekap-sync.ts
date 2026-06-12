@@ -424,3 +424,97 @@ export async function syncCapacity(targetDate: string) {
     return false;
   }
 }
+
+export async function syncLaporanBorders() {
+  try {
+    if (!SPREADSHEET_ID) return false;
+
+    // Fetch Laporan Transaksi Harian
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Laporan Transaksi Harian!A2:M',
+    });
+
+    const rows = res.data.values || [];
+    if (rows.length === 0) return true;
+
+    // Get Sheet ID
+    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+    const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
+    
+    if (!sheet || sheet.properties?.sheetId === undefined) {
+      return false;
+    }
+    const sheetId = sheet.properties.sheetId;
+
+    let currentDate = '';
+    const dateStartRows: number[] = [];
+
+    // Row A2 starts at index 1
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowDate = row[11] || ''; // Tanggal Produksi is column L (index 11)
+      
+      // Skip empty dates or first row date setting
+      if (rowDate) {
+        if (!currentDate) {
+          currentDate = rowDate; // First valid date
+        } else if (rowDate !== currentDate) {
+          currentDate = rowDate;
+          dateStartRows.push(i + 1); // i=0 is A2 (index 1), i=1 is A3 (index 2)
+        }
+      }
+    }
+
+    const formatRequests: any[] = [
+      // Clear existing horizontal borders from row 2 downwards, up to column J
+      {
+        updateBorders: {
+          range: {
+            sheetId: sheetId,
+            startRowIndex: 1, // Start from A2
+            startColumnIndex: 0,
+            endColumnIndex: 10 // Up to column J
+          },
+          top: { style: 'NONE' },
+          bottom: { style: 'NONE' },
+          innerHorizontal: { style: 'NONE' }
+        }
+      }
+    ];
+
+    // Add top border for each new date row
+    for (const rowIndex of dateStartRows) {
+      formatRequests.push({
+        updateBorders: {
+          range: {
+            sheetId: sheetId,
+            startRowIndex: rowIndex,
+            endRowIndex: rowIndex + 1,
+            startColumnIndex: 0,
+            endColumnIndex: 10 // Up to column J
+          },
+          top: {
+            style: 'SOLID_MEDIUM', // Using slightly thicker line for better visibility
+            width: 1,
+            color: { red: 0, green: 0, blue: 0 }
+          }
+        }
+      });
+    }
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      requestBody: {
+        requests: formatRequests
+      }
+    });
+
+    console.log('Successfully synced Laporan Transaksi Harian borders');
+    return true;
+  } catch (error) {
+    console.error('Error syncing Laporan Transaksi Harian borders:', error);
+    return false;
+  }
+}
+
