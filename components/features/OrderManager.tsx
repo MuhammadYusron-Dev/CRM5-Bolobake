@@ -444,11 +444,11 @@ export function OrderManager({
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex flex-col">
-              <h1 className={`text-xl sm:text-2xl font-bold tracking-tight transition-colors duration-1000 ${headerTextColor}`}>
+              <h1 className={`text-lg sm:text-xl font-medium transition-colors duration-1000 ${headerTextColor}`}>
                 {activeMenu === 'dashboard' ? 'Dashboard' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
               </h1>
               {activeMenu === 'dashboard' && currentDateString && (
-                <span className={`text-sm font-medium mt-0.5 transition-colors duration-1000 ${subTextColor}`}>{currentDateString}</span>
+                <span className={`text-xs mt-0 transition-colors duration-1000 ${subTextColor}`}>{currentDateString}</span>
               )}
             </div>
           </div>
@@ -456,8 +456,8 @@ export function OrderManager({
           {/* Middle Content - Centered Greeting */}
           <div className="absolute left-1/2 -translate-x-1/2 z-10 hidden sm:flex items-center justify-center pointer-events-none">
             {activeMenu === 'dashboard' && (
-              <span className={`text-base font-extrabold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md transition-all duration-1000 ${
-                isDarkSky ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'bg-white/40 text-slate-800 shadow-[0_0_15px_rgba(0,0,0,0.05)]'
+              <span className={`text-sm font-medium px-3 py-1 rounded-full backdrop-blur-md transition-all duration-1000 ${
+                isDarkSky ? 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]' : 'bg-white/40 text-slate-800 shadow-[0_0_10px_rgba(0,0,0,0.05)]'
               }`}>
                 {getGreeting()}
               </span>
@@ -466,12 +466,12 @@ export function OrderManager({
           
           {/* Right Content */}
           <div className="relative z-10 flex items-center gap-3">
-            <div className={`hidden sm:flex px-4 py-2 rounded-full text-xs font-bold items-center gap-2 border transition-colors duration-1000 ${
-              isDarkSky ? 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30' : 'bg-primary/10 text-primary border-primary/20'
+            <div className={`hidden sm:flex px-3 py-1.5 rounded-full text-[11px] font-medium items-center gap-1.5 border transition-colors duration-1000 ${
+              isDarkSky ? 'bg-emerald-400/10 text-emerald-300 border-emerald-400/20' : 'bg-primary/10 text-primary border-primary/20'
             }`}>
-              <span className="relative flex h-2.5 w-2.5 mr-1">
+              <span className="relative flex h-2 w-2 mr-0.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               System Online
             </div>
