@@ -49,3 +49,70 @@ export async function uploadImage(file: File): Promise<string | null> {
     return `ERROR_UPLOAD: ${error.message}`;
   }
 }
+
+let adminsSheetVerified = false;
+
+export async function ensureAdminsSheet() {
+  if (adminsSheetVerified) return;
+  try {
+    const spreadsheet = await sheets.spreadsheets.get({
+      spreadsheetId: SPREADSHEET_ID,
+    });
+    const sheetExists = spreadsheet.data.sheets?.some(s => s.properties?.title === 'Admins');
+    
+    if (!sheetExists) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        requestBody: { requests: [{ addSheet: { properties: { title: 'Admins' } } }] }
+      });
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Admins!A1:C1',
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [['Username', 'PasswordHash', 'AvatarUrl']] }
+      });
+    }
+    adminsSheetVerified = true;
+  } catch (error) {
+    console.error('Error ensuring Admins sheet:', error);
+  }
+}
+
+export async function getAdmins() {
+  await ensureAdminsSheet();
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Admins!A2:C',
+    });
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) return [];
+    
+    return rows.map(row => ({
+      username: row[0],
+      passwordHash: row[1],
+      avatarUrl: row[2] || '',
+    }));
+  } catch (error) {
+    console.error('Error fetching admins:', error);
+    return [];
+  }
+}
+
+export async function addAdmin(username: string, passwordHash: string, avatarUrl: string) {
+  await ensureAdminsSheet();
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Admins!A:C',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[username, passwordHash, avatarUrl]]
+      }
+    });
+    return true;
+  } catch (error) {
+    console.error('Error adding admin:', error);
+    return false;
+  }
+}

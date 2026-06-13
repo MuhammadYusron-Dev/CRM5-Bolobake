@@ -12,7 +12,24 @@ interface SidebarProps {
 
 export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [user, setUser] = useState<{username: string, avatarUrl: string} | null>(null);
   const router = useRouter();
+
+  React.useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  };
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard Analitik', icon: LayoutDashboard },
@@ -87,12 +104,16 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           </div>
 
           <div className={`bg-secondary/40 rounded-2xl p-2 flex items-center gap-3 transition-all ${isCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shrink-0 shadow-sm border border-border/50">
-              <User className="w-5 h-5 text-muted-foreground" />
+            <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shrink-0 shadow-sm border border-border/50 overflow-hidden">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-5 h-5 text-muted-foreground" />
+              )}
             </div>
             {!isCollapsed && (
               <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-sm font-bold truncate">Toko Demo Eco Soap</span>
+                <span className="text-sm font-bold truncate">{user?.username || 'Admin'}</span>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
                   <span className="text-xs text-muted-foreground truncate">Admin store</span>
@@ -100,7 +121,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               </div>
             )}
             {!isCollapsed && (
-              <button className="p-2 hover:bg-background rounded-xl text-muted-foreground transition-colors shrink-0">
+              <button onClick={handleLogout} className="p-2 hover:bg-background rounded-xl text-muted-foreground transition-colors shrink-0" title="Keluar">
                 <LogOut className="w-4 h-4" />
               </button>
             )}
