@@ -384,7 +384,7 @@ export default function CatalogPage() {
             <div className="h-6 w-px bg-secondary/80"></div>
             <div className="flex items-center gap-2">
               <ChefHat className="w-7 h-7 text-primary" />
-              <h1 className="text-2xl font-serif font-bold">Catalog Manager</h1>
+              <h1 className="text-2xl font-bold">Catalog Manager</h1>
             </div>
           </div>
           <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
@@ -426,7 +426,7 @@ export default function CatalogPage() {
           <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm overflow-hidden w-full">
             <div className="p-4 sm:p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-serif font-bold flex items-center gap-2">
+                <h2 className="text-lg font-bold flex items-center gap-2">
                   <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                   Master Katalog Produk
                 </h2>
@@ -522,7 +522,7 @@ export default function CatalogPage() {
           <div className="space-y-6 sm:space-y-8 w-full">
             {/* Upload Zone */}
             <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm p-4 sm:p-8">
-              <h2 className="text-lg font-serif font-bold flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-bold flex items-center gap-2 mb-2">
                 <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 Auto-Scanner (Catalog Screening)
               </h2>
@@ -575,7 +575,7 @@ export default function CatalogPage() {
               <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-border flex items-center justify-between">
                   <div>
-                    <h3 className="font-serif font-bold text-lg flex items-center gap-2">
+                    <h3 className="font-bold text-lg flex items-center gap-2">
                       <ScanLine className="w-5 h-5 text-primary" />
                       Hasil Pemindaian AI
                     </h3>
@@ -668,7 +668,7 @@ export default function CatalogPage() {
         {activeTab === "manual" && (
           <div className="max-w-2xl w-full">
             <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm p-4 sm:p-8">
-              <h2 className="text-lg font-serif font-bold flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-bold flex items-center gap-2 mb-2">
                 <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 Input Manual Produk Baru
               </h2>
@@ -756,7 +756,7 @@ export default function CatalogPage() {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setEditingItem(null)}></div>
           <div className="bg-card text-card-foreground border border-border rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b border-border">
-              <h3 className="font-serif font-bold text-lg">Edit SKU: {editingItem.id}</h3>
+              <h3 className="font-bold text-lg">Edit SKU: {editingItem.id}</h3>
               <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
