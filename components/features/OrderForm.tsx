@@ -254,6 +254,7 @@ export function OrderForm({
 
     const finalItems = items.map(item => {
       let finalSku = item.isSample ? `${item.sku} (sample)` : item.sku;
+      
       if (item.sku.toLowerCase().includes('burnt cheesecake') && (item.shape || item.cut)) {
         const parts = [];
         if (item.shape) parts.push(item.shape);
@@ -261,7 +262,14 @@ export function OrderForm({
         if (parts.length > 0) {
           finalSku = `${finalSku} (${parts.join(', ')})`;
         }
+      } else if (item.sku.toLowerCase() === 'millescrepe whole') {
+        if (item.millescrepeType === '1 Varian' && item.flavor1) {
+          finalSku = `${item.isSample ? '(sample) ' : ''}Millescrepe ${item.flavor1} whole`;
+        } else if (item.millescrepeType === '2 Varian' && item.flavor1 && item.flavor2) {
+          finalSku = `${item.isSample ? '(sample) ' : ''}Millescrepe Mix ${item.flavor1} & ${item.flavor2} whole`;
+        }
       }
+      
       return { ...item, sku: finalSku };
     });
 
@@ -609,6 +617,59 @@ export function OrderForm({
                           <option value="Garis 10">Garis 10</option>
                         </select>
                       </div>
+                    </div>
+                  )}
+
+                  {item.sku.toLowerCase() === 'millescrepe whole' && (
+                    <div className="flex flex-col gap-3 pt-2 border-t border-border/50">
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Tipe Varian</label>
+                        <select
+                          value={item.millescrepeType || ''}
+                          onChange={(e) => handleItemChange(item.id, 'millescrepeType', e.target.value)}
+                          className="w-full sm:w-1/2 p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                        >
+                          <option value="">-- Pilih Tipe --</option>
+                          <option value="1 Varian">1 Varian</option>
+                          <option value="2 Varian">2 Varian (Mix)</option>
+                        </select>
+                      </div>
+                      
+                      {item.millescrepeType && (
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <div className="flex-1">
+                            <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Varian {item.millescrepeType === '2 Varian' ? '1' : ''}</label>
+                            <select
+                              value={item.flavor1 || ''}
+                              onChange={(e) => handleItemChange(item.id, 'flavor1', e.target.value)}
+                              className="w-full p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                            >
+                              <option value="">-- Pilih Rasa --</option>
+                              <option value="Oreo">Oreo</option>
+                              <option value="Strawberry Cheese">Strawberry Cheese</option>
+                              <option value="Red Velvet">Red Velvet</option>
+                              <option value="Tiramisu">Tiramisu</option>
+                            </select>
+                          </div>
+                          
+                          {item.millescrepeType === '2 Varian' && (
+                            <div className="flex-1">
+                              <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Varian 2</label>
+                              <select
+                                value={item.flavor2 || ''}
+                                onChange={(e) => handleItemChange(item.id, 'flavor2', e.target.value)}
+                                className="w-full p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                              >
+                                <option value="">-- Pilih Rasa --</option>
+                                <option value="Oreo">Oreo</option>
+                                <option value="Strawberry Cheese">Strawberry Cheese</option>
+                                <option value="Red Velvet">Red Velvet</option>
+                                <option value="Tiramisu">Tiramisu</option>
+                              </select>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -6,6 +6,9 @@ export interface OrderItem {
   isSample?: boolean;
   shape?: string;
   cut?: string;
+  millescrepeType?: string;
+  flavor1?: string;
+  flavor2?: string;
 }
 
 export interface Order {
