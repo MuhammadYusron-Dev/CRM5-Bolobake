@@ -32,16 +32,24 @@ export function OrderManager({
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
 
   useEffect(() => {
+    // PREVIEW MODE: Cycle through time of day every 4 seconds
+    const previewHours = [8, 13, 16, 20]; // Pagi, Siang, Sore, Malam
+    let step = 0;
+    setCurrentHour(previewHours[step]);
+
+    const cycleInterval = setInterval(() => {
+      step = (step + 1) % previewHours.length;
+      setCurrentHour(previewHours[step]);
+    }, 4000);
+
     const updateDate = () => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       setCurrentDateString(new Intl.DateTimeFormat('id-ID', options).format(now));
-      setCurrentHour(now.getHours());
     };
     updateDate();
-    // Update every minute is enough for date, but every second is fine too
-    const interval = setInterval(updateDate, 1000);
-    return () => clearInterval(interval);
+    
+    return () => clearInterval(cycleInterval);
   }, []);
 
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
