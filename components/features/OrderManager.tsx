@@ -45,16 +45,21 @@ export function OrderManager({
     const variantPerformance: Record<string, { qty: number; omset: number }> = {};
     const customerLeaderboard: Record<string, { freq: number; totalBelanja: number }> = {};
 
-    const getTimestamp = (dateStr: string) => {
+    const parseDateToNumber = (dateStr: string) => {
       if (!dateStr) return 0;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(dateStr).getTime();
-      const parts = dateStr.split(/[\/\-]/);
-      if (parts.length === 3 && parts[2].length === 4) {
-        return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`).getTime();
-      }
-      const ts = new Date(dateStr).getTime();
-      return isNaN(ts) ? 0 : ts;
+      const match1 = dateStr.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      if (match1) return parseInt(`${match1[1]}${match1[2].padStart(2, '0')}${match1[3].padStart(2, '0')}`);
+      const match2 = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      if (match2) return parseInt(`${match2[3]}${match2[2].padStart(2, '0')}${match2[1].padStart(2, '0')}`);
+      try {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) return parseInt(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
+      } catch (e) {}
+      return 0;
     };
+
+    const startNum = parseDateToNumber(filterStartDate);
+    const endNum = parseDateToNumber(filterEndDate);
 
     const filteredOrders = orderHistory.filter(order => {
       let orderDate = order.productionDate;
@@ -62,9 +67,11 @@ export function OrderManager({
         try { orderDate = new Date(order.timestamp).toISOString().split('T')[0]; } catch (e) { orderDate = '2026-01-01'; }
       }
       
-      const orderTime = getTimestamp(orderDate);
-      if (filterStartDate && orderTime < new Date(filterStartDate).getTime()) return false;
-      if (filterEndDate && orderTime > new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1) return false;
+      const orderNum = parseDateToNumber(orderDate);
+      if (orderNum === 0) return true;
+      
+      if (startNum > 0 && orderNum < startNum) return false;
+      if (endNum > 0 && orderNum > endNum) return false;
       return true;
     });
 

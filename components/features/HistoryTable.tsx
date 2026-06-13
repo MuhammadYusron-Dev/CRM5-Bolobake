@@ -39,16 +39,30 @@ export function HistoryTable({
   }, [searchHistoryInput]);
 
   const filteredHistory = useMemo(() => {
-    const getTimestamp = (dateStr: string) => {
+    const parseDateToNumber = (dateStr: string) => {
       if (!dateStr) return 0;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(dateStr).getTime();
-      const parts = dateStr.split(/[\/\-]/);
-      if (parts.length === 3 && parts[2].length === 4) {
-        return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`).getTime();
+      // Try YYYY-MM-DD
+      const match1 = dateStr.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      if (match1) {
+        return parseInt(`${match1[1]}${match1[2].padStart(2, '0')}${match1[3].padStart(2, '0')}`);
       }
-      const ts = new Date(dateStr).getTime();
-      return isNaN(ts) ? 0 : ts;
+      // Try DD-MM-YYYY
+      const match2 = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      if (match2) {
+        return parseInt(`${match2[3]}${match2[2].padStart(2, '0')}${match2[1].padStart(2, '0')}`);
+      }
+      // Fallback
+      try {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+          return parseInt(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
+        }
+      } catch (e) {}
+      return 0;
     };
+
+    const startNum = parseDateToNumber(filterStartDate);
+    const endNum = parseDateToNumber(filterEndDate);
 
     return orderHistory.filter(order => {
       if (searchHistoryQuery) {
@@ -69,22 +83,17 @@ export function HistoryTable({
           if (!isNaN(ts.getTime())) {
             orderDate = ts.toISOString().split('T')[0];
           }
-        } catch (e) { 
-          // fallback
-        }
+        } catch (e) {}
       }
       
-      if (!orderDate) return true;
+      if (!orderDate) return true; // Show items with no valid date
       
-      const orderTime = getTimestamp(orderDate);
-      if (filterStartDate) {
-        const startTime = new Date(filterStartDate).getTime();
-        if (orderTime < startTime) return false;
-      }
-      if (filterEndDate) {
-        const endTime = new Date(filterEndDate).getTime() + (24 * 60 * 60 * 1000) - 1;
-        if (orderTime > endTime) return false;
-      }
+      const orderNum = parseDateToNumber(orderDate);
+      if (orderNum === 0) return true; // Show if we completely fail to parse
+      
+      if (startNum > 0 && orderNum < startNum) return false;
+      if (endNum > 0 && orderNum > endNum) return false;
+      
       return true;
     });
   }, [orderHistory, filterStartDate, filterEndDate, searchHistoryQuery]);
