@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { ThemeToggle } from '@/components/features/ThemeToggle';
 
 interface SidebarProps {
   activeMenu: string;
@@ -78,6 +79,32 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               </button>
             )
           })}
+        </div>
+
+        <div className="mt-auto px-4 pb-4 flex flex-col gap-4">
+          <div className="flex justify-center w-full">
+            <ThemeToggle isCollapsed={isCollapsed} />
+          </div>
+
+          <div className={`bg-secondary/40 rounded-2xl p-2 flex items-center gap-3 transition-all ${isCollapsed ? 'justify-center' : ''}`}>
+            <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shrink-0 shadow-sm border border-border/50">
+              <User className="w-5 h-5 text-muted-foreground" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col flex-1 overflow-hidden">
+                <span className="text-sm font-bold truncate">Toko Demo Eco Soap</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+                  <span className="text-xs text-muted-foreground truncate">Admin store</span>
+                </div>
+              </div>
+            )}
+            {!isCollapsed && (
+              <button className="p-2 hover:bg-background rounded-xl text-muted-foreground transition-colors shrink-0">
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="hidden md:flex p-4 border-t border-border justify-end shrink-0 h-16 items-center bg-muted/20">
