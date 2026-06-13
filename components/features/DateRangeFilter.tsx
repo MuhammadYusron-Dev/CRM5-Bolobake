@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar as CalendarIcon, ChevronDown, SlidersHorizontal, Check, X } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, SlidersHorizontal, Check, X, RotateCcw } from 'lucide-react';
 
 interface DateRangeFilterProps {
   filterStartDate: string;
@@ -11,7 +11,7 @@ interface DateRangeFilterProps {
 }
 
 type FilterPreset = 
-  | 'semua_waktu' | '7_hari' | 'bulan_ini' | 'bulan_lalu'
+  | 'semua_waktu' | 'hari_ini' | 'kemarin' | '7_hari' | 'bulan_ini' | 'bulan_lalu'
   | 'q1' | 'q2' | 'q3' | 'q4'
   | 'tahun' | 'bulan_spesifik' | 'kustom';
 
@@ -58,6 +58,16 @@ export function DateRangeFilter({
       case 'semua_waktu':
         setFilterStartDate('');
         setFilterEndDate('');
+        break;
+      case 'hari_ini':
+        setFilterStartDate(formatDate(today));
+        setFilterEndDate(formatDate(today));
+        break;
+      case 'kemarin':
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        setFilterStartDate(formatDate(yesterday));
+        setFilterEndDate(formatDate(yesterday));
         break;
       case '7_hari':
         const sevenDaysAgo = new Date(today);
@@ -113,6 +123,8 @@ export function DateRangeFilter({
 
   const presetLabels: Record<FilterPreset, string> = {
     semua_waktu: 'Semua Waktu',
+    hari_ini: 'Hari Ini',
+    kemarin: 'Kemarin',
     '7_hari': '7 Hari Terakhir',
     bulan_ini: 'Bulan Ini',
     bulan_lalu: 'Bulan Lalu',
@@ -183,6 +195,8 @@ export function DateRangeFilter({
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {renderPresetButton('semua_waktu', 'Semua Waktu')}
+                {renderPresetButton('hari_ini', 'Hari Ini')}
+                {renderPresetButton('kemarin', 'Kemarin')}
                 {renderPresetButton('7_hari', '7 Hari')}
                 {renderPresetButton('bulan_ini', 'Bulan Ini')}
                 {renderPresetButton('bulan_lalu', 'Bulan Lalu')}
@@ -310,23 +324,33 @@ export function DateRangeFilter({
             
           </div>
 
-          <div className="p-3 border-t border-border bg-muted/10 grid grid-cols-2 gap-2">
+          <div className="p-3 border-t border-border bg-muted/10 grid grid-cols-3 gap-2">
+            <button
+              onClick={() => {
+                applyPreset('hari_ini');
+                setIsOpen(false);
+              }}
+              className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset
+            </button>
             <button
               onClick={() => setActivePreset('kustom')}
-              className={`flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl border transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border transition-all ${
                 activePreset === 'kustom'
                   ? 'bg-primary/20 text-primary border-primary shadow-sm'
                   : 'bg-background border-border text-foreground hover:bg-muted'
               }`}
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="w-3.5 h-3.5" />
               Kustom
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl border border-transparent bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
+              className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border border-transparent bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
             >
-              Terapkan & Tutup
+              Terapkan
             </button>
           </div>
         </div>
