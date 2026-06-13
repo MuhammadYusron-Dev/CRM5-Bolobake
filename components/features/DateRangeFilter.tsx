@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar as CalendarIcon, ChevronDown, SlidersHorizontal, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, SlidersHorizontal, Check, X } from 'lucide-react';
 
 interface DateRangeFilterProps {
   filterStartDate: string;
@@ -58,53 +58,44 @@ export function DateRangeFilter({
       case 'semua_waktu':
         setFilterStartDate('');
         setFilterEndDate('');
-        setIsOpen(false);
         break;
       case '7_hari':
         const sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 7);
         setFilterStartDate(formatDate(sevenDaysAgo));
         setFilterEndDate(formatDate(today));
-        setIsOpen(false);
         break;
       case 'bulan_ini':
         const startThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const endThisMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         setFilterStartDate(formatDate(startThisMonth));
         setFilterEndDate(formatDate(endThisMonth));
-        setIsOpen(false);
         break;
       case 'bulan_lalu':
         const startLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         const endLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
         setFilterStartDate(formatDate(startLastMonth));
         setFilterEndDate(formatDate(endLastMonth));
-        setIsOpen(false);
         break;
       case 'q1':
         setFilterStartDate(`${year}-01-01`);
         setFilterEndDate(`${year}-03-31`);
-        setIsOpen(false);
         break;
       case 'q2':
         setFilterStartDate(`${year}-04-01`);
         setFilterEndDate(`${year}-06-30`);
-        setIsOpen(false);
         break;
       case 'q3':
         setFilterStartDate(`${year}-07-01`);
         setFilterEndDate(`${year}-09-30`);
-        setIsOpen(false);
         break;
       case 'q4':
         setFilterStartDate(`${year}-10-01`);
         setFilterEndDate(`${year}-12-31`);
-        setIsOpen(false);
         break;
       case 'tahun':
         setFilterStartDate(`${year}-01-01`);
         setFilterEndDate(`${year}-12-31`);
-        setIsOpen(false);
         break;
       case 'bulan_spesifik':
         const sm = parseInt(month);
@@ -113,7 +104,6 @@ export function DateRangeFilter({
         const endSpecific = new Date(sy, sm, 0);
         setFilterStartDate(formatDate(startSpecific));
         setFilterEndDate(formatDate(endSpecific));
-        setIsOpen(false);
         break;
       case 'kustom':
         // Just keep the current dates but switch mode
@@ -178,7 +168,9 @@ export function DateRangeFilter({
         <div className="absolute right-0 mt-2 w-[340px] bg-card border border-border rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
             <h3 className="text-sm font-bold text-foreground tracking-wide">FILTER WAKTU</h3>
-            <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+            <button onClick={() => setIsOpen(false)} className="p-1 rounded-md hover:bg-muted text-muted-foreground transition-colors">
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="p-4 space-y-5 max-h-[70vh] overflow-y-auto">
@@ -318,17 +310,23 @@ export function DateRangeFilter({
             
           </div>
 
-          <div className="p-3 border-t border-border bg-muted/10">
+          <div className="p-3 border-t border-border bg-muted/10 grid grid-cols-2 gap-2">
             <button
               onClick={() => setActivePreset('kustom')}
-              className={`w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
+              className={`flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl border transition-all ${
                 activePreset === 'kustom'
-                  ? 'bg-primary text-primary-foreground shadow-md'
+                  ? 'bg-primary/20 text-primary border-primary shadow-sm'
                   : 'bg-background border-border text-foreground hover:bg-muted'
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
-              Rentang Waktu Kustom
+              Kustom
+            </button>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center gap-2 py-2.5 text-xs font-semibold rounded-xl border border-transparent bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
+            >
+              Terapkan & Tutup
             </button>
           </div>
         </div>
