@@ -55,9 +55,31 @@ export function OrderForm({
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
+  const processedKatalog = React.useMemo(() => {
+    const hasMillescrepeWhole = katalog.some(p => p.nama.toLowerCase() === 'millescrepe whole');
+    const millescrepePrice = katalog.find(p => p.nama.toLowerCase().match(/^millescrepe.*whole$/i))?.harga || 220000;
+    
+    const filtered = katalog.filter(p => {
+      if (p.nama.toLowerCase().match(/^millescrepe.*whole$/i) && p.nama.toLowerCase() !== 'millescrepe whole') return false;
+      return true;
+    });
+
+    if (!hasMillescrepeWhole) {
+      filtered.push({
+        id: 'virtual-millescrepe',
+        nama: 'Millescrepe Whole',
+        harga: millescrepePrice,
+        kategori: 'Cake',
+        satuan: 'whole',
+        aktif: true
+      });
+    }
+    return filtered;
+  }, [katalog]);
+
   const getSkuPrice = (skuCode: string, customerTier: string = "STANDARD") => {
     // Exception-based tier logic
-    const baseProduct = katalog.find(p => p.nama.toLowerCase() === skuCode.toLowerCase());
+    const baseProduct = processedKatalog.find(p => p.nama.toLowerCase() === skuCode.toLowerCase());
     const basePrice = baseProduct ? baseProduct.harga : 0;
     
     // Future-proof: If customer tier is not STANDARD, check tierPrices dictionary
@@ -481,7 +503,7 @@ export function OrderForm({
                   <Package className="w-4 h-4 text-primary" />
                   Detail Pesanan
                 </label>
-                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">{katalog.filter(p => p.aktif).length} SKU Aktif</span>
+                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">{processedKatalog.filter(p => p.aktif).length} SKU Aktif</span>
               </div>
               
               <div className="space-y-3">
@@ -507,7 +529,7 @@ export function OrderForm({
                       {activeDropdownId === item.id && (
                         <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-xl max-h-60 overflow-y-auto">
                           {(() => {
-                            const suggestions = katalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()));
+                            const suggestions = processedKatalog.filter(p => p.aktif && p.nama.toLowerCase().includes(item.sku.toLowerCase()));
                             if (suggestions.length === 0) return <div className="px-3 py-3 text-sm text-center text-muted-foreground">Tidak ada produk cocok.</div>;
                             
                             const grouped = suggestions.reduce((acc, p) => {
