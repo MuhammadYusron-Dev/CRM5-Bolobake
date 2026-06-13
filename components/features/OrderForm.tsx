@@ -290,6 +290,8 @@ export function OrderForm({
         } else if (item.millescrepeType === '2 Varian' && item.flavor1 && item.flavor2) {
           finalSku = `${item.isSample ? '(sample) ' : ''}Millescrepe Mix ${item.flavor1} & ${item.flavor2} whole`;
         }
+      } else if (item.sku.toLowerCase().includes('brioche') && item.briocheCut) {
+        finalSku = `${finalSku} (Potong ${item.briocheCut} cm)`;
       }
       
       return { ...item, sku: finalSku };
@@ -692,6 +694,28 @@ export function OrderForm({
                           )}
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {item.sku.toLowerCase().includes('brioche') && (
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border/50">
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Potongan Khusus (cm)</label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.briocheCut || ''}
+                            onChange={(e) => handleItemChange(item.id, 'briocheCut', e.target.value)}
+                            placeholder="Contoh: 1.5"
+                            className="w-full sm:w-1/2 p-2 pr-8 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none bg-background"
+                          />
+                          <span className="absolute right-auto left-[calc(50%-1.5rem)] sm:left-[calc(50%-1.5rem)] sm:right-auto sm:ml-[-1rem] top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground hidden sm:block">cm</span>
+                          {/* Fallback for responsive positioning of "cm" text */}
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground sm:hidden">cm</span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

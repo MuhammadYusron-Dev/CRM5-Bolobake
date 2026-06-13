@@ -9,6 +9,7 @@ export interface OrderItem {
   millescrepeType?: string;
   flavor1?: string;
   flavor2?: string;
+  briocheCut?: string;
 }
 
 export interface Order {
