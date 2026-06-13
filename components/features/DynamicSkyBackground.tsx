@@ -5,19 +5,52 @@ interface DynamicSkyBackgroundProps {
 }
 
 export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps) {
-  // Track accumulated hours to prevent backwards rotation jumps in preview mode
-  const [accumulatedHour, setAccumulatedHour] = useState(currentHour);
-  const prevHourRef = useRef(currentHour);
+  const sunWrapperRef = useRef<HTMLDivElement>(null);
+  const sunInnerRef = useRef<HTMLDivElement>(null);
+  const moonWrapperRef = useRef<HTMLDivElement>(null);
+  const moonInnerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let diff = currentHour - prevHourRef.current;
-    // If time jumped backwards by a lot (e.g., midnight or fast preview loop), assume it's the next day
-    if (diff < -6) {
-      diff += 24;
-    }
-    setAccumulatedHour(prev => prev + diff);
-    prevHourRef.current = currentHour;
-  }, [currentHour]);
+    let frameId: number;
+    const updateOrbits = () => {
+      const now = new Date();
+      // Precise decimal hour
+      const h = now.getHours() + (now.getMinutes() / 60) + (now.getSeconds() / 3600) + (now.getMilliseconds() / 3600000);
+
+      // Sun Orbit: 06:00 is -90deg (Left), 12:00 is 0deg (Top), 18:00 is 90deg (Right)
+      const sunAngle = (h - 12) * 15;
+      if (sunWrapperRef.current) {
+        sunWrapperRef.current.style.transform = `rotate(${sunAngle}deg)`;
+      }
+      if (sunInnerRef.current) {
+        sunInnerRef.current.style.opacity = (h >= 6 && h <= 18) ? '1' : '0';
+      }
+
+      // Moon Orbit: 19:00 is 90deg (Right), 23:00 is -90deg (Left)
+      // Travels 180 degrees in 4 hours = 45 degrees/hour
+      let moonAngle = 0;
+      if (h >= 19 && h <= 23) {
+         moonAngle = 90 - (h - 19) * 45;
+      } else if (h < 19 && h > 12) {
+         moonAngle = 90;
+      } else {
+         moonAngle = -90;
+      }
+      
+      if (moonWrapperRef.current) {
+        moonWrapperRef.current.style.transform = `rotate(${moonAngle}deg)`;
+      }
+      if (moonInnerRef.current) {
+        moonInnerRef.current.style.transform = `rotate(${-moonAngle}deg)`;
+        moonInnerRef.current.style.opacity = (h >= 19 && h <= 23) ? '1' : '0';
+      }
+
+      frameId = requestAnimationFrame(updateOrbits);
+    };
+
+    frameId = requestAnimationFrame(updateOrbits);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   // Determine time phase
   const isMorning = currentHour >= 5 && currentHour < 12;
@@ -45,51 +78,47 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
   if (isMorning || isMidday) {
     cloudClass = 'text-white/90';
   } else if (isAfternoon) {
-    cloudClass = 'text-rose-100/70';
+    cloudClass = 'text-orange-200/60 drop-shadow-md';
   } else if (isEvening) {
-    cloudClass = 'text-purple-200/40';
+    cloudClass = 'text-purple-300/40';
   } else if (isNight) {
     cloudClass = 'text-slate-300/10';
   }
-
-  // Calculate angles for the arc
-  // Sun: 06:00 is -90deg (Left), 12:00 is 0deg (Top), 18:00 is 90deg (Right)
-  const sunAngle = (accumulatedHour - 12) * 15;
-  // Moon: 18:00 is 90deg (Right), 00:00 is 0deg (Top), 06:00 is -90deg (Left)
-  const moonAngle = -(accumulatedHour - 24) * 15;
 
   // Celestial bodies orbiting on a pivot
   const celestialBodies = (
     <div className="absolute inset-0 z-0 pointer-events-none">
       {/* Sun Orbit Wrapper */}
       <div 
-        className="absolute left-1/2 w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
-        style={{ bottom: 'calc(32px - 60vw)', transform: `rotate(${sunAngle}deg)` }}
+        ref={sunWrapperRef}
+        className="absolute left-1/2 w-0 h-0"
+        style={{ bottom: 'calc(32px - 60vw)' }}
       >
         <div 
-          className="absolute -ml-[2rem] -mt-[2rem] w-16 h-16 rounded-full transition-all duration-[4000ms] ease-in-out"
+          ref={sunInnerRef}
+          className="absolute -ml-[2rem] -mt-[2rem] w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-[4000ms]"
           style={{ 
             bottom: '60vw', 
             background: isMorning ? '#fef08a' : isMidday ? '#fef9c3' : '#fb923c',
-            boxShadow: isMorning ? '0 0 30px 10px rgba(253,224,71,0.5)' : isMidday ? '0 0 40px 15px rgba(253,224,71,0.6)' : '0 0 30px 10px rgba(251,146,60,0.6)',
-            filter: isAfternoon || isEvening ? 'blur(2px)' : 'blur(1px)',
-            opacity: isNight ? 0 : 1
+            boxShadow: isMorning ? '0 0 40px 15px rgba(253,224,71,0.5)' : isMidday ? '0 0 50px 20px rgba(253,224,71,0.6)' : '0 0 60px 25px rgba(251,146,60,0.8)',
           }}
-        />
+        >
+          {isAfternoon && (
+             <div className="absolute inset-[-100px] sunset-rays rounded-full opacity-60"></div>
+          )}
+        </div>
       </div>
 
       {/* Moon Orbit Wrapper */}
       <div 
-        className="absolute left-1/2 w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
-        style={{ bottom: 'calc(32px - 60vw)', transform: `rotate(${moonAngle}deg)` }}
+        ref={moonWrapperRef}
+        className="absolute left-1/2 w-0 h-0"
+        style={{ bottom: 'calc(32px - 60vw)' }}
       >
         <div 
-          className="absolute -ml-[1.5rem] -mt-[1.5rem] w-12 h-12 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_20px_5px_rgba(241,245,249,0.3)] transition-all duration-[4000ms] ease-in-out"
-          style={{ 
-            bottom: '60vw',
-            transform: `rotate(${-moonAngle}deg)`, // Counter-rotate so craters stay upright
-            opacity: (!isNight && !isEvening && currentHour > 7 && currentHour < 17) ? 0 : 1 
-          }}
+          ref={moonInnerRef}
+          className="absolute -ml-[1.5rem] -mt-[1.5rem] w-12 h-12 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_20px_5px_rgba(241,245,249,0.3)]"
+          style={{ bottom: '60vw' }}
         >
           {/* Moon Craters */}
           <div className="absolute top-2 left-2 w-2 h-2 bg-slate-300 rounded-full opacity-50"></div>
@@ -154,11 +183,52 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
     </div>
   );
 
+  const birds = isAfternoon ? (
+    <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+      <div className="absolute bird-animate-1">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-black/40">
+           <path d="M2,12 C4,8 8,6 12,10 C16,6 20,8 22,12 C20,10 16,10 12,13 C8,10 4,10 2,12 Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div className="absolute bird-animate-2" style={{ top: '15%' }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-black/30">
+           <path d="M2,12 C4,8 8,6 12,10 C16,6 20,8 22,12 C20,10 16,10 12,13 C8,10 4,10 2,12 Z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div className="absolute bird-animate-3" style={{ top: '5%' }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-black/20">
+           <path d="M2,12 C4,8 8,6 12,10 C16,6 20,8 22,12 C20,10 16,10 12,13 C8,10 4,10 2,12 Z" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <div className={`fixed inset-0 z-0 bg-gradient-to-b transition-colors duration-[3000ms] ${bgGradient} overflow-hidden pointer-events-none`}>
+      <style>{`
+        @keyframes flyBirds {
+          0% { transform: translateX(120vw) translateY(5vh); }
+          100% { transform: translateX(-20vw) translateY(-5vh); }
+        }
+        .bird-animate-1 { animation: flyBirds 25s linear infinite; }
+        .bird-animate-2 { animation: flyBirds 35s linear infinite 5s; }
+        .bird-animate-3 { animation: flyBirds 40s linear infinite 12s; }
+        @keyframes sunsetRays {
+          0% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+          50% { transform: rotate(180deg) scale(1.2); opacity: 0.6; }
+          100% { transform: rotate(360deg) scale(1); opacity: 0.3; }
+        }
+        .sunset-rays {
+          animation: sunsetRays 90s linear infinite;
+          background: repeating-conic-gradient(from 0deg, rgba(255, 200, 100, 0.4) 0deg 15deg, transparent 15deg 30deg);
+          -webkit-mask-image: radial-gradient(circle, black 20%, transparent 70%);
+          mask-image: radial-gradient(circle, black 20%, transparent 70%);
+        }
+      `}</style>
       {celestialBodies}
       {stars}
       {clouds}
+      {birds}
     </div>
   );
 }
