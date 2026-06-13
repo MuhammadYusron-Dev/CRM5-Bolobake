@@ -1,5 +1,8 @@
 import { headers } from 'next/headers';
 import { OrderManager } from '@/components/features/OrderManager';
+import { GET as getOrders } from '@/app/api/orders/route';
+import { GET as getCatalog } from '@/app/api/catalog/route';
+import { GET as getCustomers } from '@/app/api/customers/route';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +17,7 @@ export default async function Home() {
   let initialCustomers = [];
 
   try {
-    const resOrders = await fetch(`${baseUrl}/api/orders`, { cache: 'no-store' });
+    const resOrders = await getOrders();
     const orderData = await resOrders.json();
     if (orderData.success) initialOrders = orderData.data;
   } catch (e) {
@@ -22,7 +25,7 @@ export default async function Home() {
   }
 
   try {
-    const resCatalog = await fetch(`${baseUrl}/api/catalog`, { cache: 'no-store' });
+    const resCatalog = await getCatalog();
     const catalogData = await resCatalog.json();
     if (catalogData.success) initialCatalog = catalogData.data;
   } catch (e) {
@@ -30,7 +33,7 @@ export default async function Home() {
   }
 
   try {
-    const resCust = await fetch(`${baseUrl}/api/customers`, { cache: 'no-store' });
+    const resCust = await getCustomers();
     const custData = await resCust.json();
     if (custData.success) initialCustomers = custData.data;
   } catch (e) {
