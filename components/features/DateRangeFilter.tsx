@@ -142,7 +142,7 @@ export function DateRangeFilter({
     return (
       <button
         onClick={() => applyPreset(preset)}
-        className={`flex items-center justify-between px-3 py-2 text-sm rounded-lg border transition-colors ${
+        className={`flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
           isActive 
             ? 'bg-primary/10 border-primary text-primary font-semibold' 
             : 'bg-background border-border text-foreground hover:bg-muted'
@@ -177,19 +177,19 @@ export function DateRangeFilter({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[340px] bg-card border border-border rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
-            <h3 className="text-sm font-bold text-foreground tracking-wide">FILTER WAKTU</h3>
+        <div className="absolute right-0 mt-2 w-[300px] sm:w-[320px] bg-card border border-border rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-3 border-b border-border flex items-center justify-between bg-muted/30">
+            <h3 className="text-xs font-bold text-foreground tracking-wide">FILTER WAKTU</h3>
             <button onClick={() => setIsOpen(false)} className="p-1 rounded-md hover:bg-muted text-muted-foreground transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="p-4 space-y-5 max-h-[70vh] overflow-y-auto">
+          <div className="p-3 space-y-4 max-h-[60vh] overflow-y-auto">
             
             {/* Pilih Cepat */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Pilih Cepat</span>
               </div>
@@ -205,7 +205,7 @@ export function DateRangeFilter({
 
             {/* Per Kuartal */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Per Kuartal ({selectedYear})</span>
               </div>
@@ -217,7 +217,7 @@ export function DateRangeFilter({
                     <button
                       key={q}
                       onClick={() => applyPreset(preset)}
-                      className={`py-2 text-sm rounded-lg border transition-colors text-center font-medium ${
+                      className={`py-1.5 text-xs rounded-lg border transition-colors text-center font-medium ${
                         isActive 
                           ? 'bg-primary/10 border-primary text-primary' 
                           : 'bg-background border-border text-foreground hover:bg-muted'
@@ -232,7 +232,7 @@ export function DateRangeFilter({
 
             {/* Pilih Tahun */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-3">
+              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-2">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-3.5 h-3.5" />
                   <span>Pilih Tahun</span>
@@ -245,7 +245,7 @@ export function DateRangeFilter({
                     setSelectedYear(e.target.value);
                     if (activePreset === 'tahun') applyPreset('tahun', e.target.value);
                   }}
-                  className="bg-background border border-border text-foreground text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 flex-1"
+                  className="bg-background border border-border text-foreground text-xs rounded-lg px-2.5 py-1.5 outline-none focus:ring-2 focus:ring-primary/50 flex-1"
                 >
                   {[2024, 2025, 2026, 2027].map(y => (
                     <option key={y} value={y}>{y}</option>
@@ -253,7 +253,7 @@ export function DateRangeFilter({
                 </select>
                 <button
                   onClick={() => applyPreset('tahun')}
-                  className={`px-4 py-2 text-sm rounded-lg border transition-colors font-medium ${
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-colors font-medium ${
                     activePreset === 'tahun' 
                       ? 'bg-primary/10 border-primary text-primary' 
                       : 'bg-background border-border text-foreground hover:bg-muted'
@@ -266,7 +266,7 @@ export function DateRangeFilter({
 
             {/* Bulan Spesifik */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-3">
+              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-2">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-3.5 h-3.5" />
                   <span>Bulan Spesifik</span>
@@ -283,7 +283,7 @@ export function DateRangeFilter({
                         setSelectedMonth(m.value);
                         applyPreset('bulan_spesifik', selectedYear, m.value);
                       }}
-                      className={`py-1.5 text-xs rounded-lg border transition-colors text-center font-medium ${
+                      className={`py-1 text-xs rounded-lg border transition-colors text-center font-medium ${
                         isActive 
                           ? 'bg-primary/10 border-primary text-primary' 
                           : 'bg-background border-border text-foreground hover:bg-muted'
@@ -306,7 +306,7 @@ export function DateRangeFilter({
                       type="date"
                       value={filterStartDate}
                       onChange={(e) => setFilterStartDate(e.target.value)}
-                      className="text-xs border border-border rounded-lg px-3 py-2 bg-background outline-none focus:ring-2 focus:ring-primary/50 flex-1"
+                      className="text-xs border border-border rounded-lg px-2 py-1.5 bg-background outline-none focus:ring-2 focus:ring-primary/50 flex-1"
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -315,7 +315,7 @@ export function DateRangeFilter({
                       type="date"
                       value={filterEndDate}
                       onChange={(e) => setFilterEndDate(e.target.value)}
-                      className="text-xs border border-border rounded-lg px-3 py-2 bg-background outline-none focus:ring-2 focus:ring-primary/50 flex-1"
+                      className="text-xs border border-border rounded-lg px-2 py-1.5 bg-background outline-none focus:ring-2 focus:ring-primary/50 flex-1"
                     />
                   </div>
                 </div>
@@ -324,20 +324,20 @@ export function DateRangeFilter({
             
           </div>
 
-          <div className="p-3 border-t border-border bg-muted/10 grid grid-cols-3 gap-2">
+          <div className="p-2.5 border-t border-border bg-muted/10 grid grid-cols-3 gap-2">
             <button
               onClick={() => {
                 applyPreset('hari_ini');
                 setIsOpen(false);
               }}
-              className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+              className="flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset
             </button>
             <button
               onClick={() => setActivePreset('kustom')}
-              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
                 activePreset === 'kustom'
                   ? 'bg-primary/20 text-primary border-primary shadow-sm'
                   : 'bg-background border-border text-foreground hover:bg-muted'
@@ -348,7 +348,7 @@ export function DateRangeFilter({
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-xl border border-transparent bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
+              className="flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-xl border border-transparent bg-primary text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
             >
               Terapkan
             </button>
