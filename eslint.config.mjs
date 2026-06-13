@@ -7,13 +7,24 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
-    "**/*", // Ignore EVERYTHING to bypass ESLint on Vercel
   ]),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "prefer-const": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "@next/next/no-img-element": "off",
+    }
+  }
 ]);
 
 export default eslintConfig;
