@@ -88,6 +88,8 @@ export function OrderManager({
 
     let activeProductionOrders = 0;
     const customerFirstOrderDate: Record<string, string> = {};
+    let croissantSales = 0;
+    let cakeSales = 0;
     
     const today = new Date();
     // Offset for local timezone roughly, or just use string
@@ -147,9 +149,20 @@ export function OrderManager({
 
       (order.items || []).forEach(item => {
         const sku = item.sku || 'Unknown';
+        const qty = Number(item.qty || 0);
+
+        const product = katalog.find(p => p.nama === sku || p.id === sku);
+        const category = product?.kategori?.toLowerCase() || 'other';
+
+        if (category.includes('croissant') || category.includes('artisan')) {
+           croissantSales += qty;
+        } else {
+           cakeSales += qty;
+        }
+
         if (!variantPerformance[sku]) variantPerformance[sku] = { qty: 0, omset: 0 };
-        variantPerformance[sku].qty += Number(item.qty || 0);
-        variantPerformance[sku].omset += (Number(item.price || 0) * Number(item.qty || 0));
+        variantPerformance[sku].qty += qty;
+        variantPerformance[sku].omset += (Number(item.price || 0) * qty);
       });
 
       if (!customerLeaderboard[custName]) customerLeaderboard[custName] = { freq: 0, totalBelanja: 0 };
@@ -185,9 +198,10 @@ export function OrderManager({
       totalOmset, totalOrders, totalPcs, 
       uniqueCustomers: Array.from(uniqueCustomers), 
       variantPerformance, customerLeaderboard,
-      trendText, activeProductionOrders, newCustomersThisMonth
+      trendText, activeProductionOrders, newCustomersThisMonth,
+      categorySales: { croissant: croissantSales, cake: cakeSales }
     };
-  }, [orderHistory, filterStartDate, filterEndDate]);
+  }, [orderHistory, filterStartDate, filterEndDate, katalog]);
 
   const showToast = (message: string, isUndoable = false, onUndo?: () => void) => {
     setToastOptions({ show: true, message, isUndoable, onUndo });

@@ -16,6 +16,8 @@ import {
   Edit,
   Package,
   Search,
+  Undo2,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -73,10 +75,73 @@ export default function CatalogPage() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [toastUndo, setToastUndo] = useState<(() => void) | null>(null);
 
-  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingDeleteRef = useRef<{ id: string, item: CatalogItem } | null>(null);
+  // Undo Stack State
+  type UndoAction = {
+    action: 'DELETE' | 'EDIT' | 'STATUS' | 'ADD';
+    data: any;
+    oldData?: any;
+    description: string;
+  };
+  const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
+  const [isUndoing, setIsUndoing] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const handleUndo = async () => {
+    if (undoStack.length === 0 || isUndoing) return;
+    setIsUndoing(true);
+    const lastAction = undoStack[undoStack.length - 1];
+    const newStack = undoStack.slice(0, -1);
+
+    try {
+      if (lastAction.action === 'DELETE') {
+        const response = await fetch('/api/catalog', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lastAction.data)
+        });
+        if (response.ok) {
+          setCatalog(prev => [...prev, lastAction.data].sort((a,b) => a.id.localeCompare(b.id)));
+          setToastType("success");
+          setToastMessage(`Undo: ${lastAction.data.nama} dikembalikan.`);
+        } else throw new Error();
+      } else if (lastAction.action === 'STATUS' || lastAction.action === 'EDIT') {
+        const response = await fetch('/api/catalog', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...lastAction.oldData, isFullEdit: true })
+        });
+        if (response.ok) {
+          setCatalog(prev => prev.map(c => c.id === lastAction.oldData.id ? lastAction.oldData : c));
+          setToastType("success");
+          setToastMessage(`Undo: Perubahan ${lastAction.oldData.nama} dibatalkan.`);
+        } else throw new Error();
+      } else if (lastAction.action === 'ADD') {
+        const items = Array.isArray(lastAction.data) ? lastAction.data : [lastAction.data];
+        let success = true;
+        for (const item of items) {
+          const res = await fetch(`/api/catalog?id=${item.id}`, { method: 'DELETE' });
+          if (!res.ok) success = false;
+        }
+        if (success) {
+          const ids = items.map((i: any) => i.id);
+          setCatalog(prev => prev.filter(c => !ids.includes(c.id)));
+          setToastType("success");
+          setToastMessage(`Undo: Penambahan produk dibatalkan.`);
+        } else throw new Error();
+      }
+      setUndoStack(newStack);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      setToastType("error");
+      setToastMessage("Gagal melakukan Undo.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } finally {
+      setIsUndoing(false);
+    }
+  };
 
   // Edit State
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
@@ -88,7 +153,7 @@ export default function CatalogPage() {
   const filteredCatalog = catalog.filter(item => 
     item.nama.toLowerCase().includes(searchQuery.toLowerCase()) || 
     item.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
 
   // --- REAL AI SCANNING via Gemini API ---
   const handleFileUpload = async (file: File) => {
@@ -196,6 +261,7 @@ export default function CatalogPage() {
       if (!response.ok) throw new Error("Failed to save");
 
       setCatalog(prev => [...prev, ...newCatalogItems]);
+      setUndoStack(prev => [...prev, { action: 'ADD', data: newCatalogItems, description: `Menambahkan ${newCatalogItems.length} produk dari AI Scanner` }]);
       setScannedItems([]);
       setScanComplete(false);
       setFileName("");
@@ -236,6 +302,7 @@ export default function CatalogPage() {
       if (!response.ok) throw new Error("Failed to save");
 
       setCatalog(prev => [...prev, newItem]);
+      setUndoStack(prev => [...prev, { action: 'ADD', data: newItem, description: `Menambahkan produk "${newItem.nama}"` }]);
       setManualName("");
       setManualCategory("");
       setManualPrice("");
@@ -289,48 +356,31 @@ export default function CatalogPage() {
     }
   };
 
-  const handleDeleteItem = (itemToDelete: CatalogItem) => {
-    // Jika ada penghapusan yang masih pending untuk item lain, langsung eksekusi
-    if (pendingDeleteRef.current && pendingDeleteRef.current.id !== itemToDelete.id) {
-      const pendingId = pendingDeleteRef.current.id;
-      fetch(`/api/catalog?id=${pendingId}`, { method: 'DELETE' }).catch(e => console.error(e));
-      if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-      pendingDeleteRef.current = null;
-    }
-
+  const handleDeleteItem = async (itemToDelete: CatalogItem) => {
     // Optimistic UI update: hapus dari tampilan seketika
     setCatalog(prev => prev.filter(c => c.id !== itemToDelete.id));
-    pendingDeleteRef.current = { id: itemToDelete.id, item: itemToDelete };
 
-    // Tampilkan Toast dengan tombol Undo
-    setToastType("success");
-    setToastMessage(`Dihapus: ${itemToDelete.nama} (${itemToDelete.id})`);
-    setToastUndo(() => () => {
-      // Fungsi UNDO dipanggil: batalkan penghapusan
-      if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-      pendingDeleteRef.current = null;
+    try {
+      const response = await fetch(`/api/catalog?id=${itemToDelete.id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error("Gagal hapus");
+
+      setUndoStack(prev => [...prev, { action: 'DELETE', data: itemToDelete, description: `Menghapus produk "${itemToDelete.nama}"` }]);
+
+      setToastType("success");
+      setToastMessage(`Dihapus: ${itemToDelete.nama} (${itemToDelete.id})`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      // Revert UI if failed
       setCatalog(prev => {
         const newCatalog = [...prev, itemToDelete];
         return newCatalog.sort((a,b) => a.id.localeCompare(b.id));
       });
-      setShowToast(false);
-      setToastUndo(null);
-    });
-    setShowToast(true);
-
-    // Timeout 6 detik untuk memberikan waktu klik Undo
-    deleteTimeoutRef.current = setTimeout(async () => {
-      if (pendingDeleteRef.current?.id === itemToDelete.id) {
-        pendingDeleteRef.current = null;
-        setToastUndo(null);
-        try {
-          await fetch(`/api/catalog?id=${itemToDelete.id}`, { method: 'DELETE' });
-        } catch (err) {
-          console.error("Gagal menghapus permanen", err);
-        }
-      }
-      setShowToast(false);
-    }, 6000);
+      setToastType("error");
+      setToastMessage("Gagal menghapus produk dari server.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -338,6 +388,7 @@ export default function CatalogPage() {
     if (!editingItem) return;
 
     setIsUpdating(true);
+    const oldItem = catalog.find(c => c.id === editingItem.id);
     try {
       const response = await fetch('/api/catalog', {
         method: 'PUT',
@@ -348,6 +399,9 @@ export default function CatalogPage() {
       if (!response.ok) throw new Error("Gagal update produk");
 
       setCatalog(prev => prev.map(c => c.id === editingItem.id ? editingItem : c));
+      if (oldItem) {
+        setUndoStack(prev => [...prev, { action: 'EDIT', data: editingItem, oldData: oldItem, description: `Mengubah data produk "${oldItem.nama}"` }]);
+      }
       setEditingItem(null);
       
       setToastType("success");
@@ -392,14 +446,6 @@ export default function CatalogPage() {
             <AlertCircle className="w-5 h-5 text-red-300" />
           )}
           <span className="font-medium text-sm">{toastMessage}</span>
-          {toastUndo && (
-            <button 
-              onClick={toastUndo} 
-              className="ml-auto px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition-all active:scale-95 border border-white/20 uppercase tracking-widest flex items-center shadow-sm"
-            >
-              Undo
-            </button>
-          )}
         </div>
       </div>
 
@@ -468,15 +514,61 @@ export default function CatalogPage() {
                 </p>
               </div>
               
-              <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Cari SKU atau Nama Produk..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all bg-background"
-                />
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleUndo}
+                    disabled={undoStack.length === 0 || isUndoing}
+                    className={`flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all flex-shrink-0 border ${undoStack.length > 0 ? "border-red-500/30 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 shadow-sm active:scale-95" : "border-transparent bg-muted text-muted-foreground opacity-50 cursor-not-allowed"}`}
+                    title="Batalkan aksi terakhir"
+                  >
+                    {isUndoing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Undo2 className="w-4 h-4" />}
+                    Undo {undoStack.length > 0 ? `(${undoStack.length})` : ''}
+                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowHistory(!showHistory)}
+                      disabled={undoStack.length === 0}
+                      className={`p-2 rounded-lg transition-all flex-shrink-0 border ${undoStack.length > 0 ? "border-transparent text-primary hover:bg-primary/10 active:scale-95" : "border-transparent text-muted-foreground opacity-50 cursor-not-allowed"}`}
+                      title="Lihat Riwayat Perubahan"
+                    >
+                      <History className="w-5 h-5" />
+                    </button>
+
+                    {/* Dropdown Riwayat */}
+                    {showHistory && undoStack.length > 0 && (
+                      <div className="absolute right-0 top-full mt-2 w-72 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
+                          <div>
+                            <h4 className="text-sm font-bold text-foreground">Riwayat Pengeditan</h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">Aksi paling atas adalah yang terakhir dilakukan.</p>
+                          </div>
+                        </div>
+                        <div className="max-h-60 overflow-y-auto p-2 space-y-1">
+                          {[...undoStack].reverse().map((item, idx) => (
+                            <div key={idx} className="p-2.5 text-sm rounded-lg hover:bg-muted transition-colors flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 flex-shrink-0 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+                              <div>
+                                <p className="font-semibold text-foreground leading-snug">{item.description}</p>
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mt-1 opacity-70">{item.action}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="relative w-full sm:w-72">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Cari SKU atau Nama Produk..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all bg-background"
+                  />
+                </div>
               </div>
             </div>
             <div className="overflow-x-auto">

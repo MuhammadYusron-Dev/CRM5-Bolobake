@@ -13,6 +13,7 @@ interface DashboardData {
   trendText: string | null;
   activeProductionOrders: number;
   newCustomersThisMonth: number;
+  categorySales?: { croissant: number; cake: number };
 }
 
 export function DashboardAnalytics({ 
@@ -126,26 +127,36 @@ export function DashboardAnalytics({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dashboard.totalPcs}</div>
-            <p className="text-xs text-muted-foreground mt-1 mb-1">Rasio Savoury vs Pastry</p>
-            <div className="w-full bg-secondary rounded-full h-1 mt-2 flex relative items-center">
-               <div className="bg-amber-600 h-1 rounded-l-full" style={{ width: '60%' }}></div>
-               <div className="bg-amber-300 h-1 rounded-r-full" style={{ width: '40%' }}></div>
-               
-               {/* Efek Sumbu Bom (Spark) */}
-               <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20" style={{ left: '60%' }}>
-                 <div className="relative flex items-center justify-center">
-                   {/* Core Spark */}
-                   <div className="w-2 h-2 bg-yellow-200 rounded-full shadow-[0_0_8px_3px_rgba(253,224,71,0.9)] animate-pulse"></div>
-                   <div className="w-1 h-1 bg-white rounded-full absolute"></div>
+            <p className="text-xs text-muted-foreground mt-1 mb-1">Rasio Croissant vs Cake</p>
+            {(() => {
+              const croissant = dashboard.categorySales?.croissant || 0;
+              const cake = dashboard.categorySales?.cake || 0;
+              const total = croissant + cake;
+              const croissantPct = total > 0 ? (croissant / total) * 100 : 60;
+              const cakePct = total > 0 ? (cake / total) * 100 : 40;
+
+              return (
+                <div className="w-full bg-secondary rounded-full h-1 mt-2 flex relative items-center">
+                   <div className="bg-amber-600 h-1 rounded-l-full transition-all duration-1000" style={{ width: `${croissantPct}%` }}></div>
+                   <div className="bg-amber-300 h-1 rounded-r-full transition-all duration-1000" style={{ width: `${cakePct}%` }}></div>
                    
-                   {/* Flying Particles */}
-                   <div className="absolute top-0 left-1/2 w-1 h-1 bg-amber-400 rounded-full animate-fuse-1"></div>
-                   <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-orange-400 rounded-full animate-fuse-2"></div>
-                   <div className="absolute top-0 left-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-fuse-3"></div>
-                   <div className="absolute top-0 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-fuse-4"></div>
-                 </div>
-               </div>
-            </div>
+                   {/* Efek Sumbu Bom (Spark) */}
+                   <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 transition-all duration-1000" style={{ left: `${croissantPct}%` }}>
+                     <div className="relative flex items-center justify-center">
+                       {/* Core Spark */}
+                       <div className="w-2 h-2 bg-yellow-200 rounded-full shadow-[0_0_8px_3px_rgba(253,224,71,0.9)] animate-pulse"></div>
+                       <div className="w-1 h-1 bg-white rounded-full absolute"></div>
+                       
+                       {/* Flying Particles */}
+                       <div className="absolute top-0 left-1/2 w-1 h-1 bg-amber-400 rounded-full animate-fuse-1"></div>
+                       <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-orange-400 rounded-full animate-fuse-2"></div>
+                       <div className="absolute top-0 left-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-fuse-3"></div>
+                       <div className="absolute top-0 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-fuse-4"></div>
+                     </div>
+                   </div>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 
