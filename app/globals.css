@@ -1,50 +1,35 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #FAF8F5;
-  --color-foreground: #2C1810;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #2C1810;
-  --color-popover: #FFFFFF;
-  --color-popover-foreground: #2C1810;
+  --color-background: light-dark(#FAF8F5, #0f172a);
+  --color-foreground: light-dark(#2C1810, #f8fafc);
+  --color-card: light-dark(#FFFFFF, #1e293b);
+  --color-card-foreground: light-dark(#2C1810, #f8fafc);
+  --color-popover: light-dark(#FFFFFF, #1e293b);
+  --color-popover-foreground: light-dark(#2C1810, #f8fafc);
   --color-primary: #D4A847;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: #F3F4F6;
-  --color-secondary-foreground: #111827;
-  --color-muted: #F3F4F6;
-  --color-muted-foreground: #6B7280;
+  --color-secondary: light-dark(#F3F4F6, #334155);
+  --color-secondary-foreground: light-dark(#111827, #f8fafc);
+  --color-muted: light-dark(#F3F4F6, #1e293b);
+  --color-muted-foreground: light-dark(#6B7280, #94a3b8);
   --color-accent: #D4A847;
   --color-accent-foreground: #FFFFFF;
-  --color-destructive: #EF4444;
-  --color-destructive-foreground: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-input: #E5E7EB;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: light-dark(#FFFFFF, #f8fafc);
+  --color-border: light-dark(#E5E7EB, #334155);
+  --color-input: light-dark(#E5E7EB, #334155);
   --color-ring: #D4A847;
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-serif: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
 }
 
-@variant dark (&:where(.dark, .dark *)) {
-  @theme inline {
-    --color-background: #0f172a;
-    --color-foreground: #f8fafc;
-    --color-card: #1e293b;
-    --color-card-foreground: #f8fafc;
-    --color-popover: #1e293b;
-    --color-popover-foreground: #f8fafc;
-    --color-primary: #D4A847;
-    --color-primary-foreground: #FFFFFF;
-    --color-secondary: #334155;
-    --color-secondary-foreground: #f8fafc;
-    --color-muted: #1e293b;
-    --color-muted-foreground: #94a3b8;
-    --color-accent: #D4A847;
-    --color-accent-foreground: #FFFFFF;
-    --color-destructive: #ef4444;
-    --color-destructive-foreground: #f8fafc;
-    --color-border: #334155;
-    --color-input: #334155;
-    --color-ring: #D4A847;
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  .dark {
+    color-scheme: dark;
   }
 }
 
