@@ -279,12 +279,36 @@ export async function DELETE(request: Request) {
         range: 'Laporan Transaksi Harian!A2:M',
       });
       await syncRekapSheet();
+      
+      // Reset all booked capacities to 0
+      const capRes = await sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'production_capacities!A2:C',
+      });
+      const capRows = capRes.data.values || [];
+      if (capRows.length > 0) {
+        const resetRows = capRows.map((row: any) => [row[0], row[1], 0]);
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: 'production_capacities!A2:C',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: resetRows }
+        });
+      }
+
       return NextResponse.json({ success: true, message: 'All orders cleared successfully' });
     }
 
     if (!rowNumber) {
       return NextResponse.json({ success: false, error: 'rowNumber is required' }, { status: 400 });
     }
+
+    // Get the order date before deleting to sync capacity later
+    const rowDataRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Laporan Transaksi Harian!A${rowNumber}:M${rowNumber}`
+    });
+    const deletedOrderDate = rowDataRes.data.values?.[0]?.[11];
 
     // First get the sheet ID for 'Laporan Transaksi Harian'
     const spreadsheet = await sheets.spreadsheets.get({
@@ -325,6 +349,11 @@ export async function DELETE(request: Request) {
 
     // Sync Laporan Transaksi Harian Borders
     await syncLaporanBorders();
+    
+    if (deletedOrderDate) {
+      const { syncCapacity } = await import('@/lib/rekap-sync');
+      await syncCapacity(deletedOrderDate);
+    }
 
     return NextResponse.json({ success: true, message: 'Order deleted successfully' });
   } catch (error: any) {
