@@ -237,9 +237,13 @@ export function OrderForm({
 
   const handleSubmitRequest = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customer.trim() || items.length === 0 || items.some(i => !i.sku.trim())) {
+    const currentCustomer = customer.trim() || customerInput.trim();
+    if (!currentCustomer || items.length === 0 || items.some(i => !i.sku.trim())) {
       alert('Mohon lengkapi nama customer dan detail produk.');
       return;
+    }
+    if (!customer.trim() && customerInput.trim()) {
+      handleCustomerChange(customerInput.trim());
     }
     setShowConfirmModal(true);
   };
