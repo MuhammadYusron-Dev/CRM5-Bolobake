@@ -343,18 +343,7 @@ export default function CatalogPage() {
         ::-webkit-scrollbar-thumb:hover { background: #D4A847; }
       `}</style>
 
-      {/* Datalist for categories */}
-      <datalist id="kategori-options">
-        {Array.from(new Set(catalog.map(c => c.kategori))).filter(Boolean).map(cat => (
-          <option key={cat} value={cat} />
-        ))}
-        <option value="Viennoiserie" />
-        <option value="Bread" />
-        <option value="Bagel" />
-        <option value="Pastry" />
-        <option value="Cake & Cookies" />
-        <option value="Sweets" />
-      </datalist>
+
 
       {/* --- TOAST NOTIFICATION --- */}
       <div
@@ -674,15 +663,18 @@ export default function CatalogPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-foreground mb-2">Kategori</label>
-                    <input
-                      type="text"
-                      list="kategori-options"
+                    <select
                       required
                       value={manualCategory}
                       onChange={(e) => setManualCategory(e.target.value)}
-                      placeholder="Pilih atau ketik kategori baru..."
-                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-card text-card-foreground"
-                    />
+                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-card text-card-foreground cursor-pointer"
+                    >
+                      <option value="">Pilih kategori...</option>
+                      <option value="Croissant">Croissant</option>
+                      <option value="Artisan Bread">Artisan Bread</option>
+                      <option value="Cake">Cake</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
 
                   <div>
@@ -753,14 +745,17 @@ export default function CatalogPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Kategori</label>
-                  <input
-                    type="text"
-                    list="kategori-options"
+                  <select
                     required
                     value={editingItem.kategori}
                     onChange={e => setEditingItem({ ...editingItem, kategori: e.target.value })}
-                    className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-card"
-                  />
+                    className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-card"
+                  >
+                    <option value="Croissant">Croissant</option>
+                    <option value="Artisan Bread">Artisan Bread</option>
+                    <option value="Cake">Cake</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Satuan</label>
