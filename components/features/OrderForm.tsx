@@ -682,19 +682,19 @@ export function OrderForm({
         </form>
       </div>
 
-      <div className="bg-foreground text-background p-4 sm:p-6 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20 sticky bottom-0 lg:static">
+      <div className="bg-card text-foreground border-t border-border p-4 sm:p-6 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20 sticky bottom-0 lg:static">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
-            <div className="space-y-1 w-full sm:w-auto border-b sm:border-0 border-muted-foreground/30 pb-4 sm:pb-0">
-              <div className="flex items-center gap-4 text-sm text-gray-300">
+            <div className="space-y-1 w-full sm:w-auto border-b sm:border-0 border-border/50 pb-4 sm:pb-0">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span className="w-24">Subtotal:</span>
                 <span>{formatRp(subtotal)}</span>
               </div>
-              <div className="flex items-center gap-4 text-sm text-gray-300">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span className="w-24">Ongkir:</span>
                 <span>{formatRp(finalShipping)}</span>
               </div>
               <div className="flex items-center gap-4 text-2xl font-serif text-primary pt-2">
-                <span className="w-24 font-sans text-lg font-normal text-white">Total:</span>
+                <span className="w-24 font-sans text-lg font-normal text-foreground">Total:</span>
                 <span>{formatRp(grandTotal)}</span>
               </div>
             </div>
