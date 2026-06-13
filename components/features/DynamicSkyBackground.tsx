@@ -1,0 +1,149 @@
+import React, { useMemo } from 'react';
+
+interface DynamicSkyBackgroundProps {
+  currentHour: number;
+}
+
+export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps) {
+  // Determine time phase
+  const isMorning = currentHour >= 5 && currentHour < 12;
+  const isMidday = currentHour >= 12 && currentHour < 15;
+  const isAfternoon = currentHour >= 15 && currentHour < 18;
+  const isEvening = currentHour >= 18 && currentHour < 19;
+  const isNight = currentHour >= 19 || currentHour < 5;
+
+  // Background Gradient Classes
+  let bgGradient = '';
+  if (isMorning) {
+    bgGradient = 'from-sky-300 via-blue-200 to-sky-100';
+  } else if (isMidday) {
+    bgGradient = 'from-blue-400 via-sky-300 to-sky-200';
+  } else if (isAfternoon) {
+    bgGradient = 'from-orange-400 via-rose-300 to-purple-400';
+  } else if (isEvening) {
+    bgGradient = 'from-orange-600 via-purple-600 to-indigo-800';
+  } else if (isNight) {
+    bgGradient = 'from-slate-900 via-indigo-950 to-slate-900';
+  }
+
+  // Cloud Color Class
+  let cloudClass = '';
+  if (isMorning || isMidday) {
+    cloudClass = 'text-white/90';
+  } else if (isAfternoon) {
+    cloudClass = 'text-rose-100/70';
+  } else if (isEvening) {
+    cloudClass = 'text-purple-200/40';
+  } else if (isNight) {
+    cloudClass = 'text-slate-300/10';
+  }
+
+  // Sun and Moon positioning
+  let celestialBody = null;
+  
+  if (isMorning) {
+    // Sun rising from bottom
+    celestialBody = (
+      <div className="absolute left-[20%] bottom-[20%] w-32 h-32 bg-yellow-200 rounded-full blur-[2px] shadow-[0_0_60px_20px_rgba(253,224,71,0.5)] transition-all duration-[3000ms] ease-in-out" />
+    );
+  } else if (isMidday) {
+    // Sun at top
+    celestialBody = (
+      <div className="absolute left-[50%] top-[10%] -translate-x-1/2 w-40 h-40 bg-yellow-100 rounded-full blur-[2px] shadow-[0_0_80px_30px_rgba(253,224,71,0.6)] transition-all duration-[3000ms] ease-in-out" />
+    );
+  } else if (isAfternoon) {
+    // Sun setting
+    celestialBody = (
+      <div className="absolute right-[25%] bottom-[25%] w-32 h-32 bg-orange-400 rounded-full blur-[2px] shadow-[0_0_60px_20px_rgba(251,146,60,0.6)] transition-all duration-[3000ms] ease-in-out" />
+    );
+  } else if (isEvening) {
+    // Sun fully setting
+    celestialBody = (
+      <div className="absolute right-[15%] bottom-[5%] w-24 h-24 bg-red-500 rounded-full blur-[4px] shadow-[0_0_50px_15px_rgba(239,68,68,0.7)] transition-all duration-[3000ms] ease-in-out" />
+    );
+  } else if (isNight) {
+    // Moon
+    celestialBody = (
+      <div className="absolute right-[20%] top-[15%] w-24 h-24 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_40px_10px_rgba(241,245,249,0.3)] transition-all duration-[3000ms] ease-in-out">
+        {/* Moon Craters */}
+        <div className="absolute top-4 left-4 w-4 h-4 bg-slate-300 rounded-full opacity-50"></div>
+        <div className="absolute bottom-6 right-6 w-6 h-6 bg-slate-300 rounded-full opacity-40"></div>
+        <div className="absolute top-10 right-4 w-3 h-3 bg-slate-300 rounded-full opacity-60"></div>
+      </div>
+    );
+  }
+
+  // Stars (Only at night and evening)
+  const stars = useMemo(() => {
+    if (!isNight && !isEvening) return null;
+    // Generate random stars
+    return Array.from({ length: 60 }).map((_, i) => {
+      const size = Math.random() * 3 + 1;
+      const top = Math.random() * 100;
+      const left = Math.random() * 100;
+      const delay = Math.random() * 5;
+      const duration = Math.random() * 3 + 2;
+      return (
+        <div
+          key={i}
+          className="absolute bg-white rounded-full animate-twinkle"
+          style={{
+            width: size,
+            height: size,
+            top: `${top}%`,
+            left: `${left}%`,
+            animationDelay: `${delay}s`,
+            animationDuration: `${duration}s`,
+            opacity: Math.random() * 0.8 + 0.2
+          }}
+        />
+      );
+    });
+  }, [isNight, isEvening]);
+
+  // Clouds layer
+  const clouds = (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Cloud 1 */}
+      <div className="absolute top-[10%] -left-[20%] animate-drift" style={{ animationDuration: '45s' }}>
+        <CloudSvg className={cloudClass} />
+      </div>
+      {/* Cloud 2 */}
+      <div className="absolute top-[25%] -left-[20%] animate-drift" style={{ animationDuration: '65s', animationDelay: '-15s', transform: 'scale(1.4)' }}>
+        <CloudSvg className={cloudClass} />
+      </div>
+      {/* Cloud 3 */}
+      <div className="absolute top-[45%] -left-[20%] animate-drift" style={{ animationDuration: '55s', animationDelay: '-30s', transform: 'scale(0.8)' }}>
+        <CloudSvg className={cloudClass} />
+      </div>
+      {/* Cloud 4 */}
+      <div className="absolute top-[65%] -left-[20%] animate-drift" style={{ animationDuration: '80s', animationDelay: '-40s', transform: 'scale(1.2)' }}>
+        <CloudSvg className={cloudClass} />
+      </div>
+      {/* Cloud 5 */}
+      <div className="absolute top-[15%] -left-[20%] animate-drift" style={{ animationDuration: '90s', animationDelay: '-60s', transform: 'scale(1.8)' }}>
+        <CloudSvg className={cloudClass} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className={`fixed inset-0 z-0 bg-gradient-to-b transition-colors duration-[3000ms] ${bgGradient} overflow-hidden pointer-events-none`}>
+      {celestialBody}
+      {stars}
+      {clouds}
+    </div>
+  );
+}
+
+function CloudSvg({ className }: { className?: string }) {
+  return (
+    <svg width="200" height="100" viewBox="0 0 200 100" fill="currentColor" className={`transition-colors duration-[3000ms] ${className}`} xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="60" r="30" />
+      <circle cx="90" cy="40" r="40" />
+      <circle cx="140" cy="50" r="35" />
+      <circle cx="170" cy="70" r="25" />
+      <rect x="50" y="60" width="120" height="35" rx="10" />
+    </svg>
+  );
+}

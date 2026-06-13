@@ -11,6 +11,7 @@ import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DateRangeFilter } from './DateRangeFilter';
+import { DynamicSkyBackground } from './DynamicSkyBackground';
 
 export function OrderManager({ 
   initialOrders, 
@@ -356,6 +357,7 @@ export function OrderManager({
 
   return (
     <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
+      <DynamicSkyBackground currentHour={currentHour} />
       <Sidebar 
         activeMenu={activeMenu} 
         setActiveMenu={setActiveMenu} 
@@ -376,21 +378,9 @@ export function OrderManager({
         </div>
       </div>
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F9FAFB]">
-        <header className="relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none overflow-hidden">
-          {/* Animated Sky Background Layers */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* Sunrise */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-orange-200 via-amber-100 to-sky-200 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 5 && currentHour < 12 ? 'opacity-100' : 'opacity-0'}`} />
-            {/* Day */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-sky-200 via-blue-200 to-sky-300 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 12 && currentHour < 15 ? 'opacity-100' : 'opacity-0'}`} />
-            {/* Sunset / Sore */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-orange-400 via-rose-300 to-purple-400 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 15 && currentHour < 18 ? 'opacity-100' : 'opacity-0'}`} />
-            {/* Petang */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-orange-500 via-purple-500 to-indigo-700 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 18 && currentHour < 19 ? 'opacity-100' : 'opacity-0'}`} />
-            {/* Night */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 19 || currentHour < 5 ? 'opacity-100' : 'opacity-0'}`} />
-          </div>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-transparent relative z-10">
+        <header className={`relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none overflow-hidden transition-colors duration-1000 ${isDarkSky ? 'bg-black/20 backdrop-blur-md border-b border-white/10' : 'bg-white/30 backdrop-blur-md border-b border-white/40'}`}>
+
 
           {/* Left Content */}
           <div className="relative z-10 flex items-center gap-3">
