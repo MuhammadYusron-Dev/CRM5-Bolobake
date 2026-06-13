@@ -84,6 +84,24 @@ export function OrderManager({
     const variantPerformance: Record<string, { qty: number; omset: number }> = {};
     const customerLeaderboard: Record<string, { freq: number; totalBelanja: number }> = {};
 
+    let activeProductionOrders = 0;
+    const customerFirstOrderDate: Record<string, string> = {};
+    
+    const today = new Date();
+    // Offset for local timezone roughly, or just use string
+    const todayStr = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    const currentMonthStr = todayStr.substring(0, 7);
+
+    orderHistory.forEach(order => {
+      let d = order.productionDate || order.timestamp.split('T')[0];
+      if (!customerFirstOrderDate[order.customer] || d < customerFirstOrderDate[order.customer]) {
+        customerFirstOrderDate[order.customer] = d;
+      }
+      if (d >= todayStr) {
+        activeProductionOrders++;
+      }
+    });
+
     const parseDateToNumber = (dateStr: string) => {
       if (!dateStr) return 0;
       const match1 = dateStr.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
@@ -131,7 +149,36 @@ export function OrderManager({
       customerLeaderboard[order.customer].totalBelanja += order.grandTotal;
     });
 
-    return { totalOmset, totalOrders, totalPcs, uniqueCustomers: Array.from(uniqueCustomers), variantPerformance, customerLeaderboard };
+    let newCustomersThisMonth = 0;
+    uniqueCustomers.forEach(cust => {
+      const firstOrder = customerFirstOrderDate[cust];
+      if (firstOrder && firstOrder.startsWith(currentMonthStr)) {
+        newCustomersThisMonth++;
+      }
+    });
+
+    let trendText: string | null = null;
+    if (filterStartDate === filterEndDate) {
+       const filterDateObj = new Date(filterStartDate);
+       filterDateObj.setDate(filterDateObj.getDate() - 1);
+       const prevDayStr = filterDateObj.toISOString().split('T')[0];
+       
+       const prevDayOmset = orderHistory.filter(o => (o.productionDate || o.timestamp.split('T')[0]) === prevDayStr).reduce((sum, o) => sum + o.grandTotal, 0);
+       
+       if (prevDayOmset === 0 && totalOmset > 0) {
+         trendText = "+100% dari kemarin";
+       } else if (prevDayOmset > 0) {
+         const diff = ((totalOmset - prevDayOmset) / prevDayOmset) * 100;
+         trendText = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}% dari kemarin`;
+       }
+    }
+
+    return { 
+      totalOmset, totalOrders, totalPcs, 
+      uniqueCustomers: Array.from(uniqueCustomers), 
+      variantPerformance, customerLeaderboard,
+      trendText, activeProductionOrders, newCustomersThisMonth
+    };
   }, [orderHistory, filterStartDate, filterEndDate]);
 
   const showToast = (message: string, isUndoable = false, onUndo?: () => void) => {

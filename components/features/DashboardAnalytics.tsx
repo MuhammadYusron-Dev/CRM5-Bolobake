@@ -10,6 +10,9 @@ interface DashboardData {
   uniqueCustomers: string[];
   variantPerformance: Record<string, { qty: number; omset: number }>;
   customerLeaderboard: Record<string, { freq: number; totalBelanja: number }>;
+  trendText: string | null;
+  activeProductionOrders: number;
+  newCustomersThisMonth: number;
 }
 
 export function DashboardAnalytics({ 
@@ -70,12 +73,20 @@ export function DashboardAnalytics({
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/30 text-emerald-800 backdrop-blur-sm border border-white/40 mt-2 shadow-sm">
-              <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 7H7M17 7V17"/>
-              </svg>
-              <span>+12% dari kemarin</span>
-            </div>
+            {dashboard.trendText && (
+              <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/30 backdrop-blur-sm border border-white/40 mt-2 shadow-sm ${dashboard.trendText.startsWith('+') ? 'text-emerald-800' : 'text-rose-800'}`}>
+                {dashboard.trendText.startsWith('+') ? (
+                  <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 7H7M17 7V17"/>
+                  </svg>
+                ) : (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 7L7 17M7 17H17M7 17V7"/>
+                  </svg>
+                )}
+                <span>{dashboard.trendText}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -98,10 +109,10 @@ export function DashboardAnalytics({
             <div className="text-2xl font-bold">{dashboard.totalOrders}</div>
             <div className="flex items-center mt-1">
               <span className="relative flex h-2 w-2 mr-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-400' : 'bg-slate-400'}`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-500' : 'bg-slate-500'}`}></span>
               </span>
-              <p className="text-xs text-muted-foreground">3 pesanan sedang diproduksi</p>
+              <p className="text-xs text-muted-foreground">{dashboard.activeProductionOrders} pesanan sedang diproduksi</p>
             </div>
           </CardContent>
         </Card>
@@ -161,7 +172,7 @@ export function DashboardAnalytics({
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{dashboard.uniqueCustomers.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">9 outlet baru bulan ini</p>
+            <p className="text-xs text-muted-foreground mt-1">{dashboard.newCustomersThisMonth} outlet baru bulan ini</p>
           </CardContent>
         </Card>
       </div>
