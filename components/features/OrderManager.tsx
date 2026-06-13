@@ -158,7 +158,7 @@ export function OrderManager({
     });
 
     let trendText: string | null = null;
-    if (filterStartDate === filterEndDate) {
+    if (filterStartDate && filterStartDate === filterEndDate) {
        const filterDateObj = new Date(filterStartDate);
        filterDateObj.setDate(filterDateObj.getDate() - 1);
        const prevDayStr = filterDateObj.toISOString().split('T')[0];
