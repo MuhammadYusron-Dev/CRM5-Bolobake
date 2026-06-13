@@ -186,6 +186,45 @@ export function OrderManager({
     setActiveMenu('new_order');
   };
 
+  const handleDeleteOrder = async (order: Order) => {
+    if (!order.rowNumber) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus pesanan ini?')) return;
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/orders?rowNumber=${order.rowNumber}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete from Sheets');
+      
+      setOrderHistory(prev => prev.filter(o => o.id !== order.id));
+      setEditingOrder(null);
+      setActiveMenu('history');
+      showToast('Pesanan berhasil dihapus!');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menghapus pesanan.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClearAllOrders = async () => {
+    if (!confirm('PERINGATAN: Apakah Anda yakin ingin menghapus SEMUA pesanan? Tindakan ini tidak dapat dibatalkan!')) return;
+    
+    try {
+      const response = await fetch(`/api/orders?clearAll=true`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to clear all orders');
+      
+      setOrderHistory([]);
+      showToast('Semua pesanan berhasil dihapus!');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menghapus semua pesanan.');
+    }
+  };
+
   const renderContent = () => {
     switch (activeMenu) {
       case 'dashboard':
@@ -209,36 +248,38 @@ export function OrderManager({
       case 'history':
         return (
           <div className="max-w-7xl mx-auto">
-            <HistoryTable 
-              orderHistory={orderHistory}
-              editingOrderId={editingOrder?.id || null}
-              handleEditOrder={(order) => {
-                setEditingOrder(order);
-                setActiveMenu('new_order');
-              }}
-              handleReorder={handleReorder}
-              filterStartDate={filterStartDate}
-              setFilterStartDate={setFilterStartDate}
-              filterEndDate={filterEndDate}
-              setFilterEndDate={setFilterEndDate}
-            />
+              <HistoryTable 
+                orderHistory={orderHistory}
+                editingOrderId={editingOrder?.id || null}
+                handleEditOrder={(order) => {
+                  setEditingOrder(order);
+                  setActiveMenu('new_order');
+                }}
+                handleReorder={handleReorder}
+                handleClearAll={handleClearAllOrders}
+                filterStartDate={filterStartDate}
+                setFilterStartDate={setFilterStartDate}
+                filterEndDate={filterEndDate}
+                setFilterEndDate={setFilterEndDate}
+              />
           </div>
         );
       case 'new_order':
       default:
         return (
           <div className="max-w-5xl mx-auto">
-            <OrderForm 
-              katalog={katalog}
-              customers={customers}
-              orderToEdit={editingOrder} 
-              onSave={handleSaveOrder} 
-              onCancelEdit={() => {
-                setEditingOrder(null);
-                setActiveMenu('history');
-              }} 
-              isSubmitting={isSubmitting} 
-            />
+              <OrderForm 
+                katalog={katalog}
+                customers={customers}
+                orderToEdit={editingOrder} 
+                onSave={handleSaveOrder} 
+                onDelete={handleDeleteOrder}
+                onCancelEdit={() => {
+                  setEditingOrder(null);
+                  setActiveMenu('history');
+                }} 
+                isSubmitting={isSubmitting} 
+              />
           </div>
         );
     }

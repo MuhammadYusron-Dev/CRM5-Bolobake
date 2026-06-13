@@ -11,6 +11,7 @@ interface OrderFormProps {
   customers: Customer[];
   orderToEdit: Order | null;
   onSave: (order: Order, imageFile?: File | null) => Promise<void>;
+  onDelete?: (order: Order) => Promise<void>;
   onCancelEdit: () => void;
   isSubmitting: boolean;
 }
@@ -20,6 +21,7 @@ export function OrderForm({
   customers,
   orderToEdit,
   onSave,
+  onDelete,
   onCancelEdit,
   isSubmitting
 }: OrderFormProps) {
@@ -698,6 +700,14 @@ export function OrderForm({
             </div>
             
             <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+              {orderToEdit?.rowNumber && onDelete && (
+                <Button 
+                  type="button" variant="destructive" onClick={() => onDelete(orderToEdit)} disabled={isSubmitting}
+                  className="font-bold h-12 flex-1 sm:flex-none"
+                >
+                  Hapus
+                </Button>
+              )}
               {orderToEdit && (
                 <Button 
                   type="button" variant="secondary" onClick={onCancelEdit} disabled={isSubmitting}

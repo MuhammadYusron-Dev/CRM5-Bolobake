@@ -271,6 +271,16 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const rowNumber = searchParams.get('rowNumber');
+    const clearAll = searchParams.get('clearAll');
+
+    if (clearAll === 'true') {
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Laporan Transaksi Harian!A2:M',
+      });
+      await syncRekapSheet();
+      return NextResponse.json({ success: true, message: 'All orders cleared successfully' });
+    }
 
     if (!rowNumber) {
       return NextResponse.json({ success: false, error: 'rowNumber is required' }, { status: 400 });

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { History, Filter, Search, X, Clock, Calendar, Truck, Edit } from 'lucide-react';
+import { History, Filter, Search, X, Clock, Calendar, Truck, Edit, Trash2 } from 'lucide-react';
 import { Order } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ interface HistoryTableProps {
   filterEndDate: string;
   setFilterEndDate: (date: string) => void;
   handleReorder?: (order: Order) => void;
+  handleClearAll?: () => void;
 }
 
 export function HistoryTable({
@@ -25,7 +26,8 @@ export function HistoryTable({
   setFilterStartDate,
   filterEndDate,
   setFilterEndDate,
-  handleReorder
+  handleReorder,
+  handleClearAll
 }: HistoryTableProps) {
   const [searchHistoryInput, setSearchHistoryInput] = useState('');
   const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
@@ -101,10 +103,23 @@ export function HistoryTable({
   return (
     <div className="space-y-4 animate-in fade-in">
       <div className="space-y-4 mb-2">
-        <h3 className="text-lg font-serif flex items-center gap-2">
-          <History className="w-5 h-5 text-primary" />
-          Riwayat Pesanan
-        </h3>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-serif flex items-center gap-2">
+            <History className="w-5 h-5 text-primary" />
+            Riwayat Pesanan
+          </h3>
+          {handleClearAll && orderHistory.length > 0 && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleClearAll}
+              className="text-xs h-8 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              Kosongkan Riwayat
+            </Button>
+          )}
+        </div>
 
         {/* Date Period Filter */}
         <div className="relative z-50 flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border">
