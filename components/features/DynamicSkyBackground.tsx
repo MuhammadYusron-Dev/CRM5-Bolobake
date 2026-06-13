@@ -63,16 +63,16 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
     <div className="absolute inset-0 z-0 pointer-events-none">
       {/* Sun Orbit Wrapper */}
       <div 
-        className="absolute left-1/2 bottom-[-10vh] w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
-        style={{ transform: `rotate(${sunAngle}deg)` }}
+        className="absolute left-1/2 w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
+        style={{ bottom: 'calc(32px - 60vw)', transform: `rotate(${sunAngle}deg)` }}
       >
         <div 
-          className="absolute -ml-[4rem] -mt-[4rem] w-32 h-32 rounded-full transition-all duration-[4000ms] ease-in-out"
+          className="absolute -ml-[2rem] -mt-[2rem] w-16 h-16 rounded-full transition-all duration-[4000ms] ease-in-out"
           style={{ 
-            bottom: '80vh', 
+            bottom: '60vw', 
             background: isMorning ? '#fef08a' : isMidday ? '#fef9c3' : '#fb923c',
-            boxShadow: isMorning ? '0 0 60px 20px rgba(253,224,71,0.5)' : isMidday ? '0 0 80px 30px rgba(253,224,71,0.6)' : '0 0 60px 20px rgba(251,146,60,0.6)',
-            filter: isAfternoon || isEvening ? 'blur(4px)' : 'blur(2px)',
+            boxShadow: isMorning ? '0 0 30px 10px rgba(253,224,71,0.5)' : isMidday ? '0 0 40px 15px rgba(253,224,71,0.6)' : '0 0 30px 10px rgba(251,146,60,0.6)',
+            filter: isAfternoon || isEvening ? 'blur(2px)' : 'blur(1px)',
             opacity: isNight ? 0 : 1
           }}
         />
@@ -80,21 +80,21 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
 
       {/* Moon Orbit Wrapper */}
       <div 
-        className="absolute left-1/2 bottom-[-10vh] w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
-        style={{ transform: `rotate(${moonAngle}deg)` }}
+        className="absolute left-1/2 w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
+        style={{ bottom: 'calc(32px - 60vw)', transform: `rotate(${moonAngle}deg)` }}
       >
         <div 
-          className="absolute -ml-[3rem] -mt-[3rem] w-24 h-24 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_40px_10px_rgba(241,245,249,0.3)] transition-all duration-[4000ms] ease-in-out"
+          className="absolute -ml-[1.5rem] -mt-[1.5rem] w-12 h-12 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_20px_5px_rgba(241,245,249,0.3)] transition-all duration-[4000ms] ease-in-out"
           style={{ 
-            bottom: '80vh',
+            bottom: '60vw',
             transform: `rotate(${-moonAngle}deg)`, // Counter-rotate so craters stay upright
             opacity: (!isNight && !isEvening && currentHour > 7 && currentHour < 17) ? 0 : 1 
           }}
         >
           {/* Moon Craters */}
-          <div className="absolute top-4 left-4 w-4 h-4 bg-slate-300 rounded-full opacity-50"></div>
-          <div className="absolute bottom-6 right-6 w-6 h-6 bg-slate-300 rounded-full opacity-40"></div>
-          <div className="absolute top-10 right-4 w-3 h-3 bg-slate-300 rounded-full opacity-60"></div>
+          <div className="absolute top-2 left-2 w-2 h-2 bg-slate-300 rounded-full opacity-50"></div>
+          <div className="absolute bottom-3 right-3 w-3 h-3 bg-slate-300 rounded-full opacity-40"></div>
+          <div className="absolute top-5 right-2 w-1.5 h-1.5 bg-slate-300 rounded-full opacity-60"></div>
         </div>
       </div>
     </div>

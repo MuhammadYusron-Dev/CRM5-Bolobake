@@ -358,7 +358,6 @@ export function OrderManager({
 
   return (
     <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
-      <DynamicSkyBackground currentHour={currentHour} />
       <Sidebar 
         activeMenu={activeMenu} 
         setActiveMenu={setActiveMenu} 
@@ -381,7 +380,7 @@ export function OrderManager({
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-transparent relative z-10">
         <header className={`relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none overflow-hidden transition-colors duration-1000 ${isDarkSky ? 'bg-black/20 backdrop-blur-md border-b border-white/10' : 'bg-white/30 backdrop-blur-md border-b border-white/40'}`}>
-
+          <DynamicSkyBackground currentHour={currentHour} />
 
           {/* Left Content */}
           <div className="relative z-10 flex items-center gap-3">
