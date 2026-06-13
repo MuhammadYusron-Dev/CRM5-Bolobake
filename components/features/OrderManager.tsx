@@ -29,9 +29,11 @@ export function OrderManager({
   const [activeMenu, setActiveMenu] = useState('new_order');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentDateString, setCurrentDateString] = useState('');
-  const [currentHour, setCurrentHour] = useState(new Date().getHours());
+  const [currentHour, setCurrentHour] = useState(12); // Default safe hour for SSR
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const updateTime = () => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
@@ -433,7 +435,7 @@ export function OrderManager({
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-transparent relative z-10">
         <header className={`relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none overflow-hidden transition-colors duration-1000 ${isDarkSky ? 'bg-black/20 backdrop-blur-md border-b border-white/10' : 'bg-white/30 backdrop-blur-md border-b border-white/40'}`}>
-          <DynamicSkyBackground currentHour={currentHour} />
+          {isMounted && <DynamicSkyBackground currentHour={currentHour} />}
 
           {/* Left Content */}
           <div className="relative z-10 flex items-center gap-3">
@@ -455,7 +457,7 @@ export function OrderManager({
 
           {/* Middle Content - Centered Greeting */}
           <div className="absolute left-1/2 -translate-x-1/2 z-10 hidden sm:flex items-center justify-center pointer-events-none">
-            {activeMenu === 'dashboard' && (
+            {activeMenu === 'dashboard' && isMounted && (
               <span className={`text-sm font-medium px-3 py-1 rounded-full backdrop-blur-md transition-all duration-1000 ${
                 isDarkSky ? 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]' : 'bg-white/40 text-slate-800 shadow-[0_0_10px_rgba(0,0,0,0.05)]'
               }`}>
