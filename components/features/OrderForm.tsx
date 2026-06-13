@@ -605,7 +605,8 @@ export function OrderForm({
                           <option value="">-- Pilih Potongan --</option>
                           <option value="Potong 8">Potong 8</option>
                           <option value="Potong 10">Potong 10</option>
-                          <option value="Garis saja">Garis saja</option>
+                          <option value="Garis 8">Garis 8</option>
+                          <option value="Garis 10">Garis 10</option>
                         </select>
                       </div>
                     </div>
