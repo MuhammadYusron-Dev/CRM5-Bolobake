@@ -155,6 +155,9 @@ export function OrderForm({
            setDeliveryDate(parsed.delivery_date);
            setProductionDate(parsed.delivery_date); // Default logic
         }
+        if (parsed.notes) {
+           setNotes(parsed.notes);
+        }
         if (parsed.items && Array.isArray(parsed.items)) {
           const newItems = parsed.items.map((i: any, idx: number) => {
             const matchedProduct = katalog.find(p => p.nama.toLowerCase().includes(i.detected_sku.toLowerCase()));
