@@ -10,6 +10,8 @@ export interface OrderItem {
   flavor1?: string;
   flavor2?: string;
   briocheCut?: string;
+  bagelSplit?: string;
+  bagelSplitType?: string;
 }
 
 export interface Order {

@@ -292,6 +292,8 @@ export function OrderForm({
         }
       } else if (item.sku.toLowerCase().includes('brioche') && item.briocheCut) {
         finalSku = `${finalSku} (Potong ${item.briocheCut} cm)`;
+      } else if (item.sku.toLowerCase().includes('bagel') && item.bagelSplit === 'Ya') {
+        finalSku = `${finalSku} (Dibelah${item.bagelSplitType ? ` ${item.bagelSplitType}` : ''})`;
       }
       
       return { ...item, sku: finalSku };
@@ -716,6 +718,36 @@ export function OrderForm({
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground sm:hidden">cm</span>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {item.sku.toLowerCase().includes('bagel') && (
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border/50">
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Opsi Dibelah</label>
+                        <select
+                          value={item.bagelSplit || 'Tidak'}
+                          onChange={(e) => handleItemChange(item.id, 'bagelSplit', e.target.value)}
+                          className="w-full sm:w-1/2 p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                        >
+                          <option value="Tidak">Tidak</option>
+                          <option value="Ya">Ya</option>
+                        </select>
+                      </div>
+                      {item.bagelSplit === 'Ya' && (
+                        <div className="flex-1">
+                          <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Tipe Belah</label>
+                          <select
+                            value={item.bagelSplitType || ''}
+                            onChange={(e) => handleItemChange(item.id, 'bagelSplitType', e.target.value)}
+                            className="w-full sm:w-1/2 p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                          >
+                            <option value="">-- Pilih Tipe --</option>
+                            <option value="Putus">Putus</option>
+                            <option value="Tidak Putus">Tidak Putus</option>
+                          </select>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
