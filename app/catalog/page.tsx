@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ChefHat,
   Upload,
@@ -73,6 +73,10 @@ export default function CatalogPage() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastUndo, setToastUndo] = useState<(() => void) | null>(null);
+
+  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingDeleteRef = useRef<{ id: string, item: CatalogItem } | null>(null);
 
   // Edit State
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
@@ -285,27 +289,48 @@ export default function CatalogPage() {
     }
   };
 
-  const handleDeleteItem = async (id: string) => {
-    if (!window.confirm(`Yakin ingin menghapus secara permanen SKU: ${id}? Ini tidak dapat dibatalkan.`)) return;
-
-    try {
-      const response = await fetch(`/api/catalog?id=${id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error("Gagal menghapus produk");
-
-      setCatalog(prev => prev.filter(c => c.id !== id));
-      
-      setToastType("success");
-      setToastMessage(`SKU ${id} berhasil dihapus permanen!`);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-    } catch (err) {
-      setToastType("error");
-      setToastMessage("Gagal menghapus data dari server.");
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
+  const handleDeleteItem = (itemToDelete: CatalogItem) => {
+    // Jika ada penghapusan yang masih pending untuk item lain, langsung eksekusi
+    if (pendingDeleteRef.current && pendingDeleteRef.current.id !== itemToDelete.id) {
+      const pendingId = pendingDeleteRef.current.id;
+      fetch(`/api/catalog?id=${pendingId}`, { method: 'DELETE' }).catch(e => console.error(e));
+      if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+      pendingDeleteRef.current = null;
     }
+
+    // Optimistic UI update: hapus dari tampilan seketika
+    setCatalog(prev => prev.filter(c => c.id !== itemToDelete.id));
+    pendingDeleteRef.current = { id: itemToDelete.id, item: itemToDelete };
+
+    // Tampilkan Toast dengan tombol Undo
+    setToastType("success");
+    setToastMessage(`Dihapus: ${itemToDelete.nama} (${itemToDelete.id})`);
+    setToastUndo(() => () => {
+      // Fungsi UNDO dipanggil: batalkan penghapusan
+      if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+      pendingDeleteRef.current = null;
+      setCatalog(prev => {
+        const newCatalog = [...prev, itemToDelete];
+        return newCatalog.sort((a,b) => a.id.localeCompare(b.id));
+      });
+      setShowToast(false);
+      setToastUndo(null);
+    });
+    setShowToast(true);
+
+    // Timeout 6 detik untuk memberikan waktu klik Undo
+    deleteTimeoutRef.current = setTimeout(async () => {
+      if (pendingDeleteRef.current?.id === itemToDelete.id) {
+        pendingDeleteRef.current = null;
+        setToastUndo(null);
+        try {
+          await fetch(`/api/catalog?id=${itemToDelete.id}`, { method: 'DELETE' });
+        } catch (err) {
+          console.error("Gagal menghapus permanen", err);
+        }
+      }
+      setShowToast(false);
+    }, 6000);
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -367,6 +392,14 @@ export default function CatalogPage() {
             <AlertCircle className="w-5 h-5 text-red-300" />
           )}
           <span className="font-medium text-sm">{toastMessage}</span>
+          {toastUndo && (
+            <button 
+              onClick={toastUndo} 
+              className="ml-auto px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-bold transition-all active:scale-95 border border-white/20 uppercase tracking-widest flex items-center shadow-sm"
+            >
+              Undo
+            </button>
+          )}
         </div>
       </div>
 
@@ -502,7 +535,7 @@ export default function CatalogPage() {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDeleteItem(item.id)}
+                          onClick={() => handleDeleteItem(item)}
                           className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
                           title="Hapus Permanen"
                         >
