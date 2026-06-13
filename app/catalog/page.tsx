@@ -15,6 +15,7 @@ import {
   Loader2,
   Edit,
   Package,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -76,6 +77,14 @@ export default function CatalogPage() {
   // Edit State
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Search State
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCatalog = catalog.filter(item => 
+    item.nama.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // --- REAL AI SCANNING via Gemini API ---
   const handleFileUpload = async (file: File) => {
@@ -415,14 +424,27 @@ export default function CatalogPage() {
         {/* ========== DATABASE TAB ========== */}
         {activeTab === "database" && (
           <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm overflow-hidden w-full">
-            <div className="p-4 sm:p-6 border-b border-border">
-              <h2 className="text-lg font-serif font-bold flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                Master Katalog Produk
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Seluruh SKU yang tersinkronisasi dengan dropdown order picker.
-              </p>
+            <div className="p-4 sm:p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-serif font-bold flex items-center gap-2">
+                  <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+                  Master Katalog Produk
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Seluruh SKU yang tersinkronisasi dengan dropdown order picker.
+                </p>
+              </div>
+              
+              <div className="relative w-full sm:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Cari SKU atau Nama Produk..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all bg-background"
+                />
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -438,7 +460,14 @@ export default function CatalogPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {catalog.map((item) => (
+                  {filteredCatalog.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm">
+                        Produk tidak ditemukan.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredCatalog.map((item) => (
                     <tr
                       key={item.id}
                       className="border-b border-border hover:bg-background transition-colors group"
