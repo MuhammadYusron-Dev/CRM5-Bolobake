@@ -157,7 +157,7 @@ export function OrderForm({
         if (parsed.customer_name) handleCustomerChange(parsed.customer_name);
         if (parsed.delivery_date) {
            setDeliveryDate(parsed.delivery_date);
-           setProductionDate(parsed.delivery_date); // Default logic
+           setProductionDate(parsed.production_date || parsed.delivery_date); // Default logic to delivery_date if production_date is not set
         }
         if (parsed.delivery_option) {
            setDeliveryOption(parsed.delivery_option);

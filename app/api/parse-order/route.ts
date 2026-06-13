@@ -37,6 +37,10 @@ Customer sering menggunakan format B2B seperti:
   * Tanggal + NOTE "EKSPEDISI KALOG/PAXEL" -> delivery_option: "EKSPEDISI", delivery_route: "KALOG" (atau PAXEL), is_free_shipping: false
   * "DIAMBIL DI CENTRAL/BOLOBAKE" tanpa note ekspedisi -> delivery_option: "SELF PICKUP", is_free_shipping: true. Teks "DIAMBIL DI..." masukkan ke notes.
   * "DIAMBIL DI CENTRAL" + NOTE "EKSPEDISI TRAVEL" -> delivery_option: "EKSPEDISI TRAVEL", is_free_shipping: false.
+- "TANGGAL PRODUKSI" -> Secara default sama dengan tanggal pengiriman. TAPI KHUSUS untuk BUDIMAS:
+  * Budimas Boyolali (pengiriman Rabu): Set "production_date" ke H-1 (Selasa).
+  * Budimas Tawangmangu (pengiriman Senin): Set "production_date" ke H-1 (Minggu).
+  * Budimas Wonogiri (pengiriman Selasa/Kamis): Set "production_date" ke H-2 dari tanggal pengiriman.
 - "NOTE" -> Ekstrak semua catatan tambahan yang diberikan customer, digabung dengan teks self pickup jika ada.
 
 Daftar SKU RESMI dalam sistem kami saat ini: ${skuListString}
@@ -46,6 +50,7 @@ Format respons WAJIB berupa JSON murni dengan skema berikut:
 {
   "customer_name": string atau null,
   "delivery_date": "YYYY-MM-DD" atau null,
+  "production_date": "YYYY-MM-DD" atau null,
   "delivery_option": "BUDIMAS" | "BOLOBAKE" | "EKSPEDISI" | "EKSPEDISI TRAVEL" | "SELF PICKUP" atau null,
   "delivery_route": "Tawangmangu" | "Boyolali" | "Wonogiri" | "KALOG" | "PAXEL" atau null,
   "is_free_shipping": boolean (default true jika tidak ada info berbayar),

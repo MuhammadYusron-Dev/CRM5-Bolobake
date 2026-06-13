@@ -38,3 +38,15 @@ berarti ini masuknya opsi delivery EKSPEDISI TRAVEL, Logistik & Ongkir masuk di 
 *kemudian tidak jarang ada note juga, bisa macam macam. aku pengen note ini juga otomatis terdetect oleh AI untuk ditempatkan di kolom note
 
 Initinya aku pengen AI ini bisa learning dari data history customer yang order dan membaca polanya 
+
+
+6. SPESIFIK TANGGAL PRODUKSI & PENGIRIMAN
+Overview : customer Bolobake banyak dari berbagai kota dan daerah, aku akan HIGHTLIGHT khususnya di Opsi Delivery BUDIMAS (Boyolali, Tawangmangu, Wonogiri)
+
+Budimas Boyolali : Produk dikirim setiap hari Rabu pagi, jadi produksi harus masuk maksimal hari Selasa / H-1. pengaturan di tanggal produksi & pengiriman : Hari H pengiriman, H-1 Produksi
+
+Budimas Tawangmangu : Produk dikirim setiap hari Senin  pagi, jadi produksi harus masuk maksimal hari Minggu / H-1. pengaturan di tanggal produksi & pengiriman : Hari H pengiriman, H-1 Produksi
+
+Budimas Wonogiri : Produk dikirim setiap hari Selasa & Kamis pagi, jadi produksi harus masuk maksimal H-2 sebelum tanggal pengiriman.
+
+
