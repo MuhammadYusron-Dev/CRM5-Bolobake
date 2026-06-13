@@ -465,7 +465,7 @@ export function OrderForm({
                   <Package className="w-4 h-4 text-primary" />
                   Detail Pesanan
                 </label>
-                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">{katalog.length} SKU Aktif</span>
+                <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">{katalog.filter(p => p.aktif).length} SKU Aktif</span>
               </div>
               
               <div className="space-y-3">
