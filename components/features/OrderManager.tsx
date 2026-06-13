@@ -8,6 +8,7 @@ import { OrderForm } from './OrderForm';
 import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { DateRangeFilter } from './DateRangeFilter';
 
 export function OrderManager({ 
   initialOrders, 
@@ -188,21 +189,12 @@ export function OrderManager({
                 <span className="w-5 h-5 flex items-center justify-center bg-primary/20 text-primary rounded-md">📅</span>
                 Periode Produksi
               </div>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="date"
-                  value={filterStartDate}
-                  onChange={(e) => setFilterStartDate(e.target.value)}
-                  className="text-xs border border-border rounded-lg px-3 py-2 bg-background outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <span className="text-muted-foreground text-xs font-medium">-</span>
-                <input 
-                  type="date"
-                  value={filterEndDate}
-                  onChange={(e) => setFilterEndDate(e.target.value)}
-                  className="text-xs border border-border rounded-lg px-3 py-2 bg-background outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
+              <DateRangeFilter 
+                filterStartDate={filterStartDate}
+                setFilterStartDate={setFilterStartDate}
+                filterEndDate={filterEndDate}
+                setFilterEndDate={setFilterEndDate}
+              />
             </div>
             <DashboardAnalytics dashboard={dashboard} isLoading={false} error={null} />
           </div>

@@ -4,6 +4,7 @@ import { History, Filter, Search, X, Clock, Calendar, Truck, Edit } from 'lucide
 import { Order } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DateRangeFilter } from './DateRangeFilter';
 
 interface HistoryTableProps {
   orderHistory: Order[];
@@ -102,34 +103,12 @@ export function HistoryTable({
             <Filter className="w-4 h-4 text-primary" />
             Periode
           </div>
-          <div className="flex items-center gap-2">
-            <Input 
-              type="date"
-              value={filterStartDate}
-              onChange={(e) => setFilterStartDate(e.target.value)}
-              className="w-auto h-8 text-xs bg-background"
-            />
-            <span className="text-muted-foreground text-xs">—</span>
-            <Input 
-              type="date"
-              value={filterEndDate}
-              onChange={(e) => setFilterEndDate(e.target.value)}
-              className="w-auto h-8 text-xs bg-background"
-            />
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={() => { 
-                const today = new Date().toISOString().split('T')[0];
-                setFilterStartDate(today); 
-                setFilterEndDate(today); 
-              }}
-              title="Reset Filter"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          <DateRangeFilter 
+            filterStartDate={filterStartDate}
+            setFilterStartDate={setFilterStartDate}
+            filterEndDate={filterEndDate}
+            setFilterEndDate={setFilterEndDate}
+          />
         </div>
 
         {/* Search Filter */}
