@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,19 @@ export function OrderManager({
   
   const [activeMenu, setActiveMenu] = useState('new_order');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentDateString, setCurrentDateString] = useState('');
+
+  useEffect(() => {
+    const updateDate = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      setCurrentDateString(new Intl.DateTimeFormat('id-ID', options).format(now));
+    };
+    updateDate();
+    // Update every minute is enough for date, but every second is fine too
+    const interval = setInterval(updateDate, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   
@@ -366,10 +379,12 @@ export function OrderManager({
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex flex-col">
-              {activeMenu === 'dashboard' && <span className="text-slate-500 text-sm font-medium mb-0.5">{getGreeting()}</span>}
-              <h1 className="text-xl font-bold text-foreground">
-                {activeMenu === 'dashboard' ? 'Dashboard Analitik' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                {activeMenu === 'dashboard' ? 'Dashboard' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
               </h1>
+              {activeMenu === 'dashboard' && currentDateString && (
+                <span className="text-slate-500 text-sm font-medium mt-0.5">{currentDateString}</span>
+              )}
             </div>
           </div>
           
