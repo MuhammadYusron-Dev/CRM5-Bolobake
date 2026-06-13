@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut } from 'lucide-react';
+import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Settings, Key, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/features/ThemeToggle';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface SidebarProps {
   activeMenu: string;
@@ -13,6 +16,11 @@ interface SidebarProps {
 export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [user, setUser] = useState<{username: string, avatarUrl: string} | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -21,6 +29,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       .then(data => {
         if (data.success && data.user) {
           setUser(data.user);
+          setAvatarPreview(data.user.avatarUrl || '');
         }
       })
       .catch(console.error);
@@ -29,6 +38,33 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
+  };
+
+  const handleUpdateProfile = async () => {
+    setIsUpdating(true);
+    try {
+      const formData = new FormData();
+      if (passwordInput) formData.append('password', passwordInput);
+      if (avatarFile) formData.append('avatarFile', avatarFile);
+
+      const res = await fetch('/api/auth/me', {
+        method: 'PUT',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUser(data.user);
+        setIsSettingsOpen(false);
+        setPasswordInput('');
+        // We do not alert because it's intrusive, we just close dialog and let it visually update
+      } else {
+        alert(data.message || 'Gagal update profil');
+      }
+    } catch(e) {
+      alert('Terjadi kesalahan saat menyimpan profil.');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const menuItems = [
@@ -103,23 +139,29 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
             <ThemeToggle isCollapsed={isCollapsed} />
           </div>
 
-          <div className={`bg-secondary/40 rounded-2xl p-2 flex items-center gap-3 transition-all ${isCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shrink-0 shadow-sm border border-border/50 overflow-hidden">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <User className="w-5 h-5 text-muted-foreground" />
-              )}
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-sm font-bold truncate">{user?.username || 'Admin'}</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-                  <span className="text-xs text-muted-foreground truncate">Admin store</span>
-                </div>
+          <div className={`bg-secondary/40 rounded-2xl p-2 flex items-center gap-2 transition-all ${isCollapsed ? 'justify-center flex-col' : ''}`}>
+            <button 
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center gap-3 hover:bg-background/50 p-1.5 rounded-xl transition-all flex-1 text-left group"
+              title="Pengaturan Profil"
+            >
+              <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shrink-0 shadow-sm border border-border/50 overflow-hidden group-hover:ring-2 group-hover:ring-primary/50 transition-all">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-5 h-5 text-muted-foreground" />
+                )}
               </div>
-            )}
+              {!isCollapsed && (
+                <div className="flex flex-col flex-1 overflow-hidden">
+                  <span className="text-sm font-bold truncate group-hover:text-primary transition-colors">{user?.username || 'Admin'}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+                    <span className="text-xs text-muted-foreground truncate">Admin store</span>
+                  </div>
+                </div>
+              )}
+            </button>
             {!isCollapsed && (
               <button onClick={handleLogout} className="p-2 hover:bg-background rounded-xl text-muted-foreground transition-colors shrink-0" title="Keluar">
                 <LogOut className="w-4 h-4" />
@@ -137,6 +179,62 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           </button>
         </div>
       </aside>
+
+      {/* Settings Dialog */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-primary" /> Pengaturan Profil</DialogTitle>
+            <DialogDescription>
+              Ubah foto profil dan password Anda di sini. Username Anda (<strong className="text-primary">{user?.username}</strong>) bersifat permanen.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-bold flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Foto Profil Baru</label>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full border border-border overflow-hidden bg-muted shrink-0 flex items-center justify-center">
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Input 
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setAvatarFile(file);
+                        setAvatarPreview(URL.createObjectURL(file));
+                      }
+                    }} 
+                    className="cursor-pointer file:cursor-pointer file:text-primary file:font-bold file:border-0 file:bg-transparent"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Pilih gambar dari galeri Anda.</p>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <label className="text-sm font-bold flex items-center gap-2"><Key className="w-4 h-4" /> Password Baru</label>
+              <Input 
+                type="password"
+                value={passwordInput} 
+                onChange={e => setPasswordInput(e.target.value)} 
+                placeholder="Biarkan kosong jika tidak ingin mengubah"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>Batal</Button>
+            <Button onClick={handleUpdateProfile} disabled={isUpdating}>
+              {isUpdating ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

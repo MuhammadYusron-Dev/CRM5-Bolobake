@@ -116,3 +116,38 @@ export async function addAdmin(username: string, passwordHash: string, avatarUrl
     return false;
   }
 }
+
+export async function updateAdmin(username: string, newPasswordHash?: string, newAvatarUrl?: string) {
+  await ensureAdminsSheet();
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Admins!A2:C',
+    });
+    const rows = response.data.values;
+    if (!rows) return false;
+    
+    const rowIndex = rows.findIndex(row => row[0].toLowerCase() === username.toLowerCase());
+    if (rowIndex === -1) return false;
+
+    const row = rows[rowIndex];
+    const updatedRow = [
+      row[0],
+      newPasswordHash || row[1],
+      newAvatarUrl !== undefined ? newAvatarUrl : (row[2] || '')
+    ];
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Admins!A${rowIndex + 2}:C${rowIndex + 2}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [updatedRow]
+      }
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating admin:', error);
+    return false;
+  }
+}

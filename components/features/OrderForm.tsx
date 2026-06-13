@@ -74,7 +74,11 @@ export function OrderForm({
         aktif: true
       });
     }
-    return filtered;
+    return filtered.sort((a, b) => {
+      const idA = a.id || '';
+      const idB = b.id || '';
+      return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
+    });
   }, [katalog]);
 
   const getSkuPrice = (skuCode: string, customerTier: string = "STANDARD") => {
