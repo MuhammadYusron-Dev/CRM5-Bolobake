@@ -430,6 +430,8 @@ export function OrderForm({
                     required
                     value={productionDate}
                     onChange={(e) => setProductionDate(e.target.value)}
+                    onClick={(e) => 'showPicker' in e.currentTarget && (e.currentTarget as any).showPicker()}
+                    className="cursor-pointer"
                   />
                   {capacityWarning && (
                     <div className="absolute z-10 left-0 right-0 mt-2 bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs p-2 rounded-lg flex items-start gap-2 shadow-sm animate-in fade-in slide-in-from-top-2">
@@ -448,6 +450,8 @@ export function OrderForm({
                     required
                     value={deliveryDate}
                     onChange={(e) => setDeliveryDate(e.target.value)}
+                    onClick={(e) => 'showPicker' in e.currentTarget && (e.currentTarget as any).showPicker()}
+                    className="cursor-pointer"
                   />
                 </div>
               </div>
