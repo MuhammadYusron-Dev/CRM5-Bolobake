@@ -98,7 +98,7 @@ export function HistoryTable({
         </h3>
 
         {/* Date Period Filter */}
-        <div className="flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border">
+        <div className="relative z-50 flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border">
           <div className="flex items-center gap-2 text-sm font-semibold">
             <Filter className="w-4 h-4 text-primary" />
             Periode

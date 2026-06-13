@@ -184,7 +184,7 @@ export function OrderManager({
       case 'dashboard':
         return (
           <div className="max-w-7xl mx-auto space-y-4">
-            <div className="flex items-center justify-between mb-4 bg-card/50 p-4 rounded-2xl border border-border/50 shadow-sm backdrop-blur-sm">
+            <div className="relative z-50 flex items-center justify-between mb-4 bg-card/50 p-4 rounded-2xl border border-border/50 shadow-sm backdrop-blur-sm">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <span className="w-5 h-5 flex items-center justify-center bg-primary/20 text-primary rounded-md">📅</span>
                 Periode Produksi
