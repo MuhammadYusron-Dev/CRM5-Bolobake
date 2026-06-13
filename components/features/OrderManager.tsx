@@ -93,23 +93,27 @@ export function OrderManager({
     const currentMonthStr = todayStr.substring(0, 7);
 
     orderHistory.forEach(order => {
-      let d = order.productionDate || order.timestamp.split('T')[0];
-      if (!customerFirstOrderDate[order.customer] || d < customerFirstOrderDate[order.customer]) {
-        customerFirstOrderDate[order.customer] = d;
+      const tsStr = String(order.timestamp || '');
+      let d = String(order.productionDate || tsStr.split('T')[0] || '');
+      
+      const custStr = String(order.customer || '');
+      if (!customerFirstOrderDate[custStr] || d < customerFirstOrderDate[custStr]) {
+        customerFirstOrderDate[custStr] = d;
       }
       if (d >= todayStr) {
         activeProductionOrders++;
       }
     });
 
-    const parseDateToNumber = (dateStr: string) => {
+    const parseDateToNumber = (dateStr: any) => {
       if (!dateStr) return 0;
-      const match1 = dateStr.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      const str = String(dateStr);
+      const match1 = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
       if (match1) return parseInt(`${match1[1]}${match1[2].padStart(2, '0')}${match1[3].padStart(2, '0')}`);
-      const match2 = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      const match2 = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
       if (match2) return parseInt(`${match2[3]}${match2[2].padStart(2, '0')}${match2[1].padStart(2, '0')}`);
       try {
-        const d = new Date(dateStr);
+        const d = new Date(str);
         if (!isNaN(d.getTime())) return parseInt(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
       } catch (e) {}
       return 0;
@@ -121,7 +125,7 @@ export function OrderManager({
     const filteredOrders = orderHistory.filter(order => {
       let orderDate = order.productionDate;
       if (!orderDate) {
-        try { orderDate = new Date(order.timestamp).toISOString().split('T')[0]; } catch (e) { orderDate = '2026-01-01'; }
+        try { orderDate = new Date(order.timestamp || '').toISOString().split('T')[0]; } catch (e) { orderDate = '2026-01-01'; }
       }
       
       const orderNum = parseDateToNumber(orderDate);
@@ -134,25 +138,27 @@ export function OrderManager({
 
     totalOrders = filteredOrders.length;
     filteredOrders.forEach(order => {
-      totalOmset += order.grandTotal;
-      totalPcs += order.totalPcs;
-      uniqueCustomers.add(order.customer);
+      totalOmset += order.grandTotal || 0;
+      totalPcs += order.totalPcs || 0;
+      const custName = order.customer || 'Unknown';
+      uniqueCustomers.add(custName);
 
-      order.items.forEach(item => {
-        if (!variantPerformance[item.sku]) variantPerformance[item.sku] = { qty: 0, omset: 0 };
-        variantPerformance[item.sku].qty += Number(item.qty);
-        variantPerformance[item.sku].omset += (Number(item.price) * Number(item.qty));
+      (order.items || []).forEach(item => {
+        const sku = item.sku || 'Unknown';
+        if (!variantPerformance[sku]) variantPerformance[sku] = { qty: 0, omset: 0 };
+        variantPerformance[sku].qty += Number(item.qty || 0);
+        variantPerformance[sku].omset += (Number(item.price || 0) * Number(item.qty || 0));
       });
 
-      if (!customerLeaderboard[order.customer]) customerLeaderboard[order.customer] = { freq: 0, totalBelanja: 0 };
-      customerLeaderboard[order.customer].freq += 1;
-      customerLeaderboard[order.customer].totalBelanja += order.grandTotal;
+      if (!customerLeaderboard[custName]) customerLeaderboard[custName] = { freq: 0, totalBelanja: 0 };
+      customerLeaderboard[custName].freq += 1;
+      customerLeaderboard[custName].totalBelanja += order.grandTotal || 0;
     });
 
     let newCustomersThisMonth = 0;
     uniqueCustomers.forEach(cust => {
       const firstOrder = customerFirstOrderDate[cust];
-      if (firstOrder && firstOrder.startsWith(currentMonthStr)) {
+      if (firstOrder && typeof firstOrder === 'string' && firstOrder.startsWith(currentMonthStr)) {
         newCustomersThisMonth++;
       }
     });
@@ -163,7 +169,7 @@ export function OrderManager({
        filterDateObj.setDate(filterDateObj.getDate() - 1);
        const prevDayStr = filterDateObj.toISOString().split('T')[0];
        
-       const prevDayOmset = orderHistory.filter(o => (o.productionDate || o.timestamp.split('T')[0]) === prevDayStr).reduce((sum, o) => sum + o.grandTotal, 0);
+       const prevDayOmset = orderHistory.filter(o => (String(o.productionDate) || String(o.timestamp || '').split('T')[0]) === prevDayStr).reduce((sum, o) => sum + o.grandTotal, 0);
        
        if (prevDayOmset === 0 && totalOmset > 0) {
          trendText = "+100% dari kemarin";

@@ -41,21 +41,22 @@ export function HistoryTable({
   }, [searchHistoryInput]);
 
   const filteredHistory = useMemo(() => {
-    const parseDateToNumber = (dateStr: string) => {
+    const parseDateToNumber = (dateStr: any) => {
       if (!dateStr) return 0;
+      const str = String(dateStr);
       // Try YYYY-MM-DD
-      const match1 = dateStr.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+      const match1 = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
       if (match1) {
         return parseInt(`${match1[1]}${match1[2].padStart(2, '0')}${match1[3].padStart(2, '0')}`);
       }
       // Try DD-MM-YYYY
-      const match2 = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      const match2 = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
       if (match2) {
         return parseInt(`${match2[3]}${match2[2].padStart(2, '0')}${match2[1].padStart(2, '0')}`);
       }
       // Fallback
       try {
-        const d = new Date(dateStr);
+        const d = new Date(str);
         if (!isNaN(d.getTime())) {
           return parseInt(`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`);
         }
@@ -69,9 +70,9 @@ export function HistoryTable({
     return orderHistory.filter(order => {
       if (searchHistoryQuery) {
         const query = searchHistoryQuery.toLowerCase();
-        const matchCustomer = order.customer.toLowerCase().includes(query);
+        const matchCustomer = (order.customer || '').toLowerCase().includes(query);
         const matchNotes = order.notes?.toLowerCase().includes(query);
-        const matchItems = order.items.some(item => item.sku.toLowerCase().includes(query));
+        const matchItems = (order.items || []).some(item => (item.sku || '').toLowerCase().includes(query));
         
         if (!matchCustomer && !matchNotes && !matchItems) {
           return false;
@@ -81,7 +82,8 @@ export function HistoryTable({
       let orderDate = order.productionDate;
       if (!orderDate) {
         try { 
-          const ts = new Date(order.timestamp);
+          const tsStr = String(order.timestamp || '');
+          const ts = new Date(tsStr);
           if (!isNaN(ts.getTime())) {
             orderDate = ts.toISOString().split('T')[0];
           }
@@ -226,7 +228,7 @@ export function HistoryTable({
                   </div>
                   
                   <div className="bg-muted p-3 rounded-lg text-sm space-y-1 mb-3 border border-border">
-                    {order.items.map((item, idx) => (
+                    {(order.items || []).map((item, idx) => (
                       <div key={idx} className="flex justify-between">
                         <span>
                           {item.qty}x {item.sku.endsWith(' (sample)') ? (
