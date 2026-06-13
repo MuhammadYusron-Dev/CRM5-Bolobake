@@ -14,6 +14,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'raw_text is required' }, { status: 400 });
     }
 
+    const currentYear = new Date().getFullYear();
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: raw_text,
@@ -23,7 +25,7 @@ Tugasmu adalah menganalisis teks percakapan dan mengubahnya menjadi format JSON 
 Customer sering menggunakan format B2B seperti:
 - "ORDER B2B" / "NAMA OUTLET" -> jadikan ini nama customer
 - "PESANAN / VARIAN PRODUK" -> daftar produk. Customer sering menyingkat atau membolak-balik nama (misal: "Croissant Butter", "Butter Cro", "Plain Croissant"). Cari dan petakan ke SKU terdekat. Jika customer hanya menulis "Butter Croissant" tanpa keterangan gramasi, asumsikan ukuran standarnya adalah "Butter Croissant 75gr".
-- "TANGGAL PENGIRIMAN" -> Ekstrak tanggal pengiriman ke format "YYYY-MM-DD" (misal: "PENGIRIMAN HARI SENIN 15 JUNI" tahun berjalan).
+- "TANGGAL PENGIRIMAN" -> Ekstrak tanggal pengiriman ke format "YYYY-MM-DD" (misal: "PENGIRIMAN HARI SENIN 15 JUNI"). WAJIB gunakan tahun sekarang yaitu ${currentYear}. DILARANG menggunakan tahun lalu atau masa depan.
 - "NOTE" -> Ekstrak semua catatan tambahan yang diberikan customer.
 
 Daftar SKU yang umum dalam sistem kami: "Butter Croissant 75gr", "Butter Croissant 30gr", "Butter Croissant 50gr", "Mochi Croissant Tiramisu", "Pain Au Suisse", "Almond Croissant", dll.
