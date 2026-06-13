@@ -150,20 +150,7 @@ export function DashboardAnalytics({
         </Card>
 
         <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <div className="animate-run-across flex items-end gap-1 bottom-1 text-[#1877F2] fill-[#1877F2] opacity-40">
-              <div className="relative animate-run-bob">
-                <User className="w-8 h-8" fill="currentColor" />
-                <Hand className="w-5 h-5 absolute -right-2 top-0 animate-arm-wave text-amber-500 fill-amber-500 drop-shadow-sm opacity-90" />
-              </div>
-              <div className="relative animate-run-bob" style={{ animationDelay: '0.2s' }}>
-                <User className="w-7 h-7" fill="currentColor" />
-              </div>
-              <div className="relative animate-run-bob" style={{ animationDelay: '0.4s' }}>
-                <User className="w-6 h-6" fill="currentColor" />
-              </div>
-            </div>
-          </div>
+
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground">Customer Aktif</CardTitle>
             <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 shadow-sm">
