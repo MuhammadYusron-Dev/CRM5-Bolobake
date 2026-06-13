@@ -8,13 +8,16 @@ export async function POST(request: Request) {
     }
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
-    const { raw_text } = await request.json();
+    const { raw_text, valid_skus } = await request.json();
 
     if (!raw_text) {
       return NextResponse.json({ success: false, error: 'raw_text is required' }, { status: 400 });
     }
 
     const currentYear = new Date().getFullYear();
+    const skuListString = Array.isArray(valid_skus) && valid_skus.length > 0 
+      ? valid_skus.join(', ')
+      : '"Butter Croissant 75gr", "Butter Croissant 30gr", "Butter Croissant 50gr", "Mochi Croissant Tiramisu", "Pain Au Suisse", "Almond Croissant", dll.';
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -28,8 +31,8 @@ Customer sering menggunakan format B2B seperti:
 - "TANGGAL PENGIRIMAN" -> Ekstrak tanggal pengiriman ke format "YYYY-MM-DD" (misal: "PENGIRIMAN HARI SENIN 15 JUNI"). WAJIB gunakan tahun sekarang yaitu ${currentYear}. DILARANG menggunakan tahun lalu atau masa depan.
 - "NOTE" -> Ekstrak semua catatan tambahan yang diberikan customer.
 
-Daftar SKU yang umum dalam sistem kami: "Butter Croissant 75gr", "Butter Croissant 30gr", "Butter Croissant 50gr", "Mochi Croissant Tiramisu", "Pain Au Suisse", "Almond Croissant", dll.
-Gunakan pencocokan nama yang paling mendekati dan terstandarisasi.
+Daftar SKU RESMI dalam sistem kami saat ini: ${skuListString}
+Kamu WAJIB menggunakan NAMA SKU YANG SAMA PERSIS dengan salah satu yang ada di daftar SKU RESMI di atas pada kolom "detected_sku". Jangan mengarang nama baru. Jika customer mengetik "Pain Au Chocolat" pastikan itu ada di daftar, atau sesuaikan ke nama persisnya di daftar. Jika tidak ada yang cocok, gunakan nama terdekat.
 
 Format respons WAJIB berupa JSON murni dengan skema berikut:
 {

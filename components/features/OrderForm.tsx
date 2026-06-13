@@ -142,10 +142,14 @@ export function OrderForm({
     if (!aiText.trim()) return;
     setIsParsingAi(true);
     try {
+      const validSkus = processedKatalog.filter(p => p.aktif).map(p => p.nama);
       const res = await fetch('/api/parse-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ raw_text: aiText })
+        body: JSON.stringify({ 
+          raw_text: aiText,
+          valid_skus: validSkus
+        })
       });
       const data = await res.json();
       if (data.success && data.data) {
