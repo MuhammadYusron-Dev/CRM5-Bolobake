@@ -105,24 +105,24 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
   const clouds = (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Cloud 1 */}
-      <div className="absolute top-[10%] -left-[20%] animate-drift" style={{ animationDuration: '45s' }}>
-        <CloudSvg className={cloudClass} />
+      <div className="absolute top-[5%] -left-[30%] animate-drift" style={{ animationDuration: '55s' }}>
+        <RealisticCloud className={cloudClass} />
       </div>
       {/* Cloud 2 */}
-      <div className="absolute top-[25%] -left-[20%] animate-drift" style={{ animationDuration: '65s', animationDelay: '-15s', transform: 'scale(1.4)' }}>
-        <CloudSvg className={cloudClass} />
+      <div className="absolute top-[20%] -left-[30%] animate-drift" style={{ animationDuration: '75s', animationDelay: '-15s', transform: 'scale(1.2)' }}>
+        <RealisticCloud className={cloudClass} />
       </div>
       {/* Cloud 3 */}
-      <div className="absolute top-[45%] -left-[20%] animate-drift" style={{ animationDuration: '55s', animationDelay: '-30s', transform: 'scale(0.8)' }}>
-        <CloudSvg className={cloudClass} />
+      <div className="absolute top-[40%] -left-[30%] animate-drift" style={{ animationDuration: '65s', animationDelay: '-30s', transform: 'scale(0.7)' }}>
+        <RealisticCloud className={cloudClass} />
       </div>
       {/* Cloud 4 */}
-      <div className="absolute top-[65%] -left-[20%] animate-drift" style={{ animationDuration: '80s', animationDelay: '-40s', transform: 'scale(1.2)' }}>
-        <CloudSvg className={cloudClass} />
+      <div className="absolute top-[60%] -left-[30%] animate-drift" style={{ animationDuration: '90s', animationDelay: '-40s', transform: 'scale(0.9)' }}>
+        <RealisticCloud className={cloudClass} />
       </div>
       {/* Cloud 5 */}
-      <div className="absolute top-[15%] -left-[20%] animate-drift" style={{ animationDuration: '90s', animationDelay: '-60s', transform: 'scale(1.8)' }}>
-        <CloudSvg className={cloudClass} />
+      <div className="absolute top-[10%] -left-[30%] animate-drift" style={{ animationDuration: '100s', animationDelay: '-60s', transform: 'scale(1.5)' }}>
+        <RealisticCloud className={cloudClass} />
       </div>
     </div>
   );
@@ -136,14 +136,19 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
   );
 }
 
-function CloudSvg({ className }: { className?: string }) {
+function RealisticCloud({ className }: { className?: string }) {
+  // Uses overlapping blurred elements to create volumetric fog/clouds
   return (
-    <svg width="200" height="100" viewBox="0 0 200 100" fill="currentColor" className={`transition-colors duration-[3000ms] ${className}`} xmlns="http://www.w3.org/2000/svg">
-      <circle cx="50" cy="60" r="30" />
-      <circle cx="90" cy="40" r="40" />
-      <circle cx="140" cy="50" r="35" />
-      <circle cx="170" cy="70" r="25" />
-      <rect x="50" y="60" width="120" height="35" rx="10" />
-    </svg>
+    <div className={`relative w-[400px] h-[150px] transition-colors duration-[3000ms] ${className}`}>
+      {/* Base fluffy parts */}
+      <div className="absolute top-[30%] left-[10%] w-[150px] h-[60px] bg-current rounded-full blur-[20px] opacity-80" />
+      <div className="absolute top-[20%] left-[30%] w-[180px] h-[80px] bg-current rounded-full blur-[25px] opacity-90" />
+      <div className="absolute top-[40%] left-[50%] w-[160px] h-[70px] bg-current rounded-full blur-[20px] opacity-70" />
+      <div className="absolute top-[50%] left-[20%] w-[250px] h-[50px] bg-current rounded-full blur-[15px] opacity-60" />
+      
+      {/* Wispy edges */}
+      <div className="absolute top-[10%] left-[40%] w-[100px] h-[40px] bg-current rounded-full blur-[15px] opacity-50" />
+      <div className="absolute top-[60%] left-[40%] w-[150px] h-[40px] bg-current rounded-full blur-[15px] opacity-50" />
+    </div>
   );
 }
