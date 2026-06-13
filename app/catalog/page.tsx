@@ -73,6 +73,10 @@ export default function CatalogPage() {
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
 
+  // Edit State
+  const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
   // --- REAL AI SCANNING via Gemini API ---
   const handleFileUpload = async (file: File) => {
     setIsScanning(true);
@@ -272,6 +276,60 @@ export default function CatalogPage() {
     }
   };
 
+  const handleDeleteItem = async (id: string) => {
+    if (!window.confirm(`Yakin ingin menghapus secara permanen SKU: ${id}? Ini tidak dapat dibatalkan.`)) return;
+
+    try {
+      const response = await fetch(`/api/catalog?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error("Gagal menghapus produk");
+
+      setCatalog(prev => prev.filter(c => c.id !== id));
+      
+      setToastType("success");
+      setToastMessage(`SKU ${id} berhasil dihapus permanen!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      setToastType("error");
+      setToastMessage("Gagal menghapus data dari server.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+
+    setIsUpdating(true);
+    try {
+      const response = await fetch('/api/catalog', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...editingItem, isFullEdit: true })
+      });
+      
+      if (!response.ok) throw new Error("Gagal update produk");
+
+      setCatalog(prev => prev.map(c => c.id === editingItem.id ? editingItem : c));
+      setEditingItem(null);
+      
+      setToastType("success");
+      setToastMessage(`SKU ${editingItem.id} berhasil diperbarui!`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      setToastType("error");
+      setToastMessage("Gagal memperbarui data di server.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const formatRp = (num: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num);
 
@@ -374,6 +432,7 @@ export default function CatalogPage() {
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-right whitespace-nowrap">Harga Default</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-center whitespace-nowrap">Satuan</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-center whitespace-nowrap">Status</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-center whitespace-nowrap">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -401,6 +460,22 @@ export default function CatalogPage() {
                           className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${item.aktif ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-muted text-muted-foreground hover:bg-secondary/80"}`}
                         >
                           {item.aktif ? "Aktif" : "Nonaktif"}
+                        </button>
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setEditingItem(item)}
+                          className="p-1.5 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors"
+                          title="Edit Produk"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                          title="Hapus Permanen"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -645,6 +720,93 @@ export default function CatalogPage() {
           </div>
         )}
       </main>
+
+      {/* --- EDIT MODAL --- */}
+      {editingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setEditingItem(null)}></div>
+          <div className="bg-card text-card-foreground border border-border rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h3 className="font-serif font-bold text-lg">Edit SKU: {editingItem.id}</h3>
+              <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit} className="p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Nama Produk</label>
+                <input
+                  type="text" required
+                  value={editingItem.nama}
+                  onChange={e => setEditingItem({ ...editingItem, nama: e.target.value })}
+                  className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Kategori</label>
+                  <select
+                    required
+                    value={editingItem.kategori}
+                    onChange={e => setEditingItem({ ...editingItem, kategori: e.target.value })}
+                    className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-card"
+                  >
+                    <option value="Viennoiserie">Viennoiserie</option>
+                    <option value="Bread">Bread</option>
+                    <option value="Bagel">Bagel</option>
+                    <option value="Pastry">Pastry</option>
+                    <option value="Cake & Cookies">Cake & Cookies</option>
+                    <option value="Sweets">Sweets</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Satuan</label>
+                  <select
+                    required
+                    value={editingItem.satuan}
+                    onChange={e => setEditingItem({ ...editingItem, satuan: e.target.value })}
+                    className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-card"
+                  >
+                    <option value="pcs">pcs</option>
+                    <option value="loyang">loyang</option>
+                    <option value="jar">jar</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5">Harga Default</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
+                  <input
+                    type="number" required min="0"
+                    value={editingItem.harga}
+                    onChange={e => setEditingItem({ ...editingItem, harga: Number(e.target.value) })}
+                    className="w-full p-2.5 pl-8 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  />
+                </div>
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
+                  className="px-5 py-2.5 rounded-lg font-bold text-sm bg-muted text-foreground hover:bg-secondary transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="px-5 py-2.5 rounded-lg font-bold text-sm bg-primary text-white hover:bg-primary/90 flex items-center gap-2 transition-colors disabled:opacity-70"
+                >
+                  {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
