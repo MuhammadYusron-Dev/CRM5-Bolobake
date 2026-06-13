@@ -176,3 +176,8 @@ export async function DELETE(request: Request) {
     });
 
     return NextResponse.json({ success: true, message: `Product ${id} deleted successfully` });
+  } catch (error: any) {
+    console.error('Error deleting catalog:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
