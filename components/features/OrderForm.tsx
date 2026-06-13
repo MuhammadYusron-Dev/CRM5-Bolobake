@@ -362,7 +362,7 @@ export function OrderForm({
                 type="button" 
                 onClick={handleParseAi} 
                 disabled={isParsingAi || !aiText.trim()}
-                className="h-20 sm:w-32 font-bold shadow-md"
+                className="h-20 sm:w-auto px-6 flex-shrink-0 font-bold text-sm whitespace-nowrap shadow-md"
               >
                 {isParsingAi ? <LoaderSpin /> : 'Proses Pesanan AI'}
               </Button>
