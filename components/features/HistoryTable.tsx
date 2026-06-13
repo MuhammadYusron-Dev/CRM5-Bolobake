@@ -191,16 +191,32 @@ export function HistoryTable({
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Terkirim</span>
-                        <span className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">{isNaN(new Date(order.timestamp).getTime()) ? order.timestamp : new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                        {!isNaN(new Date(order.timestamp).getTime()) && (
+                          <span className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">{new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                        )}
                       </div>
                       <h4 className="font-bold">{order.customer}</h4>
                       {(order.productionDate || order.deliveryDate) && (
-                        <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-1">
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                           {order.productionDate && (
-                            <span className="flex items-center gap-1"><Calendar className="w-3 h-3"/> Prod: {order.productionDate}</span>
+                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5"/> Prod: {
+                              (() => {
+                                try {
+                                  const [y, m, d] = order.productionDate.split('-');
+                                  return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1, parseInt(d)));
+                                } catch(e) { return order.productionDate; }
+                              })()
+                            }</span>
                           )}
                           {order.deliveryDate && (
-                            <span className="flex items-center gap-1"><Truck className="w-3 h-3"/> Kirim: {order.deliveryDate}</span>
+                            <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5"/> Kirim: {
+                              (() => {
+                                try {
+                                  const [y, m, d] = order.deliveryDate.split('-');
+                                  return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1, parseInt(d)));
+                                } catch(e) { return order.deliveryDate; }
+                              })()
+                            }</span>
                           )}
                         </div>
                       )}
