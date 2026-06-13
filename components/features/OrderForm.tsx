@@ -159,6 +159,15 @@ export function OrderForm({
            setDeliveryDate(parsed.delivery_date);
            setProductionDate(parsed.delivery_date); // Default logic
         }
+        if (parsed.delivery_option) {
+           setDeliveryOption(parsed.delivery_option);
+        }
+        if (parsed.delivery_route) {
+           setDeliveryRoute(parsed.delivery_route);
+        }
+        if (parsed.is_free_shipping !== undefined) {
+           setIsFreeShipping(parsed.is_free_shipping);
+        }
         if (parsed.notes) {
            setNotes(parsed.notes);
         }

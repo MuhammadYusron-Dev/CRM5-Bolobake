@@ -29,7 +29,15 @@ Customer sering menggunakan format B2B seperti:
 - "ORDER B2B" / "NAMA OUTLET" -> jadikan ini nama customer
 - "PESANAN / VARIAN PRODUK" -> daftar produk. Customer sering menyingkat atau membolak-balik nama (misal: "Croissant Butter", "Butter Cro", "Plain Croissant"). Cari dan petakan ke SKU terdekat. Jika customer hanya menulis "Butter Croissant" tanpa keterangan gramasi, asumsikan ukuran standarnya adalah "Butter Croissant 75gr".
 - "TANGGAL PENGIRIMAN" -> Ekstrak tanggal pengiriman ke format "YYYY-MM-DD" (misal: "PENGIRIMAN HARI SENIN 15 JUNI"). WAJIB gunakan tahun sekarang yaitu ${currentYear}. DILARANG menggunakan tahun lalu atau masa depan.
-- "NOTE" -> Ekstrak semua catatan tambahan yang diberikan customer.
+- "OPSI DELIVERY" -> Analisis kalimat pengiriman dan note untuk menentukan opsi pengiriman:
+  * "BUDIMAS TW" -> delivery_option: "BUDIMAS", delivery_route: "Tawangmangu"
+  * "BUDIMAS BYL" -> delivery_option: "BUDIMAS", delivery_route: "Boyolali"
+  * "BUDIMAS WNG" -> delivery_option: "BUDIMAS", delivery_route: "Wonogiri"
+  * Hanya tanggal (misal "PENGIRIMAN HARI SENIN") -> delivery_option: "BOLOBAKE", is_free_shipping: true
+  * Tanggal + NOTE "EKSPEDISI KALOG/PAXEL" -> delivery_option: "EKSPEDISI", delivery_route: "KALOG" (atau PAXEL), is_free_shipping: false
+  * "DIAMBIL DI CENTRAL/BOLOBAKE" tanpa note ekspedisi -> delivery_option: "SELF PICKUP", is_free_shipping: true. Teks "DIAMBIL DI..." masukkan ke notes.
+  * "DIAMBIL DI CENTRAL" + NOTE "EKSPEDISI TRAVEL" -> delivery_option: "EKSPEDISI TRAVEL", is_free_shipping: false.
+- "NOTE" -> Ekstrak semua catatan tambahan yang diberikan customer, digabung dengan teks self pickup jika ada.
 
 Daftar SKU RESMI dalam sistem kami saat ini: ${skuListString}
 Kamu WAJIB menggunakan NAMA SKU YANG SAMA PERSIS dengan salah satu yang ada di daftar SKU RESMI di atas pada kolom "detected_sku". Jangan mengarang nama baru. Jika customer mengetik "Pain Au Chocolat" pastikan itu ada di daftar, atau sesuaikan ke nama persisnya di daftar. Jika tidak ada yang cocok, gunakan nama terdekat.
@@ -38,6 +46,9 @@ Format respons WAJIB berupa JSON murni dengan skema berikut:
 {
   "customer_name": string atau null,
   "delivery_date": "YYYY-MM-DD" atau null,
+  "delivery_option": "BUDIMAS" | "BOLOBAKE" | "EKSPEDISI" | "EKSPEDISI TRAVEL" | "SELF PICKUP" atau null,
+  "delivery_route": "Tawangmangu" | "Boyolali" | "Wonogiri" | "KALOG" | "PAXEL" atau null,
+  "is_free_shipping": boolean (default true jika tidak ada info berbayar),
   "notes": string atau null,
   "items": [
     {
