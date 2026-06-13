@@ -79,7 +79,7 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
+        <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
             <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-[0.05] animate-wave origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
                <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
@@ -90,7 +90,7 @@ export function DashboardAnalytics({
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground">Jumlah Transaksi</CardTitle>
-            <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:-translate-y-1 transition-transform shadow-sm">
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl text-amber-600 dark:text-amber-400 group-hover:-translate-y-1 transition-transform shadow-sm">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </CardHeader>
@@ -106,7 +106,7 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+        <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Produk</CardTitle>
             <div className="p-3 bg-secondary rounded-xl text-primary group-hover:rotate-12 transition-transform shadow-sm">
@@ -138,7 +138,7 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
+        <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
             <div className="animate-run-across flex items-end gap-1 bottom-1 text-[#1877F2] fill-[#1877F2] opacity-40">
               <div className="relative animate-run-bob">
@@ -155,7 +155,7 @@ export function DashboardAnalytics({
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground">Customer Aktif</CardTitle>
-            <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 shadow-sm">
               <Users className="w-5 h-5" />
             </div>
           </CardHeader>
@@ -246,7 +246,7 @@ export function DashboardAnalytics({
                     </tr>
                   ) : (
                     filteredLeaderboard.map(([cust, data], idx) => (
-                        <tr key={cust} className="border-b border-secondary last:border-0 hover:bg-slate-50 transition-colors cursor-pointer">
+                        <tr key={cust} className="border-b border-secondary last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
                           <td className="py-3 px-4 text-sm font-semibold">
                             <div className="flex items-center gap-4">
                               <div className={`rounded-full flex items-center justify-center font-extrabold shrink-0 relative transition-all duration-300 ${

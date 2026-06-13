@@ -435,13 +435,13 @@ export function OrderManager({
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500"></div>
           
           <div className="flex flex-col items-center justify-center pt-8 pb-2 text-center">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5 ring-8 ring-red-50/50">
+            <div className="w-16 h-16 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mb-5 ring-8 ring-red-50/50 dark:ring-red-900/20">
               <AlertTriangle className="w-8 h-8 text-red-500 drop-shadow-sm" />
             </div>
-            <DialogTitle className="text-2xl font-bold text-slate-800 mb-3 tracking-tight">
+            <DialogTitle className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-3 tracking-tight">
               {confirmDialog.title}
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium px-4 text-sm sm:text-base leading-relaxed">
+            <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium px-4 text-sm sm:text-base leading-relaxed">
               {confirmDialog.message}
             </DialogDescription>
           </div>
@@ -452,7 +452,7 @@ export function OrderManager({
               variant="outline" 
               onClick={closeConfirmDialog} 
               disabled={isSubmitting}
-              className="flex-1 font-bold h-12 text-slate-600 hover:bg-slate-100 hover:text-slate-800 border-slate-200 transition-all rounded-xl"
+              className="flex-1 font-bold h-12 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-100 border-slate-200 dark:border-slate-700 transition-all rounded-xl"
             >
               Batal
             </Button>

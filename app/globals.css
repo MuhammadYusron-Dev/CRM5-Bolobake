@@ -33,6 +33,8 @@
   }
 }
 
+@custom-variant dark (&:is(.dark *));
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
