@@ -1,10 +1,24 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 interface DynamicSkyBackgroundProps {
   currentHour: number;
 }
 
 export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps) {
+  // Track accumulated hours to prevent backwards rotation jumps in preview mode
+  const [accumulatedHour, setAccumulatedHour] = useState(currentHour);
+  const prevHourRef = useRef(currentHour);
+
+  useEffect(() => {
+    let diff = currentHour - prevHourRef.current;
+    // If time jumped backwards by a lot (e.g., midnight or fast preview loop), assume it's the next day
+    if (diff < -6) {
+      diff += 24;
+    }
+    setAccumulatedHour(prev => prev + diff);
+    prevHourRef.current = currentHour;
+  }, [currentHour]);
+
   // Determine time phase
   const isMorning = currentHour >= 5 && currentHour < 12;
   const isMidday = currentHour >= 12 && currentHour < 15;
@@ -38,40 +52,53 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
     cloudClass = 'text-slate-300/10';
   }
 
-  // Sun and Moon positioning
-  let celestialBody = null;
-  
-  if (isMorning) {
-    // Sun rising from bottom
-    celestialBody = (
-      <div className="absolute left-[20%] bottom-[20%] w-32 h-32 bg-yellow-200 rounded-full blur-[2px] shadow-[0_0_60px_20px_rgba(253,224,71,0.5)] transition-all duration-[3000ms] ease-in-out" />
-    );
-  } else if (isMidday) {
-    // Sun at top
-    celestialBody = (
-      <div className="absolute left-[50%] top-[10%] -translate-x-1/2 w-40 h-40 bg-yellow-100 rounded-full blur-[2px] shadow-[0_0_80px_30px_rgba(253,224,71,0.6)] transition-all duration-[3000ms] ease-in-out" />
-    );
-  } else if (isAfternoon) {
-    // Sun setting
-    celestialBody = (
-      <div className="absolute right-[25%] bottom-[25%] w-32 h-32 bg-orange-400 rounded-full blur-[2px] shadow-[0_0_60px_20px_rgba(251,146,60,0.6)] transition-all duration-[3000ms] ease-in-out" />
-    );
-  } else if (isEvening) {
-    // Sun fully setting
-    celestialBody = (
-      <div className="absolute right-[15%] bottom-[5%] w-24 h-24 bg-red-500 rounded-full blur-[4px] shadow-[0_0_50px_15px_rgba(239,68,68,0.7)] transition-all duration-[3000ms] ease-in-out" />
-    );
-  } else if (isNight) {
-    // Moon
-    celestialBody = (
-      <div className="absolute right-[20%] top-[15%] w-24 h-24 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_40px_10px_rgba(241,245,249,0.3)] transition-all duration-[3000ms] ease-in-out">
-        {/* Moon Craters */}
-        <div className="absolute top-4 left-4 w-4 h-4 bg-slate-300 rounded-full opacity-50"></div>
-        <div className="absolute bottom-6 right-6 w-6 h-6 bg-slate-300 rounded-full opacity-40"></div>
-        <div className="absolute top-10 right-4 w-3 h-3 bg-slate-300 rounded-full opacity-60"></div>
+  // Calculate angles for the arc
+  // Sun: 06:00 is -90deg (Left), 12:00 is 0deg (Top), 18:00 is 90deg (Right)
+  const sunAngle = (accumulatedHour - 12) * 15;
+  // Moon: 18:00 is 90deg (Right), 00:00 is 0deg (Top), 06:00 is -90deg (Left)
+  const moonAngle = -(accumulatedHour - 24) * 15;
+
+  // Celestial bodies orbiting on a pivot
+  const celestialBodies = (
+    <div className="absolute inset-0 z-0 pointer-events-none">
+      {/* Sun Orbit Wrapper */}
+      <div 
+        className="absolute left-1/2 bottom-[-10vh] w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
+        style={{ transform: `rotate(${sunAngle}deg)` }}
+      >
+        <div 
+          className="absolute -ml-[4rem] -mt-[4rem] w-32 h-32 rounded-full transition-all duration-[4000ms] ease-in-out"
+          style={{ 
+            bottom: '80vh', 
+            background: isMorning ? '#fef08a' : isMidday ? '#fef9c3' : '#fb923c',
+            boxShadow: isMorning ? '0 0 60px 20px rgba(253,224,71,0.5)' : isMidday ? '0 0 80px 30px rgba(253,224,71,0.6)' : '0 0 60px 20px rgba(251,146,60,0.6)',
+            filter: isAfternoon || isEvening ? 'blur(4px)' : 'blur(2px)',
+            opacity: isNight ? 0 : 1
+          }}
+        />
       </div>
-    );
-  }
+
+      {/* Moon Orbit Wrapper */}
+      <div 
+        className="absolute left-1/2 bottom-[-10vh] w-0 h-0 transition-transform duration-[4000ms] ease-in-out"
+        style={{ transform: `rotate(${moonAngle}deg)` }}
+      >
+        <div 
+          className="absolute -ml-[3rem] -mt-[3rem] w-24 h-24 bg-slate-100 rounded-full blur-[1px] shadow-[0_0_40px_10px_rgba(241,245,249,0.3)] transition-all duration-[4000ms] ease-in-out"
+          style={{ 
+            bottom: '80vh',
+            transform: `rotate(${-moonAngle}deg)`, // Counter-rotate so craters stay upright
+            opacity: (!isNight && !isEvening && currentHour > 7 && currentHour < 17) ? 0 : 1 
+          }}
+        >
+          {/* Moon Craters */}
+          <div className="absolute top-4 left-4 w-4 h-4 bg-slate-300 rounded-full opacity-50"></div>
+          <div className="absolute bottom-6 right-6 w-6 h-6 bg-slate-300 rounded-full opacity-40"></div>
+          <div className="absolute top-10 right-4 w-3 h-3 bg-slate-300 rounded-full opacity-60"></div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Stars (Only at night and evening)
   const stars = useMemo(() => {
@@ -129,7 +156,7 @@ export function DynamicSkyBackground({ currentHour }: DynamicSkyBackgroundProps)
 
   return (
     <div className={`fixed inset-0 z-0 bg-gradient-to-b transition-colors duration-[3000ms] ${bgGradient} overflow-hidden pointer-events-none`}>
-      {celestialBody}
+      {celestialBodies}
       {stars}
       {clouds}
     </div>
