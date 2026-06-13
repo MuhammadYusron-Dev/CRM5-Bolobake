@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useMemo, useRef } from 'react';
-import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw } from 'lucide-react';
+import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Order, Product, Customer } from '@/lib/types';
 import { OrderForm } from './OrderForm';
@@ -27,6 +29,26 @@ export function OrderManager({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    actionLabel: string;
+    onConfirm: (() => Promise<void>) | null;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    actionLabel: '',
+    onConfirm: null,
+  });
+
+  const closeConfirmDialog = () => {
+    if (!isSubmitting) {
+      setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+    }
+  };
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastOptions, setToastOptions] = useState<{show: boolean; message: string; isUndoable?: boolean; onUndo?: () => void}>({show: false, message: ''});
@@ -188,41 +210,60 @@ export function OrderManager({
 
   const handleDeleteOrder = async (order: Order) => {
     if (!order.rowNumber) return;
-    if (!confirm('Apakah Anda yakin ingin menghapus pesanan ini?')) return;
-    setIsSubmitting(true);
-    try {
-      const response = await fetch(`/api/orders?rowNumber=${order.rowNumber}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete from Sheets');
-      
-      setOrderHistory(prev => prev.filter(o => o.id !== order.id));
-      setEditingOrder(null);
-      setActiveMenu('history');
-      showToast('Pesanan berhasil dihapus!');
-    } catch (err) {
-      console.error(err);
-      alert('Gagal menghapus pesanan.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Hapus Pesanan?',
+      message: `Tindakan ini akan menghapus pesanan ${order.customer} secara permanen dari sistem dan Google Sheets.`,
+      actionLabel: 'Hapus Permanen',
+      onConfirm: async () => {
+        setIsSubmitting(true);
+        try {
+          const response = await fetch(`/api/orders?rowNumber=${order.rowNumber}`, {
+            method: 'DELETE',
+          });
+          if (!response.ok) throw new Error('Failed to delete from Sheets');
+          
+          setOrderHistory(prev => prev.filter(o => o.id !== order.id));
+          setEditingOrder(null);
+          setActiveMenu('history');
+          showToast('Pesanan berhasil dihapus!');
+          closeConfirmDialog();
+        } catch (err) {
+          console.error(err);
+          alert('Gagal menghapus pesanan.');
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    });
   };
 
   const handleClearAllOrders = async () => {
-    if (!confirm('PERINGATAN: Apakah Anda yakin ingin menghapus SEMUA pesanan? Tindakan ini tidak dapat dibatalkan!')) return;
-    
-    try {
-      const response = await fetch(`/api/orders?clearAll=true`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to clear all orders');
-      
-      setOrderHistory([]);
-      showToast('Semua pesanan berhasil dihapus!');
-    } catch (err) {
-      console.error(err);
-      alert('Gagal menghapus semua pesanan.');
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Kosongkan Semua Riwayat?',
+      message: 'PERINGATAN KRITIS: Anda akan menghapus SEMUA pesanan dari sistem secara permanen. Tindakan ini TIDAK DAPAT DIBATALKAN!',
+      actionLabel: 'Ya, Kosongkan Semua',
+      onConfirm: async () => {
+        setIsSubmitting(true);
+        try {
+          const response = await fetch(`/api/orders?clearAll=true`, {
+            method: 'DELETE',
+          });
+          if (!response.ok) throw new Error('Failed to clear all orders');
+          
+          setOrderHistory([]);
+          showToast('Semua pesanan berhasil dihapus!');
+          closeConfirmDialog();
+        } catch (err) {
+          console.error(err);
+          alert('Gagal menghapus semua pesanan.');
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    });
   };
 
   const renderContent = () => {
@@ -347,6 +388,50 @@ export function OrderManager({
           {renderContent()}
         </div>
       </main>
+
+      <Dialog open={confirmDialog.isOpen} onOpenChange={(open) => !open && closeConfirmDialog()}>
+        <DialogContent className="sm:max-w-md border-destructive/20 shadow-2xl overflow-hidden rounded-2xl">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500"></div>
+          
+          <div className="flex flex-col items-center justify-center pt-8 pb-2 text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5 ring-8 ring-red-50/50">
+              <AlertTriangle className="w-8 h-8 text-red-500 drop-shadow-sm" />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-slate-800 mb-3 tracking-tight">
+              {confirmDialog.title}
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 font-medium px-4 text-sm sm:text-base leading-relaxed">
+              {confirmDialog.message}
+            </DialogDescription>
+          </div>
+          
+          <DialogFooter className="flex flex-row gap-3 mt-8 p-1 sm:justify-center">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={closeConfirmDialog} 
+              disabled={isSubmitting}
+              className="flex-1 font-bold h-12 text-slate-600 hover:bg-slate-100 hover:text-slate-800 border-slate-200 transition-all rounded-xl"
+            >
+              Batal
+            </Button>
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={() => confirmDialog.onConfirm?.()} 
+              disabled={isSubmitting}
+              className="flex-1 font-bold h-12 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-[0_4px_14px_0_rgba(225,29,72,0.39)] hover:shadow-[0_6px_20px_rgba(225,29,72,0.23)] transition-all rounded-xl"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                   Memproses...
+                </span>
+              ) : confirmDialog.actionLabel}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
