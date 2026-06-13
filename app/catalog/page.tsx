@@ -510,7 +510,7 @@ export default function CatalogPage() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>
