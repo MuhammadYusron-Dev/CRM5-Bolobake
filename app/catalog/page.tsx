@@ -276,7 +276,7 @@ export default function CatalogPage() {
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#2C1810] font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       {/* Custom Scrollbar */}
       <style>{`
         ::-webkit-scrollbar { width: 6px; }
@@ -293,7 +293,7 @@ export default function CatalogPage() {
           className={`${toastType === "success" ? "bg-[#2C1810]" : "bg-red-700"} text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-3`}
         >
           {toastType === "success" ? (
-            <CheckCircle2 className="w-5 h-5 text-[#D4A847]" />
+            <CheckCircle2 className="w-5 h-5 text-primary" />
           ) : (
             <AlertCircle className="w-5 h-5 text-red-300" />
           )}
@@ -302,23 +302,23 @@ export default function CatalogPage() {
       </div>
 
       {/* --- HEADER --- */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#e5e0d8] shadow-sm">
+      <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-6">
             <Link
               href="/"
-              className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-[#D4A847] transition-colors"
+              className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Kembali
             </Link>
-            <div className="h-6 w-px bg-gray-200"></div>
+            <div className="h-6 w-px bg-secondary/80"></div>
             <div className="flex items-center gap-2">
-              <ChefHat className="w-7 h-7 text-[#D4A847]" />
+              <ChefHat className="w-7 h-7 text-primary" />
               <h1 className="text-2xl font-serif font-bold">Catalog Manager</h1>
             </div>
           </div>
-          <div className="bg-[#D4A847]/10 text-[#D4A847] px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
+          <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
             <Package className="w-4 h-4" />
             {catalog.length} SKU Terdaftar
           </div>
@@ -328,24 +328,24 @@ export default function CatalogPage() {
       {/* --- MAIN CONTENT --- */}
       <main className="max-w-7xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
         {/* Tab Navigation */}
-        <div className="flex overflow-x-auto hide-scrollbar bg-gray-100 p-1 rounded-xl w-full sm:w-max mb-6 sm:mb-8">
+        <div className="flex overflow-x-auto hide-scrollbar bg-muted p-1 rounded-xl w-full sm:w-max mb-6 sm:mb-8">
           <button
             onClick={() => setActiveTab("database")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "database" ? "bg-white text-[#2C1810] shadow-sm" : "text-gray-500 hover:text-[#2C1810]"}`}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "database" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Package className="w-4 h-4" />
             Database Katalog
           </button>
           <button
             onClick={() => setActiveTab("scanner")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "scanner" ? "bg-white text-[#2C1810] shadow-sm" : "text-gray-500 hover:text-[#2C1810]"}`}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "scanner" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <ScanLine className="w-4 h-4" />
             AI Scanner
           </button>
           <button
             onClick={() => setActiveTab("manual")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "manual" ? "bg-white text-[#2C1810] shadow-sm" : "text-gray-500 hover:text-[#2C1810]"}`}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "manual" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Edit className="w-4 h-4" />
             Input Manual
@@ -354,20 +354,20 @@ export default function CatalogPage() {
 
         {/* ========== DATABASE TAB ========== */}
         {activeTab === "database" && (
-          <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm overflow-hidden w-full">
-            <div className="p-4 sm:p-6 border-b border-gray-100">
+          <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm overflow-hidden w-full">
+            <div className="p-4 sm:p-6 border-b border-border">
               <h2 className="text-lg font-serif font-bold flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-[#D4A847] rounded-full"></span>
+                <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 Master Katalog Produk
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Seluruh SKU yang tersinkronisasi dengan dropdown order picker.
               </p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                  <tr className="bg-secondary text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap">SKU ID</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap min-w-[150px]">Nama Produk</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4 font-semibold whitespace-nowrap">Kategori</th>
@@ -380,25 +380,25 @@ export default function CatalogPage() {
                   {catalog.map((item) => (
                     <tr
                       key={item.id}
-                      className="border-b border-gray-50 hover:bg-[#FAF8F5] transition-colors group"
+                      className="border-b border-border hover:bg-background transition-colors group"
                     >
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-mono text-gray-400 whitespace-nowrap">{item.id}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold text-[#2C1810] min-w-[150px]">{item.nama}</td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-mono text-muted-foreground whitespace-nowrap">{item.id}</td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-bold text-foreground min-w-[150px]">{item.nama}</td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                        <span className="text-xs font-semibold bg-[#D4A847]/10 text-[#D4A847] px-2.5 py-1 rounded-full">
+                        <span className="text-xs font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full">
                           {item.kategori}
                         </span>
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-[#2C1810] text-right whitespace-nowrap">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-foreground text-right whitespace-nowrap">
                         {formatRp(item.harga)}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-[#2C1810] text-center whitespace-nowrap">
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-semibold text-foreground text-center whitespace-nowrap">
                         {item.satuan}
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">
                         <button
                           onClick={() => toggleCatalogActive(item.id)}
-                          className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${item.aktif ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}
+                          className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${item.aktif ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-muted text-muted-foreground hover:bg-secondary/80"}`}
                         >
                           {item.aktif ? "Aktif" : "Nonaktif"}
                         </button>
@@ -415,12 +415,12 @@ export default function CatalogPage() {
         {activeTab === "scanner" && (
           <div className="space-y-6 sm:space-y-8 w-full">
             {/* Upload Zone */}
-            <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm p-4 sm:p-8">
+            <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm p-4 sm:p-8">
               <h2 className="text-lg font-serif font-bold flex items-center gap-2 mb-2">
-                <span className="w-1.5 h-6 bg-[#D4A847] rounded-full"></span>
+                <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 Auto-Scanner (Catalog Screening)
               </h2>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-muted-foreground mb-6">
                 Unggah file katalog (PDF/Gambar) dan biarkan AI mendeteksi menu, harga, dan kategori secara otomatis.
               </p>
 
@@ -428,7 +428,7 @@ export default function CatalogPage() {
                 onDragOver={(e) => { e.preventDefault(); if (!isScanning) setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { if (!isScanning) handleDrop(e); else { e.preventDefault(); } }}
-                className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-12 text-center transition-all ${isScanning ? 'cursor-wait border-[#D4A847] bg-[#D4A847]/5' : 'cursor-pointer'} ${!isScanning && dragOver ? "border-[#D4A847] bg-[#D4A847]/5 scale-[1.01]" : ""} ${!isScanning && !dragOver ? "border-gray-200 hover:border-[#D4A847]/50 hover:bg-gray-50" : ""}`}
+                className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-12 text-center transition-all ${isScanning ? 'cursor-wait border-[#D4A847] bg-primary/5' : 'cursor-pointer'} ${!isScanning && dragOver ? "border-[#D4A847] bg-primary/5 scale-[1.01]" : ""} ${!isScanning && !dragOver ? "border-border hover:border-primary/50 hover:bg-secondary" : ""}`}
               >
                 <input
                   type="file"
@@ -439,24 +439,24 @@ export default function CatalogPage() {
                 />
                 {isScanning ? (
                   <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-12 h-12 text-[#D4A847] animate-spin" />
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
                     <div>
-                      <p className="font-bold text-[#2C1810]">Memindai &ldquo;{fileName}&rdquo;...</p>
-                      <p className="text-sm text-gray-400 mt-1">{scanStatus}</p>
+                      <p className="font-bold text-foreground">Memindai &ldquo;{fileName}&rdquo;...</p>
+                      <p className="text-sm text-muted-foreground mt-1">{scanStatus}</p>
                     </div>
-                    <div className="w-64 bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div className="bg-[#D4A847] h-2 rounded-full animate-pulse" style={{ width: "60%" }}></div>
+                    <div className="w-64 bg-muted rounded-full h-2 overflow-hidden">
+                      <div className="bg-primary h-2 rounded-full animate-pulse" style={{ width: "60%" }}></div>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-4">
-                    <div className="p-4 bg-[#D4A847]/10 rounded-2xl">
-                      <Upload className="w-10 h-10 text-[#D4A847]" />
+                    <div className="p-4 bg-primary/10 rounded-2xl">
+                      <Upload className="w-10 h-10 text-primary" />
                     </div>
                     <div>
-                      <p className="font-bold text-[#2C1810]">Drag & drop file katalog di sini</p>
-                      <p className="text-sm text-gray-400 mt-1">
-                        atau <span className="text-[#D4A847] font-semibold">klik untuk browse</span> — mendukung PDF, PNG, JPG
+                      <p className="font-bold text-foreground">Drag & drop file katalog di sini</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        atau <span className="text-primary font-semibold">klik untuk browse</span> — mendukung PDF, PNG, JPG
                       </p>
                     </div>
                   </div>
@@ -466,14 +466,14 @@ export default function CatalogPage() {
 
             {/* Scan Results */}
             {scanComplete && scannedItems.length > 0 && (
-              <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-border flex items-center justify-between">
                   <div>
                     <h3 className="font-serif font-bold text-lg flex items-center gap-2">
-                      <ScanLine className="w-5 h-5 text-[#D4A847]" />
+                      <ScanLine className="w-5 h-5 text-primary" />
                       Hasil Pemindaian AI
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {scannedItems.length} item terdeteksi dari &ldquo;{fileName}&rdquo;. Verifikasi dan centang item yang ingin disimpan.
                     </p>
                   </div>
@@ -483,13 +483,13 @@ export default function CatalogPage() {
                         const allConfirmed = scannedItems.every(i => i.confirmed);
                         setScannedItems(prev => prev.map(item => ({ ...item, confirmed: !allConfirmed })));
                       }}
-                      className="bg-gray-100 hover:bg-gray-200 text-[#2C1810] px-4 py-2.5 rounded-lg font-semibold text-xs transition-all"
+                      className="bg-muted hover:bg-secondary/80 text-foreground px-4 py-2.5 rounded-lg font-semibold text-xs transition-all"
                     >
                       {scannedItems.every(i => i.confirmed) ? 'Batal Semua' : 'Pilih Semua'}
                     </button>
                     <button
                       onClick={saveScannedItems}
-                      className="bg-[#D4A847] hover:bg-[#b58e37] text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-[#D4A847]/20"
+                      className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20"
                     >
                       <Save className="w-4 h-4" />
                       Simpan ({scannedItems.filter(i => i.confirmed).length})
@@ -501,16 +501,16 @@ export default function CatalogPage() {
                   {scannedItems.map((item) => (
                     <div
                       key={item.id}
-                      className={`flex flex-col sm:flex-row sm:items-center gap-4 px-4 sm:px-6 py-4 transition-all ${item.confirmed ? "bg-green-50/50" : "hover:bg-gray-50"}`}
+                      className={`flex flex-col sm:flex-row sm:items-center gap-4 px-4 sm:px-6 py-4 transition-all ${item.confirmed ? "bg-green-50/50" : "hover:bg-secondary"}`}
                     >
                       <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto">
                         <button
                           onClick={() => toggleConfirm(item.id)}
-                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${item.confirmed ? "bg-green-500 border-green-500 text-white" : "border-gray-300 hover:border-[#D4A847]"}`}
+                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${item.confirmed ? "bg-green-500 border-green-500 text-white" : "border-border hover:border-primary"}`}
                         >
                           {item.confirmed && <CheckCircle2 className="w-4 h-4" />}
                         </button>
-                        <span className="sm:hidden font-bold text-sm text-[#2C1810]">Konfirmasi Item</span>
+                        <span className="sm:hidden font-bold text-sm text-foreground">Konfirmasi Item</span>
                         <button
                           onClick={() => removeScannedItem(item.id)}
                           className="sm:hidden text-gray-300 hover:text-red-500 transition-colors p-2"
@@ -523,22 +523,22 @@ export default function CatalogPage() {
                         <input
                           value={item.nama}
                           onChange={(e) => updateScannedItem(item.id, "nama", e.target.value)}
-                          className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none font-semibold"
+                          className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none font-semibold"
                           placeholder="Nama Produk"
                         />
                         <input
                           value={item.kategori}
                           onChange={(e) => updateScannedItem(item.id, "kategori", e.target.value)}
-                          className="w-full p-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none"
+                          className="w-full p-2.5 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                           placeholder="Kategori"
                         />
                         <div className="relative w-full">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rp</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
                           <input
                             type="number"
                             value={item.harga}
                             onChange={(e) => updateScannedItem(item.id, "harga", Number(e.target.value))}
-                            className="w-full p-2.5 pl-8 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none"
+                            className="w-full p-2.5 pl-8 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none"
                             placeholder="Harga"
                           />
                         </div>
@@ -561,36 +561,36 @@ export default function CatalogPage() {
         {/* ========== MANUAL ENTRY TAB ========== */}
         {activeTab === "manual" && (
           <div className="max-w-2xl w-full">
-            <div className="bg-white rounded-2xl border border-[#e5e0d8] shadow-sm p-4 sm:p-8">
+            <div className="bg-card text-card-foreground rounded-2xl border border-border shadow-sm p-4 sm:p-8">
               <h2 className="text-lg font-serif font-bold flex items-center gap-2 mb-2">
-                <span className="w-1.5 h-6 bg-[#D4A847] rounded-full"></span>
+                <span className="w-1.5 h-6 bg-primary rounded-full"></span>
                 Input Manual Produk Baru
               </h2>
-              <p className="text-sm text-gray-500 mb-8">
+              <p className="text-sm text-muted-foreground mb-8">
                 Tambahkan produk satu per satu ke dalam Master Katalog.
               </p>
 
               <form onSubmit={handleManualSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-bold text-[#2C1810] mb-2">Nama Produk</label>
+                  <label className="block text-sm font-bold text-foreground mb-2">Nama Produk</label>
                   <input
                     type="text"
                     required
                     value={manualName}
                     onChange={(e) => setManualName(e.target.value)}
                     placeholder="Contoh: Chocolate Chip Cookie"
-                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] focus:border-transparent outline-none transition-all"
+                    className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-[#2C1810] mb-2">Kategori</label>
+                    <label className="block text-sm font-bold text-foreground mb-2">Kategori</label>
                     <select
                       required
                       value={manualCategory}
                       onChange={(e) => setManualCategory(e.target.value)}
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none appearance-none bg-white cursor-pointer"
+                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-card text-card-foreground cursor-pointer"
                     >
                       <option value="">Pilih kategori...</option>
                       <option value="Viennoiserie">Viennoiserie</option>
@@ -603,12 +603,12 @@ export default function CatalogPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-[#2C1810] mb-2">Satuan</label>
+                    <label className="block text-sm font-bold text-foreground mb-2">Satuan</label>
                     <select
                       required
                       value={manualSatuan}
                       onChange={(e) => setManualSatuan(e.target.value)}
-                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none appearance-none bg-white cursor-pointer"
+                      className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none appearance-none bg-card text-card-foreground cursor-pointer"
                     >
                       <option value="pcs">pcs</option>
                       <option value="loyang">loyang</option>
@@ -617,9 +617,9 @@ export default function CatalogPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-[#2C1810] mb-2">Harga Default</label>
+                    <label className="block text-sm font-bold text-foreground mb-2">Harga Default</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">Rp</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
                       <input
                         type="number"
                         required
@@ -627,7 +627,7 @@ export default function CatalogPage() {
                         value={manualPrice}
                         onChange={(e) => setManualPrice(e.target.value)}
                         placeholder="0"
-                        className="w-full p-3 pl-8 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#D4A847] outline-none transition-all"
+                        className="w-full p-3 pl-8 border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -635,7 +635,7 @@ export default function CatalogPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#D4A847] hover:bg-[#b58e37] text-white py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-[#D4A847]/20"
+                  className="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
                 >
                   <Plus className="w-5 h-5" />
                   Tambah ke Katalog
