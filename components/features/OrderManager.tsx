@@ -28,12 +28,14 @@ export function OrderManager({
   const [activeMenu, setActiveMenu] = useState('new_order');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentDateString, setCurrentDateString] = useState('');
+  const [currentHour, setCurrentHour] = useState(new Date().getHours());
 
   useEffect(() => {
     const updateDate = () => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       setCurrentDateString(new Intl.DateTimeFormat('id-ID', options).format(now));
+      setCurrentHour(now.getHours());
     };
     updateDate();
     // Update every minute is enough for date, but every second is fine too
@@ -340,12 +342,17 @@ export function OrderManager({
   };
 
   const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'Selamat Pagi, Admin ☀️';
-    if (hour >= 12 && hour < 15) return 'Selamat Siang, Admin 🌤️';
-    if (hour >= 15 && hour < 19) return 'Selamat Sore, Admin 🌅';
+    if (currentHour >= 5 && currentHour < 12) return 'Selamat Pagi, Admin ☀️';
+    if (currentHour >= 12 && currentHour < 15) return 'Selamat Siang, Admin 🌤️';
+    if (currentHour >= 15 && currentHour < 18) return 'Selamat Sore, Admin 🌅';
+    if (currentHour >= 18 && currentHour < 19) return 'Selamat Petang, Admin 🌇';
     return 'Selamat Malam, Admin 🌙';
   };
+
+  const isDarkSky = currentHour >= 18 || currentHour < 5;
+  const headerTextColor = isDarkSky ? 'text-white drop-shadow-md' : 'text-slate-800';
+  const subTextColor = isDarkSky ? 'text-slate-100 drop-shadow-sm' : 'text-slate-500';
+  const menuIconColor = isDarkSky ? 'text-white hover:bg-white/20' : 'text-slate-600 hover:bg-slate-200';
 
   return (
     <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
@@ -370,26 +377,55 @@ export function OrderManager({
       </div>
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F9FAFB]">
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none">
-          <div className="flex items-center gap-3">
+        <header className="relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none overflow-hidden">
+          {/* Animated Sky Background Layers */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            {/* Sunrise */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-orange-200 via-amber-100 to-sky-200 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 5 && currentHour < 12 ? 'opacity-100' : 'opacity-0'}`} />
+            {/* Day */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-sky-200 via-blue-200 to-sky-300 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 12 && currentHour < 15 ? 'opacity-100' : 'opacity-0'}`} />
+            {/* Sunset / Sore */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-orange-400 via-rose-300 to-purple-400 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 15 && currentHour < 18 ? 'opacity-100' : 'opacity-0'}`} />
+            {/* Petang */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-orange-500 via-purple-500 to-indigo-700 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 18 && currentHour < 19 ? 'opacity-100' : 'opacity-0'}`} />
+            {/* Night */}
+            <div className={`absolute inset-0 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 transition-opacity duration-[3000ms] ease-in-out ${currentHour >= 19 || currentHour < 5 ? 'opacity-100' : 'opacity-0'}`} />
+          </div>
+
+          {/* Left Content */}
+          <div className="relative z-10 flex items-center gap-3">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-2 rounded-lg text-muted-foreground hover:bg-muted"
+              className={`md:hidden p-2 -ml-2 rounded-lg transition-colors ${menuIconColor}`}
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex flex-col">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+              <h1 className={`text-xl sm:text-2xl font-bold tracking-tight transition-colors duration-1000 ${headerTextColor}`}>
                 {activeMenu === 'dashboard' ? 'Dashboard' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
               </h1>
               {activeMenu === 'dashboard' && currentDateString && (
-                <span className="text-slate-500 text-sm font-medium mt-0.5">{currentDateString}</span>
+                <span className={`text-sm font-medium mt-0.5 transition-colors duration-1000 ${subTextColor}`}>{currentDateString}</span>
               )}
             </div>
           </div>
+
+          {/* Middle Content - Centered Greeting */}
+          <div className="absolute left-1/2 -translate-x-1/2 z-10 hidden sm:flex items-center justify-center pointer-events-none">
+            {activeMenu === 'dashboard' && (
+              <span className={`text-base font-extrabold tracking-wide px-4 py-1.5 rounded-full backdrop-blur-md transition-all duration-1000 ${
+                isDarkSky ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'bg-white/40 text-slate-800 shadow-[0_0_15px_rgba(0,0,0,0.05)]'
+              }`}>
+                {getGreeting()}
+              </span>
+            )}
+          </div>
           
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold items-center gap-2 border border-primary/20">
+          {/* Right Content */}
+          <div className="relative z-10 flex items-center gap-3">
+            <div className={`hidden sm:flex px-4 py-2 rounded-full text-xs font-bold items-center gap-2 border transition-colors duration-1000 ${
+              isDarkSky ? 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30' : 'bg-primary/10 text-primary border-primary/20'
+            }`}>
               <span className="relative flex h-2.5 w-2.5 mr-1">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -399,7 +435,7 @@ export function OrderManager({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-0">
           {renderContent()}
         </div>
       </main>
