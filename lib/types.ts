@@ -4,6 +4,8 @@ export interface OrderItem {
   price: number;
   qty: number;
   isSample?: boolean;
+  shape?: string;
+  cut?: string;
 }
 
 export interface Order {

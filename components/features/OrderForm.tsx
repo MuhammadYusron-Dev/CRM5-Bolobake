@@ -253,7 +253,15 @@ export function OrderForm({
     const finalNotes = deliveryString ? `${deliveryString}\n${notes}` : notes;
 
     const finalItems = items.map(item => {
-      const finalSku = item.isSample ? `${item.sku} (sample)` : item.sku;
+      let finalSku = item.isSample ? `${item.sku} (sample)` : item.sku;
+      if (item.sku.toLowerCase().includes('burnt cheesecake') && (item.shape || item.cut)) {
+        const parts = [];
+        if (item.shape) parts.push(item.shape);
+        if (item.cut) parts.push(item.cut);
+        if (parts.length > 0) {
+          finalSku = `${finalSku} (${parts.join(', ')})`;
+        }
+      }
       return { ...item, sku: finalSku };
     });
 
@@ -472,8 +480,9 @@ export function OrderForm({
                 {items.map((item) => {
                   const isTierPrice = !!tierPrices[item.sku];
                   return (
-                  <div key={item.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end group relative bg-muted/30 p-3 sm:p-2 rounded-lg border border-transparent hover:border-border transition-all">
-                    <div className="w-full sm:flex-1 relative">
+                  <div key={item.id} className="flex flex-col gap-2 group relative bg-muted/30 p-3 sm:p-2 rounded-lg border border-transparent hover:border-border transition-all">
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+                      <div className="w-full sm:flex-1 relative">
                       <label className="block text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Produk (SKU)</label>
                       <Input
                         autoComplete="off"
@@ -571,6 +580,37 @@ export function OrderForm({
                       </Button>
                     </div>
                   </div>
+                  
+                  {item.sku.toLowerCase().includes('burnt cheesecake') && (
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border/50">
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Pilihan Bentuk</label>
+                        <select
+                          value={item.shape || ''}
+                          onChange={(e) => handleItemChange(item.id, 'shape', e.target.value)}
+                          className="w-full p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                        >
+                          <option value="">-- Pilih Bentuk --</option>
+                          <option value="Panjang">Panjang</option>
+                          <option value="Bulat">Bulat</option>
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Opsi Potong</label>
+                        <select
+                          value={item.cut || ''}
+                          onChange={(e) => handleItemChange(item.id, 'cut', e.target.value)}
+                          className="w-full p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                        >
+                          <option value="">-- Pilih Potongan --</option>
+                          <option value="Potong 8">Potong 8</option>
+                          <option value="Potong 10">Potong 10</option>
+                          <option value="Garis saja">Garis saja</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 )})}
               </div>
               
