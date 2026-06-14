@@ -242,8 +242,18 @@ export default function CatalogPage() {
       return;
     }
 
+    // Find max ID to avoid duplicates
+    let maxIdNum = 0;
+    catalog.forEach(c => {
+      const match = c.id.match(/\d+/);
+      if (match) {
+        const num = parseInt(match[0], 10);
+        if (num > maxIdNum) maxIdNum = num;
+      }
+    });
+
     const newCatalogItems: CatalogItem[] = confirmedItems.map((item, idx) => ({
-      id: `SKU${String(catalog.length + idx + 1).padStart(3, "0")}`,
+      id: `SKU${String(maxIdNum + idx + 1).padStart(3, "0")}`,
       nama: item.nama,
       kategori: item.kategori,
       harga: item.harga,
@@ -283,8 +293,17 @@ export default function CatalogPage() {
     e.preventDefault();
     if (!manualName.trim() || !manualCategory.trim() || !manualPrice) return;
 
+    let maxIdNum = 0;
+    catalog.forEach(c => {
+      const match = c.id.match(/\d+/);
+      if (match) {
+        const num = parseInt(match[0], 10);
+        if (num > maxIdNum) maxIdNum = num;
+      }
+    });
+
     const newItem: CatalogItem = {
-      id: `SKU${String(catalog.length + 1).padStart(3, "0")}`,
+      id: `SKU${String(maxIdNum + 1).padStart(3, "0")}`,
       nama: manualName.trim(),
       kategori: manualCategory.trim(),
       harga: Number(manualPrice),
@@ -592,9 +611,9 @@ export default function CatalogPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredCatalog.map((item) => (
+                    filteredCatalog.map((item, index) => (
                     <tr
-                      key={item.id}
+                      key={`${item.id}-${index}`}
                       className="border-b border-border hover:bg-background transition-colors group"
                     >
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-mono text-muted-foreground whitespace-nowrap">{item.id}</td>

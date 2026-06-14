@@ -183,6 +183,8 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent className="sm:max-w-[360px] p-0 overflow-hidden border-0 rounded-[2rem] bg-background gap-0 shadow-2xl">
+          <DialogTitle className="sr-only">Pengaturan Profil</DialogTitle>
+          <DialogDescription className="sr-only">Formulir pengaturan foto profil dan password.</DialogDescription>
           <div className="bg-primary pt-12 pb-10 flex flex-col items-center relative">
             <div className="relative">
               <div className="w-24 h-24 rounded-full border-4 border-background overflow-hidden bg-muted shadow-md">
