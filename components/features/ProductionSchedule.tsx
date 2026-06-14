@@ -558,9 +558,9 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
           </DialogHeader>
           
           <div className="flex flex-col gap-4 py-2 print:p-0 print:m-0" id="print-report-area">
-            <div className="text-center mb-4 border-b pb-4">
-              <h2 className="text-xl font-bold uppercase tracking-wider">Laporan Harian Produksi</h2>
-              <p className="text-sm text-slate-500">Tanggal: {startDate} s/d {endDate}</p>
+            <div className="text-center mb-4 border-b pb-4 dark:border-slate-800">
+              <h2 className="text-xl font-bold uppercase tracking-wider text-slate-900 dark:text-white print:text-black">Laporan Harian Produksi</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 print:text-black">Tanggal: {startDate} s/d {endDate}</p>
             </div>
             
             <div className="space-y-6">
@@ -583,13 +583,13 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
                   const yieldPct = (done + reject) > 0 ? Math.round((done / (done + reject)) * 100) : 100;
                   
                   return (
-                    <tr key={sku} className="border-b text-xs border-slate-200 print:border-black/20">
-                      <td className="py-2 pr-2">{sku}</td>
-                      <td className="py-2 px-2 text-center text-slate-600">{assign}</td>
-                      <td className="py-2 px-2 text-center">{target}</td>
-                      <td className="py-2 px-2 text-center text-green-600 font-bold">{done}</td>
-                      <td className="py-2 px-2 text-center text-red-600 font-bold">{reject}</td>
-                      <td className="py-2 pl-2 text-right">{yieldPct}%</td>
+                    <tr key={sku} className="border-b text-xs border-slate-200 dark:border-slate-800 print:border-black/20">
+                      <td className="py-2 pr-2 text-slate-800 dark:text-slate-200 print:text-black">{sku}</td>
+                      <td className="py-2 px-2 text-center text-slate-600 dark:text-slate-400 print:text-black">{assign}</td>
+                      <td className="py-2 px-2 text-center text-slate-800 dark:text-slate-200 print:text-black">{target}</td>
+                      <td className="py-2 px-2 text-center text-green-600 dark:text-green-500 font-bold">{done}</td>
+                      <td className="py-2 px-2 text-center text-red-600 dark:text-red-500 font-bold">{reject}</td>
+                      <td className="py-2 pl-2 text-right text-slate-800 dark:text-slate-200 print:text-black">{yieldPct}%</td>
                     </tr>
                   );
                 });
@@ -597,11 +597,11 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
                 const totalYield = (totalDone + totalReject) > 0 ? Math.round((totalDone / (totalDone + totalReject)) * 100) : 100;
 
                 return (
-                  <div key={dateKey} className="border rounded-lg p-4 print:border-black/20 print:shadow-none print:bg-white bg-slate-50">
+                  <div key={dateKey} className="border rounded-lg p-4 dark:border-slate-800 print:border-black/20 print:shadow-none print:bg-white bg-slate-50 dark:bg-slate-900/50">
                     <h3 className="font-bold text-sm mb-3 text-primary">{dateKey}</h3>
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b text-xs text-slate-500 border-slate-300 print:border-black/40">
+                        <tr className="border-b text-xs text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700 print:border-black/40 print:text-black">
                           <th className="pb-2 font-medium">Nama Produk</th>
                           <th className="pb-2 font-medium text-center">PIC</th>
                           <th className="pb-2 font-medium text-center">Target</th>
@@ -614,11 +614,11 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
                         {tableRows}
                       </tbody>
                       <tfoot>
-                        <tr className="font-bold text-xs bg-slate-100/50 print:bg-transparent border-t-2 border-slate-300 print:border-black/50">
+                        <tr className="font-bold text-xs bg-slate-100/50 dark:bg-slate-800/50 print:bg-transparent border-t-2 border-slate-300 dark:border-slate-700 print:border-black/50 text-slate-800 dark:text-slate-200 print:text-black">
                           <td className="py-3 pr-2" colSpan={2}>TOTAL KESELURUHAN</td>
                           <td className="py-3 px-2 text-center">{totalTarget}</td>
-                          <td className="py-3 px-2 text-center text-green-700">{totalDone}</td>
-                          <td className="py-3 px-2 text-center text-red-700">{totalReject}</td>
+                          <td className="py-3 px-2 text-center text-green-700 dark:text-green-500">{totalDone}</td>
+                          <td className="py-3 px-2 text-center text-red-700 dark:text-red-500">{totalReject}</td>
                           <td className="py-3 pl-2 text-right">{totalYield}%</td>
                         </tr>
                       </tfoot>
@@ -628,14 +628,14 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
               })}
             </div>
             
-            <div className="mt-8 pt-4 flex justify-between text-sm print:flex print:mt-16">
+            <div className="mt-8 pt-4 flex justify-between text-sm print:flex print:mt-16 text-slate-800 dark:text-slate-200 print:text-black">
               <div className="text-center w-40">
-                <p className="mb-16 text-xs text-slate-500">Dibuat Oleh,</p>
-                <p className="font-bold border-b border-black">Kepala Produksi</p>
+                <p className="mb-16 text-xs text-slate-500 dark:text-slate-400 print:text-black">Dibuat Oleh,</p>
+                <p className="font-bold border-b border-black dark:border-slate-600 print:border-black">Kepala Produksi</p>
               </div>
               <div className="text-center w-40">
-                <p className="mb-16 text-xs text-slate-500">Diketahui Oleh,</p>
-                <p className="font-bold border-b border-black">Manajer / Owner</p>
+                <p className="mb-16 text-xs text-slate-500 dark:text-slate-400 print:text-black">Diketahui Oleh,</p>
+                <p className="font-bold border-b border-black dark:border-slate-600 print:border-black">Manajer / Owner</p>
               </div>
             </div>
           </div>
