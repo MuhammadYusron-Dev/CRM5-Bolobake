@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { History, Filter, Search, X, Clock, Calendar, Truck, Edit, Trash2 } from 'lucide-react';
-import { Order } from '@/lib/types';
+import { Order, OrderStatus } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DateRangeFilter } from './DateRangeFilter';
@@ -16,6 +16,7 @@ interface HistoryTableProps {
   setFilterEndDate: (date: string) => void;
   handleReorder?: (order: Order) => void;
   handleClearAll?: () => void;
+  handleUpdateStatus?: (orderId: number, status: OrderStatus) => void;
 }
 
 export function HistoryTable({
@@ -27,7 +28,8 @@ export function HistoryTable({
   filterEndDate,
   setFilterEndDate,
   handleReorder,
-  handleClearAll
+  handleClearAll,
+  handleUpdateStatus
 }: HistoryTableProps) {
   const [searchHistoryInput, setSearchHistoryInput] = useState('');
   const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
@@ -101,6 +103,17 @@ export function HistoryTable({
       return true;
     });
   }, [orderHistory, filterStartDate, filterEndDate, searchHistoryQuery]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Dikonfirmasi': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'Produksi': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'Packing': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'Delivery': return 'bg-teal-100 text-teal-700 border-teal-200';
+      case 'Diterima': return 'bg-green-100 text-green-700 border-green-200';
+      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+  };
 
   return (
     <div className="space-y-4 animate-in fade-in">
@@ -189,8 +202,10 @@ export function HistoryTable({
                 <CardContent className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Terkirim</span>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border ${getStatusColor(order.status || 'Pesanan Dibuat')}`}>
+                          {order.status || 'Pesanan Dibuat'}
+                        </span>
                         {!isNaN(new Date(order.timestamp).getTime()) && (
                           <span className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">{new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                         )}
@@ -261,11 +276,34 @@ export function HistoryTable({
                       </div>
                     )}
                   </div>
+                  {order.notes && (
+                    <div className="text-[11px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded mb-3 border border-red-200 dark:border-red-800/50">
+                      <span className="font-bold block mb-0.5">Catatan Produksi:</span>
+                      {order.notes}
+                    </div>
+                  )}
+                  {order.deliveryNotes && (
+                    <div className="text-[11px] bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded mb-3 border border-blue-200 dark:border-blue-800/50">
+                      <span className="font-bold block mb-0.5">Catatan Pengiriman:</span>
+                      {order.deliveryNotes}
+                    </div>
+                  )}
                   
                   <div className="flex justify-between items-center font-bold pt-1">
                     <span className="text-sm">Total Tagihan</span>
                     <span className="text-primary text-lg">{formatRp(order.grandTotal)}</span>
                   </div>
+
+                  {/* Time Tracking Info */}
+                  {order.statusTimestamps && Object.keys(order.statusTimestamps).some(k => (order.statusTimestamps as any)[k]) && (
+                    <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+                      {order.statusTimestamps.dikonfirmasi && <span><span className="font-semibold">Dikonfirmasi:</span> {order.statusTimestamps.dikonfirmasi}</span>}
+                      {order.statusTimestamps.produksi && <span><span className="font-semibold">Produksi:</span> {order.statusTimestamps.produksi}</span>}
+                      {order.statusTimestamps.packing && <span><span className="font-semibold">Packing:</span> {order.statusTimestamps.packing}</span>}
+                      {order.statusTimestamps.delivery && <span><span className="font-semibold">Delivery:</span> {order.statusTimestamps.delivery}</span>}
+                      {order.statusTimestamps.diterima && <span><span className="font-semibold">Diterima:</span> {order.statusTimestamps.diterima}</span>}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );

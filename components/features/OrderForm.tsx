@@ -42,6 +42,7 @@ export function OrderForm({
   const [imageFile, setImageFile] = useState<File | null>(null);
   
   const [notes, setNotes] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('');
   const [deliveryRoute, setDeliveryRoute] = useState('');
   const [activeDropdownId, setActiveDropdownId] = useState<number | null>(null);
@@ -175,6 +176,9 @@ export function OrderForm({
         if (parsed.notes) {
            setNotes(parsed.notes);
         }
+        if (parsed.delivery_notes) {
+           setDeliveryNotes(parsed.delivery_notes);
+        }
         if (parsed.items && Array.isArray(parsed.items)) {
           const newItems = parsed.items.map((i: any, idx: number) => {
             const matchedProduct = katalog.find(p => p.nama.toLowerCase().includes(i.detected_sku.toLowerCase()));
@@ -213,18 +217,19 @@ export function OrderForm({
       setIsFreeShipping(orderToEdit.isFreeShipping);
       setShippingCost(orderToEdit.shippingCost === 0 ? '' : String(orderToEdit.shippingCost));
       
-      let orderNotes = orderToEdit.notes;
-      const deliveryMatch = orderNotes.match(/^\[Delivery: (.*?)\]\n?/);
+      let orderDeliveryNotes = orderToEdit.deliveryNotes || '';
+      const deliveryMatch = orderDeliveryNotes.match(/^\[Delivery: (.*?)\]\n?/);
       if (deliveryMatch) {
         const parts = deliveryMatch[1].split(' - ');
         setDeliveryOption(parts[0]);
         if (parts[1]) setDeliveryRoute(parts[1]);
-        orderNotes = orderNotes.replace(/^\[Delivery: (.*?)\]\n?/, '');
+        orderDeliveryNotes = orderDeliveryNotes.replace(/^\[Delivery: (.*?)\]\n?/, '');
       } else {
         setDeliveryOption('');
         setDeliveryRoute('');
       }
-      setNotes(orderNotes);
+      setNotes(orderToEdit.notes || '');
+      setDeliveryNotes(orderDeliveryNotes);
     } else {
       setCustomer('');
       setSelectedCustomerObj(null);
@@ -292,7 +297,7 @@ export function OrderForm({
 
   const confirmSubmit = () => {
     const deliveryString = deliveryOption ? `[Delivery: ${deliveryOption}${deliveryRoute ? ` - ${deliveryRoute}` : ''}]` : '';
-    const finalNotes = deliveryString ? `${deliveryString}\n${notes}` : notes;
+    const finalDeliveryNotes = deliveryString ? (deliveryNotes ? `${deliveryString}\n${deliveryNotes}` : deliveryString) : deliveryNotes;
 
     const finalItems = items.map(item => {
       let finalSku = item.isSample ? `${item.sku} (sample)` : item.sku;
@@ -314,6 +319,8 @@ export function OrderForm({
         finalSku = `${finalSku} (Potong ${item.briocheCut} cm)`;
       } else if (item.sku.toLowerCase().includes('bagel') && item.bagelSplit === 'Ya') {
         finalSku = `${finalSku} (Dibelah${item.bagelSplitType ? ` ${item.bagelSplitType}` : ''})`;
+      } else if (item.sku.toLowerCase().includes('cereal croissant jar') && item.flavor1) {
+        finalSku = `${finalSku} (${item.flavor1})`;
       }
       
       return { ...item, sku: finalSku };
@@ -328,7 +335,8 @@ export function OrderForm({
       items: finalItems,
       isFreeShipping,
       shippingCost: finalShipping,
-      notes: finalNotes,
+      notes: notes,
+      deliveryNotes: finalDeliveryNotes,
       subtotal,
       grandTotal,
       totalPcs: totalPcsOrder,
@@ -355,6 +363,7 @@ export function OrderForm({
     setDeliveryDate('');
     setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
     setNotes('');
+    setDeliveryNotes('');
     setDeliveryOption('');
     setDeliveryRoute('');
     setIsFreeShipping(true);
@@ -770,6 +779,24 @@ export function OrderForm({
                       )}
                     </div>
                   )}
+
+                  {item.sku.toLowerCase().includes('cereal croissant jar') && (
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2 border-t border-border/50">
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-semibold text-primary mb-1 uppercase tracking-wider">Varian Rasa</label>
+                        <select
+                          value={item.flavor1 || ''}
+                          onChange={(e) => handleItemChange(item.id, 'flavor1', e.target.value)}
+                          className="w-full sm:w-1/2 p-2 text-xs border border-border rounded-md focus:ring-1 focus:ring-primary outline-none appearance-none bg-background cursor-pointer"
+                        >
+                          <option value="">-- Pilih Varian --</option>
+                          <option value="Butter">Butter</option>
+                          <option value="Cinnamon">Cinnamon</option>
+                          <option value="Choco">Choco</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 )})}
               </div>
@@ -858,16 +885,28 @@ export function OrderForm({
 
           <Card>
             <CardContent className="p-6">
-              <label className="flex items-center gap-2 text-sm font-bold mb-4">
+              <label className="flex items-center gap-2 text-sm font-bold mb-2">
                 <FileText className="w-4 h-4 text-primary" />
-                Instruksi Dapur
+                Catatan Produksi (Dapur)
               </label>
               <textarea 
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full p-3 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background mb-4"
-                rows={4}
-                placeholder="Misal: Kirim jam 06.00 pagi, packing box terpisah, dll..."
+                rows={3}
+                placeholder="Misal: Panggang setengah matang, tanpa topping..."
+              />
+
+              <label className="flex items-center gap-2 text-sm font-bold mb-2">
+                <Truck className="w-4 h-4 text-blue-500" />
+                Catatan Pengiriman (Kurir/Packing)
+              </label>
+              <textarea 
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                className="w-full p-3 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background mb-4"
+                rows={2}
+                placeholder="Misal: Titip di pos satpam, kirim jam 06.00 pagi..."
               />
               <label className="flex items-center gap-2 text-sm font-bold mb-2">
                 Foto / Bukti Tambahan (Opsional)
@@ -973,8 +1012,12 @@ export function OrderForm({
                   <p className="font-medium text-xs">{isFreeShipping ? 'Gratis Ongkir (Solo)' : formatRp(finalShipping)}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Instruksi Dapur (Note)</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Catatan Produksi</p>
                   <p className="font-medium text-xs whitespace-pre-wrap">{notes || '-'}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Catatan Pengiriman</p>
+                  <p className="font-medium text-xs whitespace-pre-wrap">{deliveryNotes || '-'}</p>
                 </div>
               </div>
             </div>

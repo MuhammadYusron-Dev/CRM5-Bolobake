@@ -5,7 +5,7 @@ import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, Aler
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Order, Product, Customer } from '@/lib/types';
+import { Order, Product, Customer, OrderStatus } from '@/lib/types';
 import { OrderForm } from './OrderForm';
 import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
@@ -72,8 +72,8 @@ export function OrderManager({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastOptions, setToastOptions] = useState<{show: boolean; message: string; isUndoable?: boolean; onUndo?: () => void}>({show: false, message: ''});
   
-  const [filterStartDate, setFilterStartDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [filterEndDate, setFilterEndDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
 
   const undoTimeoutsRef = useRef<Record<number, NodeJS.Timeout>>({});
   const backupOrdersRef = useRef<Record<number, Order>>({});
@@ -352,6 +352,50 @@ export function OrderManager({
     });
   };
 
+  const handleUpdateStatus = async (orderId: number, newStatus: OrderStatus) => {
+    const orderIndex = orderHistory.findIndex(o => o.id === orderId);
+    if (orderIndex === -1) return;
+    const order = orderHistory[orderIndex];
+    
+    // Optimistic Update
+    setOrderHistory(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rowNumber: order.rowNumber, status: newStatus })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error);
+      }
+      
+      // Update with precise server timestamps
+      if (data.data?.timestamps) {
+         setOrderHistory(prev => prev.map(o => {
+           if (o.id === orderId) {
+             return { ...o, status: newStatus, statusTimestamps: {
+               dikonfirmasi: data.data.timestamps[0],
+               produksi: data.data.timestamps[1],
+               packing: data.data.timestamps[2],
+               delivery: data.data.timestamps[3],
+               diterima: data.data.timestamps[4],
+             }};
+           }
+           return o;
+         }));
+      }
+
+      showToast(`Status diperbarui: ${newStatus}`);
+    } catch (err) {
+      console.error(err);
+      // Revert if failed
+      setOrderHistory(prev => prev.map(o => o.id === orderId ? { ...o, status: order.status } : o));
+      alert('Gagal memperbarui status');
+    }
+  };
+
   const renderContent = () => {
     switch (activeMenu) {
       case 'dashboard':
@@ -386,6 +430,7 @@ export function OrderManager({
                 }}
                 handleReorder={handleReorder}
                 handleClearAll={handleClearAllOrders}
+                handleUpdateStatus={handleUpdateStatus}
                 filterStartDate={filterStartDate}
                 setFilterStartDate={setFilterStartDate}
                 filterEndDate={filterEndDate}

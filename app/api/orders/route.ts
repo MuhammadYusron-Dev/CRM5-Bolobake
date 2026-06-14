@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A2:M',
+      range: 'Laporan Transaksi Harian!A2:S',
     });
 
     const rows = response.data.values || [];
@@ -65,11 +65,45 @@ export async function GET() {
         subtotal: Number(String(row[6] || '0').replace(/\D/g, '')) || 0,
         shippingCost: Number(String(row[7] || '0').replace(/\D/g, '')) || 0,
         grandTotal: Number(String(row[8] || '0').replace(/\D/g, '')) || 0,
-        notes: row[9] || '',
-        status: row[10] || '',
+        ...(() => {
+          let rawNotes = row[9] || '';
+          let existingDeliveryNotes = row[18] || '';
+
+          if (rawNotes && !existingDeliveryNotes) {
+            const lines = rawNotes.split('\n');
+            const prodNotes: string[] = [];
+            const delivNotes: string[] = [];
+
+            for (const line of lines) {
+              if (/(delivery|kirim|pengiriman|ambil|diambil|pickup|central)/i.test(line)) {
+                delivNotes.push(line.trim());
+              } else {
+                prodNotes.push(line.trim());
+              }
+            }
+
+            if (delivNotes.length > 0) {
+              rawNotes = prodNotes.filter(Boolean).join('\n').trim();
+              existingDeliveryNotes = delivNotes.filter(Boolean).join('\n').trim();
+            }
+          }
+
+          return {
+            notes: rawNotes,
+            deliveryNotes: existingDeliveryNotes
+          };
+        })(),
+        status: (row[10] as any) || 'Pesanan Dibuat',
         productionDate: row[11] || '',
         deliveryDate: row[12] || '',
-        isFreeShipping: Number(row[7]) === 0
+        isFreeShipping: Number(row[7]) === 0,
+        statusTimestamps: {
+          dikonfirmasi: row[13] || '',
+          produksi: row[14] || '',
+          packing: row[15] || '',
+          delivery: row[16] || '',
+          diterima: row[17] || ''
+        }
       };
     });
 
@@ -115,14 +149,20 @@ export async function PUT(request: Request) {
       body.shippingCost,        // Ongkos Kirim
       body.grandTotal,          // Grand Total
       body.notes || '',         // Catatan Produksi
-      body.status || 'Pending', // Status
+      body.status || 'Pesanan Dibuat', // Status
       body.productionDate || '',// Tanggal Produksi
-      body.deliveryDate || ''   // Tanggal Pengiriman
+      body.deliveryDate || '',  // Tanggal Pengiriman
+      body.statusTimestamps?.dikonfirmasi || '',
+      body.statusTimestamps?.produksi || '',
+      body.statusTimestamps?.packing || '',
+      body.statusTimestamps?.delivery || '',
+      body.statusTimestamps?.diterima || '',
+      body.deliveryNotes || ''  // Catatan Pengiriman
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Laporan Transaksi Harian!A${body.rowNumber}:M${body.rowNumber}`,
+      range: `Laporan Transaksi Harian!A${body.rowNumber}:S${body.rowNumber}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
@@ -139,7 +179,7 @@ export async function PUT(request: Request) {
           requests: [
             {
               sortRange: {
-                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 13 },
+                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
                 sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
               }
             }
@@ -190,7 +230,7 @@ export async function POST(request: Request) {
     const productPrices = body.items.map((item: any) => item.price).join('\n');
     
     // Default Status
-    const status = 'Pending';
+    const status = body.status || 'Pesanan Dibuat';
     
     const formatDate = (dateString: string) => {
       if (!dateString) return '-';
@@ -218,12 +258,17 @@ export async function POST(request: Request) {
       finalNotes,               // Catatan Produksi
       status,                   // Status
       body.productionDate || '',// Tanggal Produksi
-      body.deliveryDate || ''   // Tanggal Pengiriman
+      body.deliveryDate || '',  // Tanggal Pengiriman
+      body.statusTimestamps?.dikonfirmasi || '',
+      body.statusTimestamps?.produksi || '',
+      body.statusTimestamps?.packing || '',
+      body.statusTimestamps?.delivery || '',
+      body.statusTimestamps?.diterima || ''
     ];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A:M',
+      range: 'Laporan Transaksi Harian!A:R',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
@@ -240,7 +285,7 @@ export async function POST(request: Request) {
           requests: [
             {
               sortRange: {
-                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 13 },
+                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
                 sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
               }
             }
@@ -276,7 +321,7 @@ export async function DELETE(request: Request) {
     if (clearAll === 'true') {
       await sheets.spreadsheets.values.clear({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'Laporan Transaksi Harian!A2:M',
+        range: 'Laporan Transaksi Harian!A2:R',
       });
       await syncRekapSheet();
       
@@ -306,7 +351,7 @@ export async function DELETE(request: Request) {
     // Get the order date before deleting to sync capacity later
     const rowDataRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Laporan Transaksi Harian!A${rowNumber}:M${rowNumber}`
+      range: `Laporan Transaksi Harian!A${rowNumber}:R${rowNumber}`
     });
     const deletedOrderDate = rowDataRes.data.values?.[0]?.[11];
 
@@ -358,6 +403,64 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true, message: 'Order deleted successfully' });
   } catch (error: any) {
     console.error('Error deleting order:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    if (!body.rowNumber || !body.status) {
+      return NextResponse.json({ success: false, error: 'rowNumber and status are required' }, { status: 400 });
+    }
+
+    const rowNumber = body.rowNumber;
+    const newStatus = body.status;
+    const now = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+    
+    // We only update columns K (status) to R (timestamps)
+    // K=10, L=11, M=12, N=13, O=14, P=15, Q=16, R=17
+    
+    // First, fetch the current timestamps so we don't overwrite them
+    const rowDataRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Laporan Transaksi Harian!K${rowNumber}:R${rowNumber}`
+    });
+    
+    const existing = rowDataRes.data.values?.[0] || [];
+    // Pad array if needed
+    while (existing.length < 8) existing.push('');
+
+    // existing[0] = Status (K)
+    // existing[1] = Prod Date (L)
+    // existing[2] = Deliv Date (M)
+    // existing[3] = Dikonfirmasi (N)
+    // existing[4] = Produksi (O)
+    // existing[5] = Packing (P)
+    // existing[6] = Delivery (Q)
+    // existing[7] = Diterima (R)
+
+    existing[0] = newStatus;
+    
+    // Update timestamp based on new status
+    if (newStatus === 'Dikonfirmasi') existing[3] = existing[3] || now;
+    if (newStatus === 'Produksi') existing[4] = existing[4] || now;
+    if (newStatus === 'Packing') existing[5] = existing[5] || now;
+    if (newStatus === 'Delivery') existing[6] = existing[6] || now;
+    if (newStatus === 'Diterima') existing[7] = existing[7] || now;
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Laporan Transaksi Harian!K${rowNumber}:R${rowNumber}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [existing],
+      },
+    });
+
+    return NextResponse.json({ success: true, message: 'Status updated successfully', data: { status: newStatus, timestamps: existing.slice(3) } });
+  } catch (error: any) {
+    console.error('Error updating status:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
