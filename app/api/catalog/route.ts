@@ -11,13 +11,14 @@ export async function GET() {
     const rows = response.data.values || [];
     
     // Map array to object
-    const catalog = rows.map((row) => ({
+    const catalog = rows.map((row, index) => ({
       id: row[0],
       nama: row[1],
       kategori: row[2],
       harga: Number(row[3]) || 0,
       aktif: row[4] !== 'FALSE', // TRUE by default or if 'TRUE'
       satuan: row[5] || 'pcs', // Default to pcs if empty
+      rowIndex: index + 2, // A2 starts at row 2
     }));
 
     return NextResponse.json({ success: true, data: catalog });
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, nama, kategori, harga, satuan, aktif, isFullEdit } = body;
+    const { id, nama, kategori, harga, satuan, aktif, isFullEdit, rowIndex: providedRowIndex } = body;
     
     if (!id) throw new Error("ID (SKU) is required");
 
@@ -76,10 +77,15 @@ export async function PUT(request: Request) {
 
     const rows = response.data.values || [];
     let rowIndex = -1;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        rowIndex = i + 1; // Google Sheets adalah 1-indexed
-        break;
+    
+    if (providedRowIndex && providedRowIndex > 0 && rows[providedRowIndex - 1] && rows[providedRowIndex - 1][0] === id) {
+      rowIndex = providedRowIndex;
+    } else {
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i][0] === id) {
+          rowIndex = i + 1; // Google Sheets adalah 1-indexed
+          break;
+        }
       }
     }
 
@@ -119,6 +125,7 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const providedRowIndex = searchParams.get('rowIndex');
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'ID is required' }, { status: 400 });
@@ -132,10 +139,20 @@ export async function DELETE(request: Request) {
 
     const rows = response.data.values || [];
     let rowIndex = -1;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        rowIndex = i; // 0-indexed for batchUpdate
-        break;
+    
+    if (providedRowIndex) {
+      const idx = parseInt(providedRowIndex, 10);
+      if (idx > 0 && rows[idx - 1] && rows[idx - 1][0] === id) {
+        rowIndex = idx - 1; // 0-indexed for batchUpdate
+      }
+    }
+    
+    if (rowIndex === -1) {
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i][0] === id) {
+          rowIndex = i; // 0-indexed for batchUpdate
+          break;
+        }
       }
     }
 

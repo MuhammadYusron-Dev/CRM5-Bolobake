@@ -40,6 +40,7 @@ interface CatalogItem {
   harga: number;
   satuan: string;
   aktif: boolean;
+  rowIndex?: number;
 }
 
 export default function CatalogPage() {
@@ -339,22 +340,22 @@ export default function CatalogPage() {
     }
   };
 
-  const toggleCatalogActive = async (id: string) => {
-    const item = catalog.find(c => c.id === id);
+  const toggleCatalogActive = async (id: string, rowIndex?: number) => {
+    const item = catalog.find(c => c.id === id && (rowIndex ? c.rowIndex === rowIndex : true));
     if (!item) return;
 
     const newStatus = !item.aktif;
 
     // Optimistic UI update
     setCatalog(prev =>
-      prev.map(c => (c.id === id ? { ...c, aktif: newStatus } : c))
+      prev.map(c => ((rowIndex ? c.rowIndex === rowIndex : c.id === id) ? { ...c, aktif: newStatus } : c))
     );
 
     try {
       const response = await fetch('/api/catalog', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, aktif: newStatus })
+        body: JSON.stringify({ id, aktif: newStatus, rowIndex })
       });
       
       if (!response.ok) throw new Error("Gagal update");
@@ -377,10 +378,10 @@ export default function CatalogPage() {
 
   const handleDeleteItem = async (itemToDelete: CatalogItem) => {
     // Optimistic UI update: hapus dari tampilan seketika
-    setCatalog(prev => prev.filter(c => c.id !== itemToDelete.id));
+    setCatalog(prev => prev.filter(c => itemToDelete.rowIndex ? c.rowIndex !== itemToDelete.rowIndex : c.id !== itemToDelete.id));
 
     try {
-      const response = await fetch(`/api/catalog?id=${itemToDelete.id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/catalog?id=${itemToDelete.id}${itemToDelete.rowIndex ? `&rowIndex=${itemToDelete.rowIndex}` : ''}`, { method: 'DELETE' });
       if (!response.ok) throw new Error("Gagal hapus");
 
       setUndoStack(prev => [...prev, { action: 'DELETE', data: itemToDelete, description: `Menghapus produk "${itemToDelete.nama}"` }]);
@@ -407,17 +408,17 @@ export default function CatalogPage() {
     if (!editingItem) return;
 
     setIsUpdating(true);
-    const oldItem = catalog.find(c => c.id === editingItem.id);
+    const oldItem = catalog.find(c => editingItem.rowIndex ? c.rowIndex === editingItem.rowIndex : c.id === editingItem.id);
     try {
       const response = await fetch('/api/catalog', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...editingItem, isFullEdit: true })
+        body: JSON.stringify({ ...editingItem, isFullEdit: true, rowIndex: editingItem.rowIndex })
       });
       
       if (!response.ok) throw new Error("Gagal update produk");
 
-      setCatalog(prev => prev.map(c => c.id === editingItem.id ? editingItem : c));
+      setCatalog(prev => prev.map(c => (editingItem.rowIndex ? c.rowIndex === editingItem.rowIndex : c.id === editingItem.id) ? editingItem : c));
       if (oldItem) {
         setUndoStack(prev => [...prev, { action: 'EDIT', data: editingItem, oldData: oldItem, description: `Mengubah data produk "${oldItem.nama}"` }]);
       }
@@ -631,7 +632,7 @@ export default function CatalogPage() {
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">
                         <button
-                          onClick={() => toggleCatalogActive(item.id)}
+                          onClick={() => toggleCatalogActive(item.id, item.rowIndex)}
                           className={`text-xs font-bold px-3 py-1 rounded-full transition-all ${item.aktif ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-muted text-muted-foreground hover:bg-secondary/80"}`}
                         >
                           {item.aktif ? "Aktif" : "Nonaktif"}
