@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { Order, OrderStatus } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChefHat, PackageCheck, Clock, CheckCircle2, RotateCcw } from 'lucide-react';
+import { ChefHat, PackageCheck, Clock, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
 import { formatRp } from '@/lib/utils';
 import { ProductionSchedule } from '@/components/features/ProductionSchedule';
 
 export interface ColumnDef {
   id: string;
   title: string;
+  description?: string;
   statuses: OrderStatus[];
   actionLabel?: string;
   nextStatus?: OrderStatus;
@@ -23,12 +24,14 @@ interface KanbanBoardProps {
   divisionName: string;
   icon?: 'produksi' | 'packing';
   showOverview?: boolean;
+  extraHeaderAction?: React.ReactNode;
 }
 
-export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOverview }: KanbanBoardProps) {
+export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOverview, extraHeaderAction }: KanbanBoardProps) {
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [isUpdating, setIsUpdating] = useState<number | null>(null);
   const [lastSync, setLastSync] = useState<string>(() => new Date().toLocaleTimeString('id-ID'));
+  const [activeView, setActiveView] = useState<'board' | 'schedule'>('board');
 
   // Polling every 30 seconds
   useEffect(() => {
@@ -114,25 +117,55 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Bolobake Workflow System</p>
           </div>
         </div>
+
+        <div className="flex items-center gap-3">
+          {showOverview && (
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+              <button 
+                onClick={() => setActiveView('board')}
+                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeView === 'board' ? 'bg-white shadow-sm text-primary dark:bg-slate-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+              >
+                Papan Antrean
+              </button>
+              <button 
+                onClick={() => setActiveView('schedule')}
+                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeView === 'schedule' ? 'bg-white shadow-sm text-primary dark:bg-slate-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+              >
+                Rekap Target
+              </button>
+            </div>
+          )}
+          {extraHeaderAction}
+        </div>
       </header>
 
-      {/* Optional Overview Section (e.g. Production Schedule) */}
-      {showOverview && <ProductionSchedule orders={orders} />}
-
-      {/* Board */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 print:hidden">
-        <div className="flex h-full gap-6 items-start w-max">
+      {/* View Switcher */}
+      {showOverview && activeView === 'schedule' ? (
+        <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950">
+          <ProductionSchedule orders={orders} />
+        </div>
+      ) : (
+        <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 print:hidden">
+        <div className="flex h-full gap-6 items-start w-full min-w-max">
           {columns.map((col) => {
             const colOrders = orders.filter(o => col.statuses.includes(o.status || 'Pesanan Dibuat'));
             
             return (
-              <div key={col.id} className="w-80 flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
+              <div key={col.id} className="flex-1 min-w-[320px] flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
                 {/* Column Header */}
-                <div className={`p-4 rounded-t-2xl border-b flex items-center justify-between ${col.colorClass}`}>
-                  <h3 className="font-bold">{col.title}</h3>
-                  <span className="bg-white/50 dark:bg-black/20 text-xs px-2 py-1 rounded-full font-bold">
-                    {colOrders.length}
-                  </span>
+                <div className={`p-4 rounded-t-2xl border-b flex flex-col gap-1.5 ${col.colorClass}`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold">{col.title}</h3>
+                    <span className="bg-white/50 dark:bg-black/20 text-xs px-2 py-1 rounded-full font-bold shrink-0 ml-2">
+                      {colOrders.length}
+                    </span>
+                  </div>
+                  {col.description && (
+                    <div className="flex items-start gap-1.5 opacity-85 mt-0.5 text-inherit">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                      <p className="text-[10px] leading-snug font-medium italic">{col.description}</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Column Body */}
@@ -143,7 +176,15 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                     </div>
                   ) : (
                     colOrders.map(order => (
-                      <Card key={order.id} className={`shadow-sm transition-all hover:shadow-md ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <Card 
+                        key={order.id} 
+                        draggable={true}
+                        onDragStart={(e) => {
+                            e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
+                            e.dataTransfer.effectAllowed = 'copy';
+                        }}
+                        className={`shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
+                      >
                         <CardContent className="p-4">
                           <div className="flex justify-between items-start mb-2">
                             <h4 className="font-bold text-sm">{order.customer}</h4>
@@ -201,7 +242,8 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
             );
           })}
         </div>
-      </div>
+        </div>
+      )}
       
       {/* Footer / Info */}
       <div className="h-8 bg-slate-900 text-slate-400 text-[10px] flex items-center justify-between px-6 font-medium shrink-0 print:hidden">
