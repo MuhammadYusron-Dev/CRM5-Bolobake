@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
+import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, AlertTriangle, CalendarRange } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -358,9 +358,11 @@ export function OrderManager({
         return (
           <div className="max-w-7xl mx-auto space-y-4">
             <div className="relative z-50 flex items-center justify-between mb-4 bg-card/50 p-4 rounded-2xl border border-border/50 shadow-sm backdrop-blur-sm">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <span className="w-5 h-5 flex items-center justify-center bg-primary/20 text-primary rounded-md">📅</span>
-                Periode Produksi
+              <div className="flex items-center gap-2.5 text-sm font-semibold">
+                <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-lg border border-primary/20 shadow-sm">
+                  <CalendarRange className="w-4 h-4" />
+                </div>
+                <span className="text-foreground/90 tracking-tight">Periode Produksi</span>
               </div>
               <DateRangeFilter 
                 filterStartDate={filterStartDate}
