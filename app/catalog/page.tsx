@@ -154,7 +154,7 @@ export default function CatalogPage() {
   const filteredCatalog = catalog.filter(item => 
     item.nama.toLowerCase().includes(searchQuery.toLowerCase()) || 
     item.id.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
+  ).sort((a, b) => a.nama.localeCompare(b.nama, undefined, { numeric: true, sensitivity: 'base' }));
 
   // --- REAL AI SCANNING via Gemini API ---
   const handleFileUpload = async (file: File) => {
