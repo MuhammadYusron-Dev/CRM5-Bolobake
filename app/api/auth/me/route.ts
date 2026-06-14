@@ -56,15 +56,15 @@ export async function PUT(request: Request) {
       }
     }
 
-    const success = await updateAdmin(payload.username, newPasswordHash, finalAvatarUrl);
+    const success = await updateAdmin(payload.username as string, newPasswordHash as string | undefined, finalAvatarUrl);
     if (!success) {
       return NextResponse.json({ success: false, message: 'Gagal update profil' }, { status: 500 });
     }
 
     // Sign new token with potentially new avatar
     const newToken = await signToken({
-      username: payload.username,
-      avatarUrl: finalAvatarUrl !== undefined ? finalAvatarUrl : payload.avatarUrl
+      username: payload.username as string,
+      avatarUrl: finalAvatarUrl !== undefined ? finalAvatarUrl : (payload.avatarUrl as string | undefined)
     });
 
     cookieStore.set({

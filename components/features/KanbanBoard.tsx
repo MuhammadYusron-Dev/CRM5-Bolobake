@@ -5,7 +5,7 @@ import { Order, OrderStatus } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChefHat, PackageCheck, Clock, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
-import { formatRp } from '@/lib/utils';
+// import { formatRp } from '@/lib/utils'; // Removed to fix TS2305
 import { ProductionSchedule } from '@/components/features/ProductionSchedule';
 
 export interface ColumnDef {

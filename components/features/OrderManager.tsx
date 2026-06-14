@@ -12,6 +12,7 @@ import { HistoryTable } from './HistoryTable';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DateRangeFilter } from './DateRangeFilter';
 import { DynamicSkyBackground } from './DynamicSkyBackground';
+import { SalesTutorial } from './SalesTutorial';
 
 export function OrderManager({ 
   initialOrders, 
@@ -538,6 +539,7 @@ export function OrderManager({
               </span>
               System Online
             </div>
+            <SalesTutorial />
           </div>
         </header>
 

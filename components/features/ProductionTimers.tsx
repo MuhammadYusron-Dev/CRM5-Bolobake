@@ -55,7 +55,7 @@ export function ProductionTimers() {
             const nextRemaining = t.remainingSec - 1;
             if (nextRemaining <= 0) {
               shouldAlarm = true;
-              return { ...t, remainingSec: 0, status: 'done' };
+              return { ...t, remainingSec: 0, status: 'done' as Timer['status'] };
             }
             return { ...t, remainingSec: nextRemaining };
           }

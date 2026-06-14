@@ -20,6 +20,7 @@ import {
   History,
 } from "lucide-react";
 import Link from "next/link";
+import { CatalogTutorial } from "@/components/features/CatalogTutorial";
 
 // --- MOCK: Existing catalog data ---
 // Data sekarang di-fetch dari API (Google Sheets)
@@ -486,9 +487,12 @@ export default function CatalogPage() {
               <h1 className="text-2xl font-bold">Catalog Manager</h1>
             </div>
           </div>
-          <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-            <Package className="w-4 h-4" />
-            {catalog.length} SKU Terdaftar
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              {catalog.length} SKU Terdaftar
+            </div>
+            <CatalogTutorial />
           </div>
         </div>
       </header>

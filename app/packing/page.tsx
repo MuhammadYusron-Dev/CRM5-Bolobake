@@ -1,5 +1,6 @@
 import { GET as getOrders } from '@/app/api/orders/route';
 import { KanbanBoard, ColumnDef } from '@/components/features/KanbanBoard';
+import { PackingTutorial } from '@/components/features/PackingTutorial';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +48,7 @@ export default async function PackingPage() {
         columns={columns}
         divisionName="Packing & Delivery"
         icon="packing"
+        extraHeaderAction={<PackingTutorial />}
       />
     </main>
   );
