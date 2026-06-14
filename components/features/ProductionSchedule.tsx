@@ -225,7 +225,7 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
           body.printing-modal > * { display: none !important; }
-          body.printing-modal [role="dialog"] { display: block !important; position: absolute; left: 0; top: 0; margin: 0; padding: 0; width: 100%; box-shadow: none; }
+          body.printing-modal [role="dialog"] { display: block !important; position: absolute; left: 0; top: 0; margin: 0; padding: 0; width: 100%; max-width: 100% !important; transform: none !important; box-shadow: none; }
           body { background: white !important; color: black !important; }
           .print\\:hidden { display: none !important; }
           .print\\:block { display: block !important; }
