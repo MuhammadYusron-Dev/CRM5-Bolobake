@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Settings, Key, Image as ImageIcon } from 'lucide-react';
+import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/features/ThemeToggle';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -182,57 +182,64 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Settings className="w-5 h-5 text-primary" /> Pengaturan Profil</DialogTitle>
-            <DialogDescription>
-              Ubah foto profil dan password Anda di sini. Username Anda (<strong className="text-primary">{user?.username}</strong>) bersifat permanen.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <label className="text-sm font-bold flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Foto Profil Baru</label>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full border border-border overflow-hidden bg-muted shrink-0 flex items-center justify-center">
-                  {avatarPreview ? (
-                    <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-8 h-8 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <Input 
-                    type="file"
-                    accept="image/*"
-                    onChange={e => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setAvatarFile(file);
-                        setAvatarPreview(URL.createObjectURL(file));
-                      }
-                    }} 
-                    className="cursor-pointer file:cursor-pointer file:text-primary file:font-bold file:border-0 file:bg-transparent"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">Pilih gambar dari galeri Anda.</p>
-                </div>
+        <DialogContent className="sm:max-w-[360px] p-0 overflow-hidden border-0 rounded-[2rem] bg-background gap-0 shadow-2xl">
+          <div className="bg-primary pt-12 pb-10 flex flex-col items-center relative">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full border-4 border-background overflow-hidden bg-muted shadow-md">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-full h-full p-4 text-muted-foreground" />
+                )}
               </div>
+              <label className="absolute bottom-0 right-0 bg-background p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition-transform">
+                <Pencil className="w-4 h-4 text-primary" />
+                <Input 
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setAvatarFile(file);
+                      setAvatarPreview(URL.createObjectURL(file));
+                    }
+                  }} 
+                />
+              </label>
+            </div>
+            <h2 className="text-primary-foreground font-bold text-xl mt-4">{user?.username}</h2>
+            <p className="text-primary-foreground/80 text-sm font-medium">Admin store</p>
+          </div>
+          
+          <div className="bg-background px-8 pb-8 pt-8 -mt-6 rounded-t-3xl relative z-10 flex flex-col gap-5">
+            <div className="grid gap-2">
+              <label className="text-xs font-bold text-foreground/70 ml-1 uppercase tracking-wider">Username</label>
+              <Input 
+                value={user?.username} 
+                disabled 
+                className="bg-muted/50 border-0 rounded-2xl h-14 font-medium text-muted-foreground cursor-not-allowed px-4" 
+              />
             </div>
             <div className="grid gap-2">
-              <label className="text-sm font-bold flex items-center gap-2"><Key className="w-4 h-4" /> Password Baru</label>
+              <label className="text-xs font-bold text-foreground/70 ml-1 uppercase tracking-wider">Password Baru</label>
               <Input 
                 type="password"
                 value={passwordInput} 
                 onChange={e => setPasswordInput(e.target.value)} 
-                placeholder="Biarkan kosong jika tidak ingin mengubah"
+                placeholder="Kosongkan jika tidak diubah"
+                className="bg-muted/50 border-0 rounded-2xl h-14 font-medium px-4 focus-visible:ring-1 focus-visible:ring-primary"
               />
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>Batal</Button>
-            <Button onClick={handleUpdateProfile} disabled={isUpdating}>
+
+            <Button 
+              onClick={handleUpdateProfile} 
+              disabled={isUpdating}
+              className="w-full rounded-full h-14 mt-4 text-base font-bold shadow-xl shadow-primary/20 transition-all hover:shadow-primary/40 hover:-translate-y-0.5"
+            >
               {isUpdating ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>
