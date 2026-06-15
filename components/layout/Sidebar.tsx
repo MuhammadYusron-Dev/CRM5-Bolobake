@@ -82,7 +82,11 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
     if (item.isLink && item.href) {
       router.push(item.href);
     } else {
-      setActiveMenu(item.id);
+      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+        router.push('/?tab=' + item.id);
+      } else {
+        setActiveMenu(item.id);
+      }
     }
     setIsMobileOpen(false);
   };

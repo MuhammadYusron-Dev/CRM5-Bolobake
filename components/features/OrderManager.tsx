@@ -35,6 +35,16 @@ export function OrderManager({
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const tab = searchParams.get('tab');
+      if (tab) {
+        setActiveMenu(tab);
+        // Clean up URL without triggering navigation
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+    
     const updateTime = () => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
