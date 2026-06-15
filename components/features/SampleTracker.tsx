@@ -19,8 +19,6 @@ interface SampleTrackerProps {
 
 export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: SampleTrackerProps) {
   const { data: initialOrders = serverOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { fallbackData: serverOrders });
-  const [activeMenu, setActiveMenu] = useState('samples');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -239,27 +237,11 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
   };
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden">
-      <Sidebar 
-        activeMenu={activeMenu} 
-        setActiveMenu={setActiveMenu} 
-        isMobileOpen={isMobileMenuOpen}
-        setIsMobileOpen={setIsMobileMenuOpen}
-      />
-
-      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
-        <header className="h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 bg-white/50 dark:bg-black/20 backdrop-blur-md border-b border-border shadow-sm print:hidden">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-2 rounded-lg text-slate-600 dark:text-slate-300"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </button>
-            <div className="flex items-center gap-2">
-              <Gift className="w-5 h-5 text-purple-500" />
-              <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">Tracking & Analytics Sample</h1>
-            </div>
+    <div className="max-w-7xl mx-auto space-y-6 print:p-0 print:space-y-0 print:block">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
+          <div className="flex items-center gap-2">
+            <Gift className="w-6 h-6 text-purple-500" />
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Tracking & Analytics Sample</h2>
           </div>
           <div className="flex gap-2">
             <button onClick={handleExportCSV} className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400 transition-colors">
@@ -270,8 +252,6 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
             </button>
           </div>
         </header>
-
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 print:p-0 print:overflow-visible">
           
           <div className="hidden print:block mb-8 border-b-2 border-black pb-4 text-black">
             <h1 className="text-2xl font-bold uppercase tracking-widest text-center">Laporan CRM Sampel Produk</h1>
@@ -510,9 +490,6 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
               </div>
             </Card>
           </div>
-        </div>
-      </main>
-
       {/* Modal Feedback */}
       <Dialog open={!!feedbackModal} onOpenChange={(open) => !open && setFeedbackModal(null)}>
         <DialogContent className="sm:max-w-md">

@@ -1,20 +1,10 @@
-import { GET as getOrders } from '@/app/api/orders/route';
+"use client";
+
+import React from 'react';
 import { KanbanBoard, ColumnDef } from '@/components/features/KanbanBoard';
 import { PackingTutorial } from '@/components/features/PackingTutorial';
 
-export const dynamic = 'force-dynamic';
-
-export default async function PackingPage() {
-  let initialOrders = [];
-
-  try {
-    const resOrders = await getOrders();
-    const orderData = await resOrders.json();
-    if (orderData.success) initialOrders = orderData.data;
-  } catch (e) {
-    console.error("Failed to fetch orders:", e);
-  }
-
+export function PackingBoard({ initialOrders }: { initialOrders: any[] }) {
   const columns: ColumnDef[] = [
     {
       id: 'packing',
@@ -36,13 +26,12 @@ export default async function PackingPage() {
       id: 'selesai',
       title: 'Selesai (Diterima)',
       statuses: ['Diterima'],
-      // No action label because it's the final state
       colorClass: 'bg-green-100 text-green-900 border-green-200'
     }
   ];
 
   return (
-    <main className="h-screen overflow-hidden">
+    <div className="h-full flex flex-col -m-4 sm:-m-6 lg:-m-8">
       <KanbanBoard 
         initialOrders={initialOrders}
         columns={columns}
@@ -50,6 +39,6 @@ export default async function PackingPage() {
         icon="packing"
         extraHeaderAction={<PackingTutorial />}
       />
-    </main>
+    </div>
   );
 }

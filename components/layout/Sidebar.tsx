@@ -71,23 +71,15 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
     { id: 'dashboard', label: 'Dashboard Analitik', icon: LayoutDashboard },
     { id: 'new_order', label: 'Buat Pesanan Baru', icon: ShoppingCart },
     { id: 'history', label: 'Riwayat Pesanan', icon: Clock },
-    { id: 'catalog', label: 'Katalog Manager', icon: Search, isLink: true, href: '/catalog' },
-    { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat, isLink: true, href: '/produksi' },
-    { id: 'packing', label: 'Divisi Packing', icon: PackageCheck, isLink: true, href: '/packing' },
-    { id: 'samples', label: 'Tracking Sample', icon: Gift, isLink: true, href: '/samples' },
-    { id: 'sales', label: 'Sales CRM', icon: BarChart3, isLink: true, href: '/sales' },
+    { id: 'catalog', label: 'Katalog Manager', icon: Search },
+    { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
+    { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
+    { id: 'samples', label: 'Tracking Sample', icon: Gift },
+    { id: 'sales', label: 'Sales CRM', icon: BarChart3 },
   ];
 
   const handleMenuClick = (item: typeof menuItems[0]) => {
-    if (item.isLink && item.href) {
-      router.push(item.href);
-    } else {
-      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
-        router.push('/?tab=' + item.id);
-      } else {
-        setActiveMenu(item.id);
-      }
-    }
+    setActiveMenu(item.id);
     setIsMobileOpen(false);
   };
 

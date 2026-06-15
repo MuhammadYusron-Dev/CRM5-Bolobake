@@ -44,7 +44,7 @@ interface CatalogItem {
   rowIndex?: number;
 }
 
-export default function CatalogPage() {
+export function CatalogManager() {
   const [activeTab, setActiveTab] = useState<"scanner" | "manual" | "database">("database");
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
 
@@ -443,7 +443,7 @@ export default function CatalogPage() {
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num);
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
+    <div className="h-full flex flex-col bg-background text-foreground font-sans">
       {/* Custom Scrollbar */}
       <style>{`
         ::-webkit-scrollbar { width: 6px; }
@@ -475,17 +475,9 @@ export default function CatalogPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center justify-between w-full sm:w-auto">
             <div className="flex items-center gap-2 sm:gap-6 min-w-0">
-              <Link
-                href="/"
-                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-primary transition-colors shrink-0"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Kembali</span>
-              </Link>
-              <div className="h-5 sm:h-6 w-px bg-secondary/80 mx-1 sm:mx-0"></div>
               <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                 <ChefHat className="w-5 h-5 sm:w-7 sm:h-7 text-primary shrink-0" />
-                <h1 className="text-lg sm:text-2xl font-bold truncate">Catalog Manager</h1>
+                <h2 className="text-lg sm:text-2xl font-bold truncate">Catalog Manager</h2>
               </div>
             </div>
             <div className="sm:hidden shrink-0 ml-2">

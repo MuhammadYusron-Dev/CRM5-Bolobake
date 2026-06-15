@@ -13,6 +13,11 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { DateRangeFilter } from './DateRangeFilter';
 import { DynamicSkyBackground } from './DynamicSkyBackground';
 import { SalesTutorial } from './SalesTutorial';
+import { CatalogManager } from './CatalogManager';
+import { ProductionBoard } from './ProductionBoard';
+import { PackingBoard } from './PackingBoard';
+import { SampleTracker } from './SampleTracker';
+import { SalesCRM } from './SalesCRM';
 
 export function OrderManager({ 
   initialOrders, 
@@ -442,6 +447,16 @@ export function OrderManager({
               />
           </div>
         );
+      case 'catalog':
+        return <CatalogManager />;
+      case 'produksi':
+        return <ProductionBoard initialOrders={orderHistory} />;
+      case 'packing':
+        return <PackingBoard initialOrders={orderHistory} />;
+      case 'samples':
+        return <SampleTracker initialOrders={orderHistory} initialCatalog={katalog} />;
+      case 'sales':
+        return <SalesCRM initialOrders={orderHistory} />;
       case 'new_order':
       default:
         return (
@@ -512,7 +527,14 @@ export function OrderManager({
             </button>
             <div className="flex flex-col">
               <h1 className={`text-lg sm:text-xl font-medium transition-colors duration-1000 ${headerTextColor}`}>
-                {activeMenu === 'dashboard' ? 'Dashboard' : activeMenu === 'history' ? 'Riwayat Pesanan' : 'Buat Pesanan Baru'}
+                {activeMenu === 'dashboard' ? 'Dashboard' : 
+                 activeMenu === 'history' ? 'Riwayat Pesanan' : 
+                 activeMenu === 'catalog' ? 'Katalog Manager' :
+                 activeMenu === 'produksi' ? 'Divisi Produksi' :
+                 activeMenu === 'packing' ? 'Divisi Packing' :
+                 activeMenu === 'samples' ? 'Tracking Sample' :
+                 activeMenu === 'sales' ? 'Sales CRM' :
+                 'Buat Pesanan Baru'}
               </h1>
               {activeMenu === 'dashboard' && currentDateString && (
                 <span className={`text-xs mt-0 transition-colors duration-1000 ${subTextColor}`}>{currentDateString}</span>
@@ -546,7 +568,7 @@ export function OrderManager({
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-0">
+        <div className={`flex-1 overflow-y-auto relative z-0 ${['dashboard', 'history', 'new_order', 'sales', 'samples', 'catalog'].includes(activeMenu) ? 'p-4 sm:p-6 lg:p-8' : ''}`}>
           {renderContent()}
         </div>
       </main>

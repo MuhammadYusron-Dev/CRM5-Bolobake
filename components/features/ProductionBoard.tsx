@@ -1,21 +1,11 @@
-import { GET as getOrders } from '@/app/api/orders/route';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 import { KanbanBoard, ColumnDef } from '@/components/features/KanbanBoard';
 import { ProductionTimers } from '@/components/features/ProductionTimers';
 import { ProductionTutorial } from '@/components/features/ProductionTutorial';
 
-export const dynamic = 'force-dynamic';
-
-export default async function ProduksiPage() {
-  let initialOrders = [];
-
-  try {
-    const resOrders = await getOrders();
-    const orderData = await resOrders.json();
-    if (orderData.success) initialOrders = orderData.data;
-  } catch (e) {
-    console.error("Failed to fetch orders:", e);
-  }
-
+export function ProductionBoard({ initialOrders }: { initialOrders: any[] }) {
   const columns: ColumnDef[] = [
     {
       id: 'masuk',
@@ -47,7 +37,7 @@ export default async function ProduksiPage() {
   ];
 
   return (
-    <main className="h-screen overflow-hidden">
+    <div className="h-full flex flex-col -m-4 sm:-m-6 lg:-m-8">
       <KanbanBoard 
         initialOrders={initialOrders}
         columns={columns}
@@ -57,6 +47,6 @@ export default async function ProduksiPage() {
         extraHeaderAction={<ProductionTutorial />}
       />
       <ProductionTimers />
-    </main>
+    </div>
   );
 }
