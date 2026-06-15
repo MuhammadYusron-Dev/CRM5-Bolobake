@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Pencil, PackageCheck, Gift } from 'lucide-react';
+import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Pencil, PackageCheck, Gift, BarChart3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/features/ThemeToggle';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -75,6 +75,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
     { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat, isLink: true, href: '/produksi' },
     { id: 'packing', label: 'Divisi Packing', icon: PackageCheck, isLink: true, href: '/packing' },
     { id: 'samples', label: 'Tracking Sample', icon: Gift, isLink: true, href: '/samples' },
+    { id: 'sales', label: 'Sales CRM', icon: BarChart3, isLink: true, href: '/sales' },
   ];
 
   const handleMenuClick = (item: typeof menuItems[0]) => {
