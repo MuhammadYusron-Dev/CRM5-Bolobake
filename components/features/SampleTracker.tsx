@@ -9,6 +9,8 @@ import { DateRangeFilter } from './DateRangeFilter';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
 
 interface SampleTrackerProps {
   initialOrders: Order[];
@@ -16,7 +18,7 @@ interface SampleTrackerProps {
 }
 
 export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: SampleTrackerProps) {
-  const [initialOrders, setInitialOrders] = useState<Order[]>(serverOrders);
+  const { data: initialOrders = serverOrders, mutate } = useSWR('/api/orders', fetcher, { fallbackData: serverOrders });
   const [activeMenu, setActiveMenu] = useState('samples');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');

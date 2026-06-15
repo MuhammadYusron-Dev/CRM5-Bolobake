@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import * as XLSX from 'xlsx';
 import { BomCalculator } from './BomCalculator';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
 
-export function ProductionSchedule({ orders }: { orders: Order[] }) {
+export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }) {
+  const { data: orders = initialOrders } = useSWR('/api/orders', fetcher, { fallbackData: initialOrders });
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [rejects, setRejects] = useState<Record<string, number>>({});
   const [assignees, setAssignees] = useState<Record<string, string>>({});

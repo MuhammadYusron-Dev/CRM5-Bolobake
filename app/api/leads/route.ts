@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
+import { getFromCache, setCache, invalidateCache } from '@/lib/cache';
+
+const CACHE_KEY = 'leads_data';
 
 const generateId = () => 'LEAD_' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 5).toUpperCase();
 
 export async function GET() {
   try {
+    const cachedData = getFromCache(CACHE_KEY);
+    if (cachedData) {
+      return NextResponse.json({ success: true, data: cachedData, cached: true });
+    }
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'leads!A2:F',
@@ -22,7 +30,9 @@ export async function GET() {
       createdAt: row[5] || ''
     }));
 
-    return NextResponse.json({ success: true, data: leads });
+    setCache(CACHE_KEY, leads);
+
+    return NextResponse.json({ success: true, data: leads, cached: false });
   } catch (error: any) {
     console.error('Failed to fetch leads from Sheets:', error);
     return NextResponse.json({ success: true, data: [] });
@@ -60,6 +70,8 @@ export async function POST(request: Request) {
       },
     });
 
+    invalidateCache(CACHE_KEY);
+
     return NextResponse.json({ success: true, message: 'Lead added', data: newLead });
   } catch (error: any) {
     console.error('Error adding lead:', error);
@@ -92,6 +104,8 @@ export async function PUT(request: Request) {
         values: [rowData],
       },
     });
+
+    invalidateCache(CACHE_KEY);
 
     return NextResponse.json({ success: true, message: 'Lead updated' });
   } catch (error: any) {
@@ -141,6 +155,8 @@ export async function DELETE(request: Request) {
         ],
       },
     });
+
+    invalidateCache(CACHE_KEY);
 
     return NextResponse.json({ success: true, message: 'Lead deleted successfully' });
   } catch (error: any) {

@@ -1,9 +1,17 @@
 import { NextResponse, after } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
 import { syncRekapSheet, syncCapacity, syncLaporanBorders } from '@/lib/rekap-sync';
+import { getFromCache, setCache, invalidateCache } from '@/lib/cache';
+
+const CACHE_KEY = 'orders_data';
 
 export async function GET() {
   try {
+    const cachedData = getFromCache(CACHE_KEY);
+    if (cachedData) {
+      return NextResponse.json({ success: true, data: cachedData, cached: true });
+    }
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'Laporan Transaksi Harian!A2:S',
@@ -107,8 +115,10 @@ export async function GET() {
       };
     });
 
-    // Return in ascending order (sorted by production date from Google Sheets)
-    return NextResponse.json({ success: true, data: orders });
+    // Sort handled by front-end mostly, but return mapped
+    setCache(CACHE_KEY, orders);
+
+    return NextResponse.json({ success: true, data: orders, cached: false });
   } catch (error: any) {
     console.error('Error fetching orders:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -335,6 +345,7 @@ export async function DELETE(request: Request) {
         spreadsheetId: SPREADSHEET_ID,
         range: 'Laporan Transaksi Harian!A2:R',
       });
+      invalidateCache(CACHE_KEY);
       await syncRekapSheet();
       
       // Reset all booked capacities to 0
@@ -475,6 +486,8 @@ export async function PATCH(request: Request) {
         values: [existing],
       },
     });
+
+    invalidateCache(CACHE_KEY);
 
     return NextResponse.json({ success: true, message: 'Status updated successfully', data: { status: newStatus, timestamps: existing.slice(3) } });
   } catch (error: any) {

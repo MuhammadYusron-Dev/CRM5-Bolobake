@@ -29,25 +29,28 @@ export async function POST(request: Request) {
       });
     }
 
-    // REAL MODE (E.g., Fonnte API)
-    const response = await fetch('https://api.fonnte.com/send', {
+    // REAL MODE (WaSenderAPI)
+    // URL endpoint WaSender API (sesuaikan jika ada perubahan di dashboard WaSender Anda)
+    const response = await fetch('https://wasenderapi.com/api/send-message', {
       method: 'POST',
       headers: {
-        'Authorization': token, // Fonnte API Token
+        'Authorization': `Bearer ${token}`, // WaSender menggunakan format Bearer Token
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
-      body: new URLSearchParams({
-        target: targetPhone,
-        message: message,
-        countryCode: '62', // Optional
+      body: JSON.stringify({
+        to: '+' + targetPhone,  // Nomor tujuan format internasional (+62...)
+        text: message     // Isi pesan
       }),
     });
 
     const data = await response.json();
     
-    if (data.status) {
+    // WaSender biasanya mengembalikan status 200 dengan JSON tertentu
+    if (response.ok && data) {
       return NextResponse.json({ success: true, data });
     } else {
-      return NextResponse.json({ success: false, error: data.reason || 'Failed to send' }, { status: 400 });
+      return NextResponse.json({ success: false, error: data.message || data.error || 'Failed to send' }, { status: 400 });
     }
 
   } catch (error: any) {

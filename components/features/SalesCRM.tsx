@@ -8,6 +8,8 @@ import { Search, Trophy, AlertTriangle, UserMinus, Crown, MessageCircle, BarChar
 import { Order, Customer } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
 
 interface SalesCRMProps {
   initialOrders: Order[];
@@ -18,9 +20,13 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'rfm' | 'leads' | 'broadcast'>('rfm');
   const [searchQuery, setSearchQuery] = useState('');
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [leads, setLeads] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch data with SWR
+  const { data: orders = initialOrders, mutate: mutateOrders } = useSWR('/api/orders', fetcher, { fallbackData: initialOrders });
+  const { data: customers = [], mutate: mutateCustomers, isLoading: isCustomersLoading } = useSWR('/api/customers', fetcher);
+  const { data: leads = [], mutate: mutateLeads, isLoading: isLeadsLoading } = useSWR('/api/leads', fetcher);
+  
+  const isLoading = isCustomersLoading || isLeadsLoading;
 
   // Modal States
   const [customerModal, setCustomerModal] = useState<{ isOpen: boolean, data: any } | null>(null);
@@ -33,27 +39,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   const [isBlasting, setIsBlasting] = useState(false);
   const [apiToken, setApiToken] = useState<string>('SIMULATOR');
 
-  const fetchCustomersAndLeads = async () => {
-    try {
-      const [resC, resL] = await Promise.all([
-        fetch('/api/customers'),
-        fetch('/api/leads')
-      ]);
-      const dataC = await resC.json();
-      const dataL = await resL.json();
-      
-      if (dataC.success) setCustomers(dataC.data);
-      if (dataL.success) setLeads(dataL.data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCustomersAndLeads();
-  }, []);
+  const [apiToken, setApiToken] = useState<string>('SIMULATOR');
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
@@ -62,7 +48,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     const statsMap: Record<string, any> = {};
 
     // Initialize stats with known customers
-    customers.forEach(c => {
+    customers.forEach((c: any) => {
         statsMap[c.name] = { 
             name: c.name,
             whatsapp: c.whatsapp,
@@ -78,7 +64,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
         };
     });
 
-    initialOrders.forEach(order => {
+    orders.forEach((order: Order) => {
       let orderTime = order.id; 
       if (order.productionDate) {
           orderTime = new Date(order.productionDate).getTime();
@@ -192,7 +178,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     };
 
     return { list: filtered, summary };
-  }, [initialOrders, customers, searchQuery]);
+  }, [orders, customers, searchQuery]);
 
   const handleSaveCustomer = async () => {
     if (!customerModal) return;
@@ -207,7 +193,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             body: JSON.stringify(customerModal.data)
         });
         if (res.ok) {
-            fetchCustomersAndLeads();
+            mutateCustomers();
             setCustomerModal(null);
         } else {
             alert('Gagal menyimpan data customer');
@@ -244,7 +230,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             body: JSON.stringify(leadModal.data)
         });
         if (res.ok) {
-            fetchCustomersAndLeads();
+            mutateLeads();
             setLeadModal(null);
         } else {
             alert('Gagal menyimpan data lead');
@@ -260,7 +246,8 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
         const custData = { name: lead.name, whatsapp: lead.whatsapp, address: '', tier: 'STANDARD' };
         await fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(custData) });
         await fetch(`/api/leads?rowNumber=${lead.rowNumber}`, { method: 'DELETE' });
-        fetchCustomersAndLeads();
+        mutateLeads();
+        mutateCustomers();
         return;
     }
 
@@ -270,7 +257,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...lead, status: newStatus })
         });
-        fetchCustomersAndLeads();
+        mutateLeads();
     } catch (e) {
         console.error(e);
     }

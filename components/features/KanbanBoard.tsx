@@ -5,8 +5,9 @@ import { Order, OrderStatus } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChefHat, PackageCheck, Clock, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
-// import { formatRp } from '@/lib/utils'; // Removed to fix TS2305
 import { ProductionSchedule } from '@/components/features/ProductionSchedule';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/fetcher';
 
 export interface ColumnDef {
   id: string;
@@ -28,29 +29,12 @@ interface KanbanBoardProps {
 }
 
 export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOverview, extraHeaderAction }: KanbanBoardProps) {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const { data: orders = initialOrders, mutate, isLoading } = useSWR('/api/orders', fetcher, { 
+    fallbackData: initialOrders,
+    refreshInterval: 15000 // Poll every 15 seconds automatically
+  });
   const [isUpdating, setIsUpdating] = useState<number | null>(null);
-  const [lastSync, setLastSync] = useState<string>(() => new Date().toLocaleTimeString('id-ID'));
   const [activeView, setActiveView] = useState<'board' | 'schedule'>('board');
-
-  // Polling every 30 seconds
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await fetch('/api/orders');
-        const data = await res.json();
-        if (data.success && data.data) {
-          setOrders(data.data);
-          setLastSync(new Date().toLocaleTimeString('id-ID'));
-        }
-      } catch (err) {
-        console.error("Failed to poll orders:", err);
-      }
-    };
-
-    const interval = setInterval(fetchOrders, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleUpdateStatus = async (orderId: number, newStatus: OrderStatus) => {
     setIsUpdating(orderId);
@@ -73,29 +57,20 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
         body: JSON.stringify({ rowNumber: order.rowNumber, status: newStatus })
       });
       const data = await response.json();
+      
       if (!data.success) {
         throw new Error(data.error);
       }
       
       // Merge precise timestamps if returned
-      if (data.data?.timestamps) {
-         setOrders(prev => prev.map(o => {
-           if (o.id === orderId) {
-             return { ...o, status: newStatus, statusTimestamps: {
-               dikonfirmasi: data.data.timestamps[0],
-               produksi: data.data.timestamps[1],
-               packing: data.data.timestamps[2],
-               delivery: data.data.timestamps[3],
-               diterima: data.data.timestamps[4],
-             }};
-           }
-           return o;
-         }));
+      if (data.success) {
+        // Use optimistic UI update or just rely on SWR mutate
+        mutate();
+      } else {
+        alert('Gagal update: ' + data.error);
       }
     } catch (error) {
       console.error(error);
-      // Revert Optimistic
-      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: order.status } : o));
       alert('Gagal memperbarui status');
     } finally {
       setIsUpdating(null);
