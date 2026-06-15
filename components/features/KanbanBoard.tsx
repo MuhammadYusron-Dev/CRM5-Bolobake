@@ -105,37 +105,39 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
   return (
     <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden print:h-auto print:overflow-visible print:bg-white">
       {/* Header */}
-      <header className="h-16 bg-white dark:bg-slate-900 border-b flex items-center justify-between px-6 shrink-0 shadow-sm z-10 print:hidden">
-        <div className="flex items-center gap-3">
+      <header className="min-h-16 h-auto py-3 sm:py-0 bg-white dark:bg-slate-900 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-6 shrink-0 shadow-sm z-10 gap-3 sm:gap-0 print:hidden">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           {icon === 'produksi' ? (
-            <ChefHat className="w-6 h-6 text-purple-600" />
+            <ChefHat className="w-6 h-6 text-purple-600 shrink-0" />
           ) : (
-            <PackageCheck className="w-6 h-6 text-orange-600" />
+            <PackageCheck className="w-6 h-6 text-orange-600 shrink-0" />
           )}
-          <div>
-            <h1 className="font-bold text-lg leading-tight">Divisi {divisionName}</h1>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Bolobake Workflow System</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-bold text-lg leading-tight truncate">Divisi {divisionName}</h1>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider truncate">Bolobake Workflow System</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {showOverview && (
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex-1 sm:flex-none justify-between sm:justify-start">
               <button 
                 onClick={() => setActiveView('board')}
-                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeView === 'board' ? 'bg-white shadow-sm text-primary dark:bg-slate-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${activeView === 'board' ? 'bg-white shadow-sm text-primary dark:bg-slate-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
               >
                 Papan Antrean
               </button>
               <button 
                 onClick={() => setActiveView('schedule')}
-                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeView === 'schedule' ? 'bg-white shadow-sm text-primary dark:bg-slate-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${activeView === 'schedule' ? 'bg-white shadow-sm text-primary dark:bg-slate-700' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}
               >
                 Rekap Target
               </button>
             </div>
           )}
-          {extraHeaderAction}
+          <div className="shrink-0 flex-1 sm:flex-none">
+            {extraHeaderAction}
+          </div>
         </div>
       </header>
 
@@ -246,9 +248,9 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
       )}
       
       {/* Footer / Info */}
-      <div className="h-8 bg-slate-900 text-slate-400 text-[10px] flex items-center justify-between px-6 font-medium shrink-0 print:hidden">
-        <span>Sinkronisasi realtime dengan Google Sheets. Perubahan status akan langsung tercatat waktunya.</span>
-        <span className="flex items-center gap-1.5" suppressHydrationWarning><RotateCcw className="w-3 h-3" /> Update Terakhir: {lastSync}</span>
+      <div className="min-h-8 h-auto py-1.5 sm:py-0 bg-slate-900 text-slate-400 text-[10px] flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 font-medium shrink-0 print:hidden gap-1 sm:gap-0">
+        <span className="truncate sm:whitespace-normal">Sinkronisasi realtime. Status otomatis tercatat.</span>
+        <span className="flex items-center gap-1.5 shrink-0" suppressHydrationWarning><RotateCcw className="w-3 h-3" /> Update: {lastSync}</span>
       </div>
     </div>
   );
