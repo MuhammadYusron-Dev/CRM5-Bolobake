@@ -27,8 +27,11 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   const [leadModal, setLeadModal] = useState<{ isOpen: boolean, data: any } | null>(null);
 
   // Broadcast States
-  const [broadcastSegment, setBroadcastSegment] = useState<string>('Semua');
-  const [broadcastTemplate, setBroadcastTemplate] = useState<string>('Halo kak dari [NAMA_OUTLET],\n\nWah sudah [HARI_TERAKHIR_ORDER] hari nih kakak belum stok ulang [PRODUK_FAVORIT] lagi di Bolobake. Stoknya masih aman kak?');
+  const [broadcastSegment, setBroadcastSegment] = useState<string>('Jadwal Restock');
+  const [broadcastTemplate, setBroadcastTemplate] = useState<string>('Halo kak dari [NAMA_OUTLET],\n\nMenurut catatan kami stok [PRODUK_FAVORIT] kakak biasanya sudah mulai menipis hari ini. Apakah mau langsung kami proses orderan untuk pengiriman besok?');
+  const [blastStatuses, setBlastStatuses] = useState<Record<string, { status: 'idle' | 'loading' | 'success' | 'failed', msg?: string }>>({});
+  const [isBlasting, setIsBlasting] = useState(false);
+  const [apiToken, setApiToken] = useState<string>('SIMULATOR');
 
   const fetchCustomersAndLeads = async () => {
     try {
@@ -69,6 +72,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             id: c.id,
             totalOrders: 0, 
             totalSpent: 0, 
+            firstOrderTime: 0,
             lastOrderTime: 0,
             skuCount: {}
         };
@@ -89,6 +93,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
               tier: 'STANDARD',
               totalOrders: 0, 
               totalSpent: 0, 
+              firstOrderTime: 0,
               lastOrderTime: 0,
               skuCount: {}
           };
@@ -96,6 +101,11 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
 
       statsMap[order.customer].totalOrders++;
       statsMap[order.customer].totalSpent += (order.grandTotal || 0);
+      
+      if (statsMap[order.customer].firstOrderTime === 0 || orderTime < statsMap[order.customer].firstOrderTime) {
+          statsMap[order.customer].firstOrderTime = orderTime;
+      }
+      
       if (orderTime > statsMap[order.customer].lastOrderTime) {
           statsMap[order.customer].lastOrderTime = orderTime;
       }
@@ -111,6 +121,19 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     const analyzed = Object.values(statsMap).map(stat => {
       const daysSinceLastOrder = stat.lastOrderTime ? Math.floor((now - stat.lastOrderTime) / (1000 * 3600 * 24)) : 999;
       
+      // Calculate Average Restock Interval
+      let avgOrderInterval = 0;
+      if (stat.totalOrders > 1 && stat.firstOrderTime && stat.lastOrderTime) {
+          const totalDaysSpan = Math.floor((stat.lastOrderTime - stat.firstOrderTime) / (1000 * 3600 * 24));
+          avgOrderInterval = Math.max(1, Math.floor(totalDaysSpan / (stat.totalOrders - 1)));
+      }
+
+      // Restock Prediction
+      let isRestockDay = false;
+      if (avgOrderInterval > 0 && daysSinceLastOrder >= avgOrderInterval - 1) {
+          isRestockDay = true;
+      }
+
       let segment = 'Loyal';
       let segmentColor = 'bg-blue-100 text-blue-700';
       let icon = Users;
@@ -142,6 +165,8 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
       return {
           ...stat,
           daysSinceLastOrder,
+          avgOrderInterval,
+          isRestockDay,
           segment,
           segmentColor,
           icon,
@@ -163,6 +188,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
         loyal: analyzed.filter(a => a.segment === 'Loyal').length,
         atRisk: analyzed.filter(a => a.segment === 'At Risk').length,
         hibernating: analyzed.filter(a => a.segment === 'Hibernating').length,
+        restockToday: analyzed.filter(a => a.isRestockDay).length,
     };
 
     return { list: filtered, summary };
@@ -253,6 +279,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   // Broadcast Logic
   const filteredBroadcastTargets = useMemo(() => {
       if (broadcastSegment === 'Semua') return rfmData.list;
+      if (broadcastSegment === 'Jadwal Restock') return rfmData.list.filter(c => c.isRestockDay);
       return rfmData.list.filter(c => c.segment === broadcastSegment);
   }, [rfmData.list, broadcastSegment]);
 
@@ -264,26 +291,48 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
       return msg;
   };
 
-  const handleExportCSV = () => {
-      const csvRows = [];
-      csvRows.push('Nama Outlet,Phone,Pesan');
-      
-      filteredBroadcastTargets.forEach(cust => {
-          if (!cust.phone && !cust.whatsapp) return; // Skip if no number
-          const phone = (cust.whatsapp || cust.phone || '').replace(/^0/, '62');
-          const msg = generateBroadcastMessage(cust).replace(/"/g, '""'); // Escape quotes
-          csvRows.push(`"${cust.name}","${phone}","${msg}"`);
-      });
+  const handleBlastWhatsApp = async () => {
+    if (filteredBroadcastTargets.length === 0) return;
+    setIsBlasting(true);
 
-      const csvString = csvRows.join('\n');
-      const blob = new Blob([csvString], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Broadcast_${broadcastSegment}_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    const newStatuses = { ...blastStatuses };
+
+    for (const cust of filteredBroadcastTargets) {
+      if (!cust.phone && !cust.whatsapp) {
+        newStatuses[cust.id] = { status: 'failed', msg: 'No WA Kosong' };
+        setBlastStatuses({ ...newStatuses });
+        continue;
+      }
+
+      newStatuses[cust.id] = { status: 'loading' };
+      setBlastStatuses({ ...newStatuses });
+
+      try {
+        const msg = generateBroadcastMessage(cust);
+        const res = await fetch('/api/whatsapp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: cust.whatsapp || cust.phone,
+            message: msg,
+            token: apiToken
+          })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          newStatuses[cust.id] = { status: 'success', msg: result.simulated ? 'Simulated ✅' : 'Sent ✅' };
+        } else {
+          newStatuses[cust.id] = { status: 'failed', msg: result.error || 'Gagal' };
+        }
+      } catch (e) {
+        newStatuses[cust.id] = { status: 'failed', msg: 'Network Error' };
+      }
+      
+      setBlastStatuses({ ...newStatuses });
+    }
+
+    setIsBlasting(false);
   };
 
   return (
@@ -491,6 +540,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                                         value={broadcastSegment}
                                         onChange={(e) => setBroadcastSegment(e.target.value)}
                                     >
+                                        <option value="Jadwal Restock">🎯 Waktunya Restock Hari Ini ({rfmData.summary.restockToday})</option>
                                         <option value="Semua">Semua Pelanggan ({rfmData.list.length})</option>
                                         <option value="Champions">👑 Champions ({rfmData.summary.champions})</option>
                                         <option value="Loyal">👥 Loyal ({rfmData.summary.loyal})</option>
@@ -501,11 +551,23 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
 
                                 <div>
                                     <label className="text-sm font-bold text-muted-foreground mb-2 flex items-center justify-between">
+                                        API Key (Kosongkan = Simulator Gratis)
+                                    </label>
+                                    <Input 
+                                        placeholder="Masukkan Token Fonnte / WABlas (Opsional)" 
+                                        value={apiToken === 'SIMULATOR' ? '' : apiToken} 
+                                        onChange={e => setApiToken(e.target.value || 'SIMULATOR')} 
+                                    />
+                                    {apiToken === 'SIMULATOR' && <p className="text-xs text-amber-600 mt-1">Saat ini berjalan di Mode Simulator. Pesan tidak akan benar-benar terkirim ke WhatsApp.</p>}
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-bold text-muted-foreground mb-2 flex items-center justify-between">
                                         Template Pesan WA
                                         <span className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-md">Gunakan Variabel Ajaib</span>
                                     </label>
                                     <textarea 
-                                        className="w-full p-3 rounded-lg border border-border bg-background min-h-[200px] text-sm"
+                                        className="w-full p-3 rounded-lg border border-border bg-background min-h-[150px] text-sm"
                                         value={broadcastTemplate}
                                         onChange={(e) => setBroadcastTemplate(e.target.value)}
                                         placeholder="Ketik pesan Anda di sini..."
@@ -517,8 +579,9 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                                     </div>
                                 </div>
 
-                                <Button onClick={handleExportCSV} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
-                                    <Filter className="w-5 h-5 mr-2" /> Download File CSV untuk WA Blaster
+                                <Button onClick={handleBlastWhatsApp} disabled={isBlasting || filteredBroadcastTargets.length === 0} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 flex items-center justify-center">
+                                    <Send className={`w-5 h-5 mr-2 ${isBlasting ? 'animate-pulse' : ''}`} /> 
+                                    {isBlasting ? 'Sedang Mem-Blast...' : 'Tembak Pesan Sekarang! (Direct Blast API)'}
                                 </Button>
                             </div>
                         </CardContent>
@@ -528,31 +591,33 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                     <Card className="border-border shadow-sm bg-slate-50 dark:bg-slate-900/50">
                         <CardContent className="p-6">
                             <h2 className="font-bold text-lg mb-4 flex items-center justify-between">
-                                Daftar Penerima Pesan
+                                Daftar Antrian Tembak
                                 <span className="text-sm bg-primary text-white px-3 py-1 rounded-full">{filteredBroadcastTargets.length} Outlet</span>
                             </h2>
                             
                             <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                                 {filteredBroadcastTargets.length === 0 && (
-                                    <p className="text-muted-foreground text-center py-8">Tidak ada outlet di segmen ini.</p>
+                                    <p className="text-muted-foreground text-center py-8">Tidak ada outlet di antrian ini.</p>
                                 )}
                                 {filteredBroadcastTargets.map((cust, idx) => {
                                     const previewMsg = generateBroadcastMessage(cust);
-                                    const p = (cust.whatsapp || cust.phone || '').replace(/^0/, '62');
-                                    const waLink = p ? `https://wa.me/${p}?text=${encodeURIComponent(previewMsg)}` : '#';
+                                    const blastStatus = blastStatuses[cust.id];
 
                                     return (
-                                        <div key={idx} className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-border shadow-sm flex flex-col gap-2 relative">
+                                        <div key={idx} className={`p-3 rounded-lg border shadow-sm flex flex-col gap-2 relative transition-all ${blastStatus?.status === 'success' ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20' : blastStatus?.status === 'failed' ? 'bg-red-50 border-red-200 dark:bg-red-950/20' : 'bg-white dark:bg-slate-950 border-border'}`}>
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h4 className="font-bold text-sm">{cust.name}</h4>
                                                     <p className="text-[10px] text-muted-foreground">{cust.whatsapp || cust.phone || 'No WA Kosong'}</p>
                                                 </div>
-                                                <a href={waLink} target="_blank" rel="noreferrer" className={`shrink-0 p-2 rounded-full ${p ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
-                                                    <MessageCircle className="w-4 h-4" />
-                                                </a>
+                                                <div className="text-right">
+                                                    {blastStatus?.status === 'loading' && <span className="text-xs text-blue-500 animate-pulse font-bold">Sedang Mengirim...</span>}
+                                                    {blastStatus?.status === 'success' && <span className="text-xs text-emerald-600 font-bold">{blastStatus.msg}</span>}
+                                                    {blastStatus?.status === 'failed' && <span className="text-xs text-red-600 font-bold">{blastStatus.msg}</span>}
+                                                    {!blastStatus && <span className="text-xs text-muted-foreground font-medium">Menunggu Antrian</span>}
+                                                </div>
                                             </div>
-                                            <div className="bg-green-50 dark:bg-green-950/20 border border-green-100 dark:border-green-900 p-2 rounded-md">
+                                            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-2 rounded-md">
                                                 <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{previewMsg}</p>
                                             </div>
                                         </div>
