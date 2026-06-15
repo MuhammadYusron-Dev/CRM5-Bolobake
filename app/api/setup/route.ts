@@ -18,6 +18,7 @@ export async function GET() {
       { title: 'tier_prices', cols: 4 },
       { title: 'production_capacities', cols: 3 },
       { title: 'audit_logs', cols: 6 },
+      { title: 'leads', cols: 6 },
     ];
 
     sheetsToCreate.forEach(sheetDef => {
@@ -69,6 +70,10 @@ export async function GET() {
       {
         range: 'audit_logs!A1:F1',
         values: [['log_id', 'timestamp', 'user_id', 'user_name', 'action_type', 'details']]
+      },
+      {
+        range: 'leads!A1:F1',
+        values: [['lead_id', 'name', 'whatsapp', 'status', 'notes', 'created_at']]
       }
     ];
 

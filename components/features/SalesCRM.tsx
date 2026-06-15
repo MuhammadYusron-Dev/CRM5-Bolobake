@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Trophy, AlertTriangle, UserMinus, Crown, MessageCircle, BarChart3, Users, Filter, Plus, Edit, Send } from 'lucide-react';
 import { Order, Customer } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 interface SalesCRMProps {
   initialOrders: Order[];
@@ -18,18 +19,28 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   const [activeTab, setActiveTab] = useState<'rfm' | 'leads' | 'broadcast'>('rfm');
   const [searchQuery, setSearchQuery] = useState('');
   const [customers, setCustomers] = useState<any[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Edit/Add Customer Modal
+  // Modal States
   const [customerModal, setCustomerModal] = useState<{ isOpen: boolean, data: any } | null>(null);
+  const [leadModal, setLeadModal] = useState<{ isOpen: boolean, data: any } | null>(null);
 
-  const fetchCustomers = async () => {
+  // Broadcast States
+  const [broadcastSegment, setBroadcastSegment] = useState<string>('Semua');
+  const [broadcastTemplate, setBroadcastTemplate] = useState<string>('Halo kak dari [NAMA_OUTLET],\n\nWah sudah [HARI_TERAKHIR_ORDER] hari nih kakak belum stok ulang [PRODUK_FAVORIT] lagi di Bolobake. Stoknya masih aman kak?');
+
+  const fetchCustomersAndLeads = async () => {
     try {
-      const res = await fetch('/api/customers');
-      const data = await res.json();
-      if (data.success) {
-        setCustomers(data.data);
-      }
+      const [resC, resL] = await Promise.all([
+        fetch('/api/customers'),
+        fetch('/api/leads')
+      ]);
+      const dataC = await resC.json();
+      const dataL = await resL.json();
+      
+      if (dataC.success) setCustomers(dataC.data);
+      if (dataL.success) setLeads(dataL.data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -38,7 +49,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   };
 
   useEffect(() => {
-    fetchCustomers();
+    fetchCustomersAndLeads();
   }, []);
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
@@ -51,7 +62,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     customers.forEach(c => {
         statsMap[c.name] = { 
             name: c.name,
-            phone: c.whatsapp,
+            whatsapp: c.whatsapp,
             address: c.address,
             tier: c.tier,
             rowNumber: c.rowNumber,
@@ -73,7 +84,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
       if (!statsMap[order.customer]) {
           statsMap[order.customer] = { 
               name: order.customer, 
-              phone: '', 
+              whatsapp: '', 
               address: '', 
               tier: 'STANDARD',
               totalOrders: 0, 
@@ -170,7 +181,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             body: JSON.stringify(customerModal.data)
         });
         if (res.ok) {
-            fetchCustomers();
+            fetchCustomersAndLeads();
             setCustomerModal(null);
         } else {
             alert('Gagal menyimpan data customer');
@@ -180,9 +191,9 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     }
   };
 
-  const generateWA = (phone: string, name: string, favorite: string, days: number) => {
-    if (!phone) return '#';
-    const p = phone.replace(/^0/, '62');
+  const generateWA = (whatsapp: string, name: string, favorite: string, days: number) => {
+    if (!whatsapp) return '#';
+    const p = whatsapp.replace(/^0/, '62');
     
     let text = `Halo kak dari ${name},\n\n`;
     if (days > 14) {
@@ -192,6 +203,87 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     }
 
     return `https://wa.me/${p}?text=${encodeURIComponent(text)}`;
+  };
+
+  const handleSaveLead = async () => {
+    if (!leadModal) return;
+    const isNew = !leadModal.data.rowNumber;
+    const url = '/api/leads';
+    const method = isNew ? 'POST' : 'PUT';
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(leadModal.data)
+        });
+        if (res.ok) {
+            fetchCustomersAndLeads();
+            setLeadModal(null);
+        } else {
+            alert('Gagal menyimpan data lead');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+  };
+
+  const handleMoveLead = async (lead: any, newStatus: string) => {
+    if (newStatus === 'Closed Won') {
+        // Move to customer and delete lead
+        const custData = { name: lead.name, whatsapp: lead.whatsapp, address: '', tier: 'STANDARD' };
+        await fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(custData) });
+        await fetch(`/api/leads?rowNumber=${lead.rowNumber}`, { method: 'DELETE' });
+        fetchCustomersAndLeads();
+        return;
+    }
+
+    try {
+        await fetch('/api/leads', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...lead, status: newStatus })
+        });
+        fetchCustomersAndLeads();
+    } catch (e) {
+        console.error(e);
+    }
+  };
+
+  // Broadcast Logic
+  const filteredBroadcastTargets = useMemo(() => {
+      if (broadcastSegment === 'Semua') return rfmData.list;
+      return rfmData.list.filter(c => c.segment === broadcastSegment);
+  }, [rfmData.list, broadcastSegment]);
+
+  const generateBroadcastMessage = (cust: any) => {
+      let msg = broadcastTemplate;
+      msg = msg.replace(/\[NAMA_OUTLET\]/g, cust.name || '');
+      msg = msg.replace(/\[HARI_TERAKHIR_ORDER\]/g, cust.daysSinceLastOrder === 999 ? 'lama' : cust.daysSinceLastOrder.toString());
+      msg = msg.replace(/\[PRODUK_FAVORIT\]/g, cust.favoriteProduct === '-' ? 'produk' : cust.favoriteProduct);
+      return msg;
+  };
+
+  const handleExportCSV = () => {
+      const csvRows = [];
+      csvRows.push('Nama Outlet,Phone,Pesan');
+      
+      filteredBroadcastTargets.forEach(cust => {
+          if (!cust.phone && !cust.whatsapp) return; // Skip if no number
+          const phone = (cust.whatsapp || cust.phone || '').replace(/^0/, '62');
+          const msg = generateBroadcastMessage(cust).replace(/"/g, '""'); // Escape quotes
+          csvRows.push(`"${cust.name}","${phone}","${msg}"`);
+      });
+
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Broadcast_${broadcastSegment}_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
   };
 
   return (
@@ -269,13 +361,18 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                         </Button>
                     </div>
                 )}
+                {activeTab === 'leads' && (
+                    <Button size="sm" onClick={() => setLeadModal({ isOpen: true, data: { name: '', whatsapp: '', notes: '', status: 'Prospek Baru' } })}>
+                        <Plus className="w-4 h-4 mr-1" /> Tambah Leads
+                    </Button>
+                )}
             </div>
 
             {/* Tab: RFM Database */}
             {activeTab === 'rfm' && (
                 <Card className="border-border shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
+                    <div className="overflow-x-auto w-full">
+                        <table className="w-full text-sm text-left min-w-[800px]">
                             <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
                                 <tr>
                                     <th className="px-4 py-3">Outlet</th>
@@ -297,7 +394,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                                                 {cust.name}
                                                 <button onClick={() => setCustomerModal({ isOpen: true, data: cust })} className="text-muted-foreground hover:text-primary"><Edit className="w-3 h-3" /></button>
                                             </div>
-                                            <div className="text-[10px] text-muted-foreground font-medium">{cust.phone || 'No WA (-) '} • {cust.tier}</div>
+                                            <div className="text-[10px] text-muted-foreground font-medium">{cust.whatsapp || 'No WA (-) '} • {cust.tier}</div>
                                         </td>
                                         <td className="px-4 py-3">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${cust.segmentColor}`}>
@@ -319,9 +416,9 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <a 
-                                                href={generateWA(cust.phone, cust.name, cust.favoriteProduct, cust.daysSinceLastOrder)} 
+                                                href={generateWA(cust.whatsapp, cust.name, cust.favoriteProduct, cust.daysSinceLastOrder)} 
                                                 target="_blank" rel="noreferrer"
-                                                className={`inline-flex p-2 rounded-lg transition-colors ${!cust.phone ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : cust.segment === 'At Risk' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                                                className={`inline-flex p-2 rounded-lg transition-colors ${!cust.whatsapp ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : cust.segment === 'At Risk' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
                                             >
                                                 <MessageCircle className="w-4 h-4" />
                                             </a>
@@ -334,20 +431,136 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                 </Card>
             )}
 
-            {/* Placeholder for other tabs */}
+            {/* Tab: Leads Pipeline */}
             {activeTab === 'leads' && (
-                <div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-border rounded-xl">
-                    <Trophy className="w-16 h-16 text-muted-foreground/30 mb-4" />
-                    <h2 className="text-xl font-bold mb-2">Papan Kanban Prospek (Leads)</h2>
-                    <p className="text-muted-foreground max-w-md">Fitur ini sedang dalam tahap pengembangan. Nantinya Anda bisa menggeser kartu klien baru dari 'Prospek' hingga 'Closed Won'.</p>
+                <div className="flex gap-4 overflow-x-auto pb-4 items-start">
+                    {['Prospek Baru', 'Dihubungi', 'Kirim Sampel', 'Negosiasi', 'Closed Won'].map(status => (
+                        <div key={status} className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 w-80 shrink-0 border border-border">
+                            <h3 className="font-bold mb-3 flex items-center justify-between">
+                                {status}
+                                <span className="bg-slate-200 dark:bg-slate-800 text-xs px-2 py-1 rounded-full text-slate-600 dark:text-slate-400">
+                                    {leads.filter(l => l.status === status).length}
+                                </span>
+                            </h3>
+                            <div className="space-y-3 min-h-[500px]">
+                                {leads.filter(l => l.status === status).map(lead => (
+                                    <Card key={lead.id} className="cursor-pointer border-border hover:border-primary transition-colors">
+                                        <CardContent className="p-3">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <h4 className="font-bold text-sm">{lead.name}</h4>
+                                                <button onClick={() => setLeadModal({ isOpen: true, data: lead })} className="text-muted-foreground hover:text-primary"><Edit className="w-3 h-3" /></button>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mb-2">{lead.whatsapp || 'No WA (-)'}</p>
+                                            {lead.notes && <p className="text-xs bg-muted p-2 rounded-md mb-2 italic line-clamp-2">{lead.notes}</p>}
+                                            
+                                            <div className="mt-3 pt-2 border-t border-border">
+                                                <select 
+                                                    className="w-full text-xs bg-transparent border-none focus:ring-0 cursor-pointer text-primary font-medium"
+                                                    value={lead.status}
+                                                    onChange={(e) => handleMoveLead(lead, e.target.value)}
+                                                >
+                                                    <option value="Prospek Baru">Pindah ke: Prospek Baru</option>
+                                                    <option value="Dihubungi">Pindah ke: Dihubungi</option>
+                                                    <option value="Kirim Sampel">Pindah ke: Kirim Sampel</option>
+                                                    <option value="Negosiasi">Pindah ke: Negosiasi</option>
+                                                    <option value="Closed Won">Goal! (Pindah ke Customer)</option>
+                                                </select>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
 
+            {/* Tab: Smart Broadcast */}
             {activeTab === 'broadcast' && (
-                <div className="flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-border rounded-xl">
-                    <Send className="w-16 h-16 text-muted-foreground/30 mb-4" />
-                    <h2 className="text-xl font-bold mb-2">Smart Broadcast Generator</h2>
-                    <p className="text-muted-foreground max-w-md">Kirim ribuan pesan WA personal berdasarkan DNA belanja outlet dalam sekali klik. Segera Hadir.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Left: Template Editor */}
+                    <Card className="border-border shadow-sm">
+                        <CardContent className="p-6">
+                            <h2 className="font-bold text-lg mb-4 flex items-center"><Send className="w-5 h-5 mr-2 text-primary" /> Editor Pesan (Smart Broadcast)</h2>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-sm font-bold text-muted-foreground mb-2 block">Pilih Target Audience (Segmen)</label>
+                                    <select 
+                                        className="w-full p-2.5 rounded-lg border border-border bg-background"
+                                        value={broadcastSegment}
+                                        onChange={(e) => setBroadcastSegment(e.target.value)}
+                                    >
+                                        <option value="Semua">Semua Pelanggan ({rfmData.list.length})</option>
+                                        <option value="Champions">👑 Champions ({rfmData.summary.champions})</option>
+                                        <option value="Loyal">👥 Loyal ({rfmData.summary.loyal})</option>
+                                        <option value="At Risk">⚠️ At Risk (&gt;14 Hari) ({rfmData.summary.atRisk})</option>
+                                        <option value="Hibernating">💤 Hibernating (&gt;30 Hari) ({rfmData.summary.hibernating})</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-bold text-muted-foreground mb-2 flex items-center justify-between">
+                                        Template Pesan WA
+                                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-md">Gunakan Variabel Ajaib</span>
+                                    </label>
+                                    <textarea 
+                                        className="w-full p-3 rounded-lg border border-border bg-background min-h-[200px] text-sm"
+                                        value={broadcastTemplate}
+                                        onChange={(e) => setBroadcastTemplate(e.target.value)}
+                                        placeholder="Ketik pesan Anda di sini..."
+                                    />
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        <button onClick={() => setBroadcastTemplate(prev => prev + ' [NAMA_OUTLET]')} className="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-300 transition-colors">[NAMA_OUTLET]</button>
+                                        <button onClick={() => setBroadcastTemplate(prev => prev + ' [HARI_TERAKHIR_ORDER]')} className="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-300 transition-colors">[HARI_TERAKHIR_ORDER]</button>
+                                        <button onClick={() => setBroadcastTemplate(prev => prev + ' [PRODUK_FAVORIT]')} className="text-xs bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-300 transition-colors">[PRODUK_FAVORIT]</button>
+                                    </div>
+                                </div>
+
+                                <Button onClick={handleExportCSV} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6">
+                                    <Filter className="w-5 h-5 mr-2" /> Download File CSV untuk WA Blaster
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Right: Preview List */}
+                    <Card className="border-border shadow-sm bg-slate-50 dark:bg-slate-900/50">
+                        <CardContent className="p-6">
+                            <h2 className="font-bold text-lg mb-4 flex items-center justify-between">
+                                Daftar Penerima Pesan
+                                <span className="text-sm bg-primary text-white px-3 py-1 rounded-full">{filteredBroadcastTargets.length} Outlet</span>
+                            </h2>
+                            
+                            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                                {filteredBroadcastTargets.length === 0 && (
+                                    <p className="text-muted-foreground text-center py-8">Tidak ada outlet di segmen ini.</p>
+                                )}
+                                {filteredBroadcastTargets.map((cust, idx) => {
+                                    const previewMsg = generateBroadcastMessage(cust);
+                                    const p = (cust.whatsapp || cust.phone || '').replace(/^0/, '62');
+                                    const waLink = p ? `https://wa.me/${p}?text=${encodeURIComponent(previewMsg)}` : '#';
+
+                                    return (
+                                        <div key={idx} className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-border shadow-sm flex flex-col gap-2 relative">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h4 className="font-bold text-sm">{cust.name}</h4>
+                                                    <p className="text-[10px] text-muted-foreground">{cust.whatsapp || cust.phone || 'No WA Kosong'}</p>
+                                                </div>
+                                                <a href={waLink} target="_blank" rel="noreferrer" className={`shrink-0 p-2 rounded-full ${p ? 'bg-green-100 text-green-600 hover:bg-green-200' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                                                    <MessageCircle className="w-4 h-4" />
+                                                </a>
+                                            </div>
+                                            <div className="bg-green-50 dark:bg-green-950/20 border border-green-100 dark:border-green-900 p-2 rounded-md">
+                                                <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{previewMsg}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
             
@@ -385,6 +598,33 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             <DialogFooter>
                 <Button variant="outline" onClick={() => setCustomerModal(null)}>Batal</Button>
                 <Button onClick={handleSaveCustomer}>Simpan Data</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lead Form Modal */}
+      <Dialog open={!!leadModal} onOpenChange={(open) => !open && setLeadModal(null)}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader><DialogTitle>{leadModal?.data.rowNumber ? 'Edit Leads Prospek' : 'Tambah Prospek Baru'}</DialogTitle></DialogHeader>
+            {leadModal && (
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-muted-foreground">Nama Prospek / Kafe</label>
+                        <Input value={leadModal.data.name} onChange={e => setLeadModal(prev => prev ? { ...prev, data: { ...prev.data, name: e.target.value } } : null)} />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-muted-foreground">No WhatsApp PIC</label>
+                        <Input placeholder="Contoh: 08123456789" value={leadModal.data.whatsapp} onChange={e => setLeadModal(prev => prev ? { ...prev, data: { ...prev.data, whatsapp: e.target.value } } : null)} />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold uppercase text-muted-foreground">Catatan / Estimasi Kebutuhan</label>
+                        <textarea className="w-full border border-border bg-background p-2 rounded-md text-sm min-h-[80px]" placeholder="Misal: Butuh 100pcs croissant per minggu" value={leadModal.data.notes} onChange={e => setLeadModal(prev => prev ? { ...prev, data: { ...prev.data, notes: e.target.value } } : null)} />
+                    </div>
+                </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setLeadModal(null)}>Batal</Button>
+                <Button onClick={handleSaveLead}>Simpan Data</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
