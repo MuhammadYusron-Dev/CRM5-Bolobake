@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChefHat, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -15,6 +15,20 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    { img: "/login_slides/slide1.png", desc: "Dashboard overview with key metrics" },
+    { img: "/login_slides/slide2.png", desc: "Detailed sales chart and trends" },
+    { img: "/login_slides/slide3.png", desc: "Order management summary" },
+    { img: "/login_slides/slide4.png", desc: "Customer insights and segmentation" },
+  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
@@ -81,7 +95,23 @@ export default function LoginPage() {
               Dapatkan analitik mendalam untuk pesanan B2B Anda atau secara keseluruhan bisnis Bolobake Anda.
             </p>
 
-            {/* Dashboard Mockup Representation */}
+            {/* Auto Sliding Preview Carousel */}
+            <div className="w-full max-w-md mx-auto">
+              <div className="relative h-64 overflow-hidden rounded-xl shadow-lg">
+                {slides.map((slide, i) => (
+                  <div
+                    key={i}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    <img src={slide.img} alt={slide.desc} className="w-full h-full object-contain" />
+                    <div className="absolute bottom-0 left-0 w-full bg-black/30 text-white text-sm p-2">
+                      {slide.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* End Auto Sliding Preview Carousel */}
             <div className="w-full bg-white/95 rounded-2xl p-4 shadow-2xl text-slate-800">
               <div className="flex justify-between items-center border-b pb-3 mb-4">
                 <span className="font-bold text-sm">Analytics Mendalam</span>
