@@ -147,13 +147,13 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
           <ProductionSchedule orders={orders} />
         </div>
       ) : (
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 print:hidden">
-        <div className="flex h-full gap-6 items-start w-full min-w-max">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 sm:p-6 print:hidden snap-x snap-mandatory scroll-smooth custom-scrollbar">
+        <div className="flex h-full gap-4 sm:gap-6 items-start w-full min-w-max pb-2 sm:pb-0">
           {columns.map((col) => {
             const colOrders = orders.filter(o => col.statuses.includes(o.status || 'Pesanan Dibuat'));
             
             return (
-              <div key={col.id} className="flex-1 min-w-[320px] flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
+              <div key={col.id} className="w-[85vw] max-w-[300px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-center sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
                 {/* Column Header */}
                 <div className={`p-4 rounded-t-2xl border-b flex flex-col gap-1.5 ${col.colorClass}`}>
                   <div className="flex items-center justify-between">
