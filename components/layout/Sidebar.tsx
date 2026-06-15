@@ -108,7 +108,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       )}
 
       <aside 
-        className={`fixed md:static inset-y-0 left-0 z-50 bg-[#ea580c] text-white flex flex-col transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
+        className={`fixed md:static inset-y-0 left-0 z-50 bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 text-white flex flex-col transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } ${isCollapsed ? 'md:w-20' : 'w-72'}`}
       >

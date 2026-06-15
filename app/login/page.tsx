@@ -192,14 +192,19 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full h-11 bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold text-sm mt-4 rounded-lg shadow-md transition-colors"
+                className="w-full h-11 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold text-sm mt-4 rounded-lg shadow-md transition-all"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Masuk ‣'}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Memproses...
+                  </span>
+                ) : 'Masuk Sekarang'}
               </Button>
             </form>
 
-            <div className="mt-8 text-center text-xs text-slate-500 font-medium">
-              Belum punya akun? <Link href="/register" className="text-[#ea580c] hover:underline font-bold">Daftar sekarang</Link>
+            <div className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
+              Belum punya akun? <Link href="/register" className="text-blue-600 dark:text-cyan-400 hover:underline font-bold">Daftar sekarang</Link>
             </div>
 
             <div className="mt-8 pt-4 border-t border-slate-100 flex justify-center items-center">

@@ -254,14 +254,14 @@ export default function RegisterPage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full h-11 bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold text-sm mt-2 rounded-lg shadow-md transition-colors"
+                className="w-full h-11 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold text-sm mt-2 rounded-lg shadow-md transition-all"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lanjutkan ‣'}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Buat Akun'}
               </Button>
             </form>
 
             <div className="mt-8 text-center text-xs text-slate-500 font-medium">
-              Sudah punya akun? <Link href="/login" className="text-[#ea580c] hover:underline font-bold">Masuk</Link>
+              Sudah punya akun? <Link href="/login" className="text-blue-600 dark:text-cyan-400 hover:underline font-bold">Masuk</Link>
             </div>
 
             <div className="mt-8 pt-4 border-t border-slate-100 flex justify-center items-center">

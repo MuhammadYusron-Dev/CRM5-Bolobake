@@ -7,19 +7,19 @@
   --color-card-foreground: light-dark(#2C1810, #f8fafc);
   --color-popover: light-dark(#FFFFFF, #1e293b);
   --color-popover-foreground: light-dark(#2C1810, #f8fafc);
-  --color-primary: #D4A847;
+  --color-primary: #2563eb;
   --color-primary-foreground: #FFFFFF;
   --color-secondary: light-dark(#F3F4F6, #334155);
   --color-secondary-foreground: light-dark(#111827, #f8fafc);
   --color-muted: light-dark(#F3F4F6, #1e293b);
   --color-muted-foreground: light-dark(#6B7280, #94a3b8);
-  --color-accent: #D4A847;
+  --color-accent: #2563eb;
   --color-accent-foreground: #FFFFFF;
   --color-destructive: #ef4444;
   --color-destructive-foreground: light-dark(#FFFFFF, #f8fafc);
   --color-border: light-dark(#E5E7EB, #334155);
   --color-input: light-dark(#E5E7EB, #334155);
-  --color-ring: #D4A847;
+  --color-ring: #2563eb;
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-serif: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
 }
