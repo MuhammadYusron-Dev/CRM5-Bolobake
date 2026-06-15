@@ -19,23 +19,23 @@ export default function LoginPage() {
   const slides = [
     { 
       img: "/login_slides/slide1.png", 
-      title: "Analytics Mendalam", 
-      desc: "Pantau performa dan metrik bisnis Bolobake Anda secara komprehensif dari semua aspek."
+      title: "Dashboard Analitik", 
+      desc: "Pantau Total Omzet, Jumlah Transaksi, Total Produk, Customer Aktif, Performa Varian Terlaris, dan Top Customer secara real-time."
     },
     { 
       img: "/login_slides/slide2.png", 
-      title: "Manajemen Pesanan", 
-      desc: "Kelola pesanan B2B dan pantau progres status pemesanan pelanggan dengan mudah."
+      title: "Buat Pesanan Baru", 
+      desc: "Proses pesanan kilat menggunakan Smart Text Parser AI (Gemini) dari chat pembeli, lengkapi Informasi Customer dan Detail Pesanan."
     },
     { 
       img: "/login_slides/slide3.png", 
-      title: "Jadwal Produksi", 
-      desc: "Optimalkan jadwal dan kapasitas produksi dapur secara otomatis dan terukur."
+      title: "Sales CRM", 
+      desc: "Pantau klasifikasi customer (Champions, Loyal, At Risk, Hibernating), dan gunakan Editor Pesan untuk Smart Broadcast ke Daftar Antrian."
     },
     { 
       img: "/login_slides/slide4.png", 
-      title: "Manajemen Katalog", 
-      desc: "Atur katalog produk, varian, dan ketersediaan stok bahan baku dengan lebih efisien."
+      title: "Tracking Sample", 
+      desc: "Analisis efektivitas sampel produk lewat Tingkat Konversi (ROI), Avg Time-to-Convert, Budget Terpakai, dan Top 5 Customer vs CLV."
     },
   ];
   useEffect(() => {
@@ -105,23 +105,27 @@ export default function LoginPage() {
           </div>
 
           {/* Center Content: Title, Subtitle, and Carousel Image */}
-          <div className="flex-1 flex flex-col justify-center items-center w-full z-10 pt-16 pb-8">
-            <h1 className="text-3xl lg:text-4xl font-bold mb-3 text-center transition-opacity duration-500">
+          <div className="flex-1 flex flex-col justify-center items-start w-full z-10 pt-16 pb-8 px-4 lg:px-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight drop-shadow-md transition-opacity duration-500">
               {slides[currentSlide].title}
             </h1>
-            <p className="text-white/90 text-sm lg:text-base text-center max-w-md mb-10 transition-opacity duration-500">
+            <p className="text-base lg:text-lg text-white/90 font-medium mb-12 max-w-xl leading-relaxed transition-opacity duration-500">
               {slides[currentSlide].desc}
             </p>
 
-            {/* Mockup Card Container */}
-            <div className="w-full max-w-2xl aspect-[4/3] sm:aspect-video lg:aspect-[16/10] relative rounded-2xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center p-2 border border-white/20">
-              <div className="w-full h-full relative rounded-xl overflow-hidden bg-white shadow-inner">
+            {/* Float Mockup Container Without Frame */}
+            <div className="w-full max-w-3xl aspect-[4/3] sm:aspect-video lg:aspect-[16/10] relative mt-4">
+              <div className="w-full h-full relative">
                 {slides.map((slide, i) => (
                   <div
                     key={i}
-                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                    className={`absolute inset-0 transition-all duration-1000 ease-out ${i === currentSlide ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-8 scale-95'}`}
                   >
-                    <img src={slide.img} alt={slide.title} className="w-full h-full object-cover object-top" />
+                    <img 
+                      src={slide.img} 
+                      alt={slide.title} 
+                      className="w-full h-full object-cover object-left-top rounded-xl shadow-2xl animate-float border border-white/10" 
+                    />
                   </div>
                 ))}
               </div>
