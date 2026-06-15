@@ -5,24 +5,19 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const username = formData.get('username') as string;
+    const email = formData.get('email') as string;
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
     const password = formData.get('password') as string;
-    const secretCode = formData.get('secretCode') as string;
     const imageFile = formData.get('image') as File | null;
 
-    if (!username || !password || !secretCode) {
-      return NextResponse.json({ success: false, message: 'Harap lengkapi semua field wajib.' }, { status: 400 });
-    }
-
-    // Verify secret code
-    const expectedSecret = process.env.REGISTRATION_SECRET || 'bolobake-admin-123';
-    if (secretCode !== expectedSecret) {
-      return NextResponse.json({ success: false, message: 'Kode Verifikasi Rahasia salah. Akses ditolak.' }, { status: 403 });
+    if (!email || !password || !firstName) {
+      return NextResponse.json({ success: false, message: 'Harap lengkapi email, nama depan, dan password.' }, { status: 400 });
     }
 
     const admins = await getAdmins();
-    if (admins.some(a => a.username.toLowerCase() === username.toLowerCase())) {
-      return NextResponse.json({ success: false, message: 'Username sudah digunakan.' }, { status: 400 });
+    if (admins.some(a => a.email?.toLowerCase() === email.toLowerCase() || a.username.toLowerCase() === email.toLowerCase())) {
+      return NextResponse.json({ success: false, message: 'Email sudah digunakan.' }, { status: 400 });
     }
 
     let avatarUrl = '';
@@ -37,7 +32,7 @@ export async function POST(request: Request) {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const success = await addAdmin(username, passwordHash, avatarUrl);
+    const success = await addAdmin(email, passwordHash, firstName, lastName, avatarUrl);
     if (!success) {
       throw new Error('Gagal menyimpan admin ke Google Sheets');
     }

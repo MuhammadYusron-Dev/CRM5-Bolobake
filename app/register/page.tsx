@@ -1,52 +1,62 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChefHat, Loader2, Lock, User, KeyRound, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { ChefHat, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [secretCode, setSecretCode] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [agreeTos, setAgreeTos] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Ukuran gambar maksimal 5MB');
-        return;
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credentialResponse.credential })
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push('/');
+      } else {
+        setError(data.message || 'Login Google gagal.');
       }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-      setError('');
+    } catch (err) {
+      setError('Terjadi kesalahan jaringan saat verifikasi Google.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!agreeTos) {
+      setError('Anda harus menyetujui Terms of Service dan Privacy Policy.');
+      return;
+    }
     setLoading(true);
     setError('');
-    setSuccess('');
 
     try {
       const formData = new FormData();
-      formData.append('username', username);
+      formData.append('firstName', firstName);
+      formData.append('lastName', lastName);
+      formData.append('email', email);
       formData.append('password', password);
-      formData.append('secretCode', secretCode);
-      if (imageFile) formData.append('image', imageFile);
 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -55,8 +65,18 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (data.success) {
-        setSuccess('Akun berhasil dibuat! Mengalihkan ke halaman login...');
-        setTimeout(() => router.push('/login'), 2000);
+        // Auto login after register
+        const loginRes = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const loginData = await loginRes.json();
+        if (loginData.success) {
+          router.push('/');
+        } else {
+          router.push('/login');
+        }
       } else {
         setError(data.message || 'Pendaftaran gagal.');
       }
@@ -68,108 +88,190 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
-      <div className="w-full max-w-md bg-card p-8 rounded-3xl shadow-xl border border-border">
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-3 text-primary">
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
+      <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
+        {/* Left Side: Orange Banner */}
+        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-[#e65c00] to-[#ff9100] text-white p-8 lg:p-16 justify-between relative overflow-hidden">
+          {/* Logo */}
+          <div className="flex items-center gap-3 z-10">
             <ChefHat className="w-8 h-8" />
+            <span className="text-2xl font-bold font-serif tracking-wide">Bolobake</span>
           </div>
-          <h1 className="text-2xl font-serif font-bold text-center">Daftar Akun Admin</h1>
-          <p className="text-muted-foreground mt-1 text-sm text-center">Buat profil admin Anda untuk mengakses B2B Dashboard Bolobake</p>
+
+          {/* Center Content */}
+          <div className="flex flex-col items-center text-center mt-12 mb-auto z-10 max-w-lg mx-auto">
+            <h1 className="text-3xl lg:text-4xl font-bold mb-4">Analytics Mendalam</h1>
+            <p className="text-white/90 mb-12 text-sm lg:text-base">
+              Dapatkan analitik mendalam untuk pesanan B2B Anda atau secara keseluruhan bisnis Bolobake Anda.
+            </p>
+
+            {/* Dashboard Mockup Representation */}
+            <div className="w-full bg-white/95 rounded-2xl p-4 shadow-2xl text-slate-800">
+              <div className="flex justify-between items-center border-b pb-3 mb-4">
+                <span className="font-bold text-sm">Analytics Mendalam</span>
+                <div className="flex gap-2 text-xs font-semibold text-muted-foreground">
+                  <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded">Daily</span>
+                  <span>Weekly</span>
+                </div>
+              </div>
+              <div className="flex items-end gap-1 h-32 mb-4 w-full">
+                {[40, 60, 45, 75, 55, 80, 65].map((h, i) => (
+                  <div key={i} className="flex-1 bg-orange-400 rounded-sm" style={{ height: `${h}%` }}></div>
+                ))}
+              </div>
+              <div className="flex justify-between items-center text-xs text-slate-500 mb-4 px-2">
+                <span>Jan</span>
+                <span>Mar</span>
+                <span>May</span>
+                <span>Jul</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                <div className="bg-purple-50 text-purple-700 p-2 rounded-lg text-center font-bold">3.2%</div>
+                <div className="bg-orange-50 text-orange-700 p-2 rounded-lg text-center font-bold">1,234</div>
+                <div className="bg-green-50 text-green-700 p-2 rounded-lg text-center font-bold">250K</div>
+                <div className="bg-blue-50 text-blue-700 p-2 rounded-lg text-center font-bold">2.1%</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Carousel Indicators */}
+          <div className="flex justify-center items-center gap-4 z-10 mt-8">
+            <button className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">&lt;</button>
+            <div className="flex gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
+              <span className="w-2 h-2 rounded-full bg-white/50"></span>
+              <span className="w-2 h-2 rounded-full bg-white/50"></span>
+              <span className="w-2 h-2 rounded-full bg-white/50"></span>
+            </div>
+            <button className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">&gt;</button>
+          </div>
         </div>
 
-        {error && (
-          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg mb-6 border border-destructive/20 text-center font-medium">
-            {error}
-          </div>
-        )}
+        {/* Right Side: Auth Form */}
+        <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-8 relative bg-slate-50">
+          <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col">
+            
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Buat akun baru</h2>
+              <p className="text-slate-500 text-sm">Selamat datang! Isi data Anda untuk mulai</p>
+            </div>
 
-        {success && (
-          <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm p-3 rounded-lg mb-6 border border-emerald-500/20 text-center font-medium">
-            {success}
-          </div>
-        )}
+            {error && (
+              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-6 border border-red-100 text-center font-medium">
+                {error}
+              </div>
+            )}
 
-        <form onSubmit={handleRegister} className="space-y-4">
-          
-          <div className="flex flex-col items-center justify-center mb-4">
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className={`w-24 h-24 rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer transition-colors relative overflow-hidden group ${imagePreview ? 'border-primary' : 'border-border hover:border-primary'}`}
-            >
-              {imagePreview ? (
-                <>
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <UploadCloud className="w-6 h-6 text-white" />
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center text-muted-foreground group-hover:text-primary">
-                  <ImageIcon className="w-6 h-6 mb-1" />
-                  <span className="text-[10px] font-medium text-center leading-tight px-2">Upload Foto<br/>(Opsional)</span>
+            <div className="flex justify-center mb-6">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Login Gagal.')}
+                useOneTap
+                theme="outline"
+                text="continue_with"
+                shape="rectangular"
+              />
+            </div>
+
+            <div className="relative flex items-center py-2 mb-6">
+              <div className="flex-grow border-t border-slate-200"></div>
+              <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium">atau</span>
+              <div className="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div className="flex gap-4">
+                <div className="space-y-1.5 flex-1">
+                  <label className="text-xs font-bold text-slate-700">Nama depan</label>
+                  <Input 
+                    required
+                    type="text"
+                    placeholder="Nama depan"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="h-11 rounded-lg border-slate-300 focus-visible:ring-1 focus-visible:ring-orange-500"
+                  />
                 </div>
-              )}
-            </div>
-            <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
-          </div>
+                <div className="space-y-1.5 flex-1">
+                  <label className="text-xs font-bold text-slate-700">Nama belakang</label>
+                  <Input 
+                    required
+                    type="text"
+                    placeholder="Nama belakang"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="h-11 rounded-lg border-slate-300 focus-visible:ring-1 focus-visible:ring-orange-500"
+                  />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input 
-                required
-                type="text"
-                placeholder="Nama Pengguna (Username)"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="pl-10 h-12 bg-secondary/50 border-border"
-              />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Alamat email</label>
+                <Input 
+                  required
+                  type="email"
+                  placeholder="nama@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-11 rounded-lg border-slate-300 focus-visible:ring-1 focus-visible:ring-orange-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Kata sandi</label>
+                <div className="relative">
+                  <Input 
+                    required
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Masukkan kata sandi Anda"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 rounded-lg border-slate-300 pr-10 focus-visible:ring-1 focus-visible:ring-orange-500"
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 pt-1">
+                <input 
+                  type="checkbox" 
+                  id="tos" 
+                  checked={agreeTos}
+                  onChange={(e) => setAgreeTos(e.target.checked)}
+                  className="mt-1 border-slate-300 rounded text-orange-600 focus:ring-orange-500"
+                />
+                <label htmlFor="tos" className="text-xs text-slate-500 leading-snug cursor-pointer">
+                  I agree to the <Link href="#" className="underline hover:text-slate-800">Terms of Service</Link> and <Link href="#" className="underline hover:text-slate-800">Privacy Policy</Link>
+                </label>
+              </div>
+
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="w-full h-11 bg-[#ea580c] hover:bg-[#c2410c] text-white font-bold text-sm mt-2 rounded-lg shadow-md transition-colors"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Lanjutkan ‣'}
+              </Button>
+            </form>
+
+            <div className="mt-8 text-center text-xs text-slate-500 font-medium">
+              Sudah punya akun? <Link href="/login" className="text-[#ea580c] hover:underline font-bold">Masuk</Link>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-slate-100 flex justify-center items-center">
+              <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                Secured by <ChefHat className="w-3 h-3" /> Bolobake
+              </span>
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input 
-                required
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 h-12 bg-secondary/50 border-border"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="relative">
-              <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
-              <Input 
-                required
-                type="password"
-                placeholder="Kode Verifikasi Rahasia"
-                value={secretCode}
-                onChange={(e) => setSecretCode(e.target.value)}
-                className="pl-10 h-12 bg-amber-500/5 border-amber-500/30 focus-visible:ring-amber-500"
-              />
-            </div>
-            <p className="text-[11px] text-muted-foreground px-1">Masukkan kode undangan / rahasia yang diberikan oleh tim manajemen.</p>
-          </div>
-
-          <Button 
-            type="submit" 
-            disabled={loading || !!success}
-            className="w-full h-12 font-bold text-base mt-4 shadow-md shadow-primary/20"
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Buat Akun Admin'}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          Sudah punya akun? <Link href="/login" className="text-primary hover:underline font-bold">Kembali ke Login</Link>
         </div>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
 }

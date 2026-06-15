@@ -6,27 +6,30 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json();
+    const { email, password } = await request.json();
 
-    if (!username || !password) {
-      return NextResponse.json({ success: false, message: 'Harap masukkan username dan password.' }, { status: 400 });
+    if (!email || !password) {
+      return NextResponse.json({ success: false, message: 'Harap masukkan email dan password.' }, { status: 400 });
     }
 
     const admins = await getAdmins();
-    const admin = admins.find(a => a.username.toLowerCase() === username.toLowerCase());
+    const admin = admins.find(a => (a.email?.toLowerCase() === email.toLowerCase()) || (a.username?.toLowerCase() === email.toLowerCase()));
 
     if (!admin) {
-      return NextResponse.json({ success: false, message: 'Username atau password salah.' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Email atau password salah.' }, { status: 401 });
     }
 
     const passwordMatch = await bcrypt.compare(password, admin.passwordHash);
     if (!passwordMatch) {
-      return NextResponse.json({ success: false, message: 'Username atau password salah.' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Email atau password salah.' }, { status: 401 });
     }
 
     // Generate token
     const token = await signToken({
-      username: admin.username,
+      username: admin.email || admin.username, // keep username claim for backwards compatibility in other routes
+      email: admin.email || admin.username,
+      firstName: admin.firstName,
+      lastName: admin.lastName,
       avatarUrl: admin.avatarUrl
     });
 
@@ -45,7 +48,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       message: 'Login berhasil.',
-      user: { username: admin.username, avatarUrl: admin.avatarUrl }
+      user: { username: admin.email || admin.username, email: admin.email, firstName: admin.firstName, lastName: admin.lastName, avatarUrl: admin.avatarUrl }
     });
   } catch (error: any) {
     console.error('Login error:', error);
