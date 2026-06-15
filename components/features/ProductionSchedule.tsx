@@ -230,26 +230,26 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
             <h2 className="font-bold text-sm uppercase tracking-wider print:text-xl print:border-b-2 print:border-black print:pb-1">Sisa Target Produksi</h2>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 print:hidden">
-            <div className="flex bg-slate-100 p-1 rounded-lg justify-between sm:justify-start">
+            <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg justify-between sm:justify-start">
               <button 
                 onClick={() => setViewMode('target')}
-                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === 'target' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === 'target' ? 'bg-white dark:bg-slate-800 text-primary dark:text-primary-foreground shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
               >
                 Target Produk
               </button>
               <button 
                 onClick={() => setViewMode('bom')}
-                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === 'bom' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                className={`flex-1 sm:flex-none px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === 'bom' ? 'bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'}`}
               >
                 Kebutuhan Bahan
               </button>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setIsReportModalOpen(true)} className="flex-1 sm:flex-none h-8 font-bold text-xs gap-2 border-primary/20 hover:bg-white">
+              <Button variant="outline" size="sm" onClick={() => setIsReportModalOpen(true)} className="flex-1 sm:flex-none h-8 font-bold text-xs gap-2 border-primary/20 hover:bg-white dark:hover:bg-slate-800">
                 <ClipboardList className="w-3.5 h-3.5" />
                 Laporan
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)} className="flex-1 sm:flex-none h-8 font-bold text-xs gap-2 border-primary/20 hover:bg-white">
+              <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)} className="flex-1 sm:flex-none h-8 font-bold text-xs gap-2 border-primary/20 hover:bg-white dark:hover:bg-slate-800">
                 <Printer className="w-3.5 h-3.5" />
                 Cetak
               </Button>

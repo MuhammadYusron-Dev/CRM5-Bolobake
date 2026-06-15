@@ -261,55 +261,55 @@ export function BomCalculator({
                     <h3 className="font-bold text-lg text-primary">{editingSku}</h3>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border">
+                  <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border dark:border-slate-800">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600">Base Dough (Nama Adonan)</label>
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300">Base Dough (Nama Adonan)</label>
                       <input 
                         type="text" 
                         value={tempRecipe.baseDough} 
                         onChange={e => setTempRecipe({...tempRecipe, baseDough: e.target.value})}
                         placeholder="Cth: Adonan Croissant"
-                        className="w-full h-9 px-3 rounded-md border bg-white text-sm focus:ring-1 focus:ring-primary"
+                        className="w-full h-9 px-3 rounded-md border dark:border-slate-700 bg-white dark:bg-slate-950 text-sm dark:text-slate-100 focus:ring-1 focus:ring-primary"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600">Berat per Pcs (gram)</label>
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300">Berat per Pcs (gram)</label>
                       <input 
                         type="number" 
                         value={tempRecipe.doughWeight || ''} 
                         onChange={e => setTempRecipe({...tempRecipe, doughWeight: parseFloat(e.target.value) || 0})}
                         placeholder="Cth: 75"
-                        className="w-full h-9 px-3 rounded-md border bg-white text-sm focus:ring-1 focus:ring-primary"
+                        className="w-full h-9 px-3 rounded-md border dark:border-slate-700 bg-white dark:bg-slate-950 text-sm dark:text-slate-100 focus:ring-1 focus:ring-primary"
                       />
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border">
+                  <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border dark:border-slate-800">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600">Lama Panggang (Menit)</label>
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300">Lama Panggang (Menit)</label>
                       <input 
                         type="number" 
                         value={tempRecipe.bakeTime || ''} 
                         onChange={e => setTempRecipe({...tempRecipe, bakeTime: parseFloat(e.target.value) || 0})}
                         placeholder="Cth: 15"
-                        className="w-full h-9 px-3 rounded-md border bg-white text-sm focus:ring-1 focus:ring-primary"
+                        className="w-full h-9 px-3 rounded-md border dark:border-slate-700 bg-white dark:bg-slate-950 text-sm dark:text-slate-100 focus:ring-1 focus:ring-primary"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-600">Kapasitas Oven (Pcs per Batch)</label>
+                      <label className="text-xs font-bold text-slate-600 dark:text-slate-300">Kapasitas Oven (Pcs per Batch)</label>
                       <input 
                         type="number" 
                         value={tempRecipe.ovenCapacity || ''} 
                         onChange={e => setTempRecipe({...tempRecipe, ovenCapacity: parseFloat(e.target.value) || 0})}
                         placeholder="Cth: 20"
-                        className="w-full h-9 px-3 rounded-md border bg-white text-sm focus:ring-1 focus:ring-primary"
+                        className="w-full h-9 px-3 rounded-md border dark:border-slate-700 bg-white dark:bg-slate-950 text-sm dark:text-slate-100 focus:ring-1 focus:ring-primary"
                       />
                     </div>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-bold text-slate-700">Kebutuhan Bahan Tambahan per Pcs (Opsional)</h4>
+                      <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200">Kebutuhan Bahan Tambahan per Pcs (Opsional)</h4>
                       <Button 
                         size="sm" 
                         variant="ghost" 
@@ -326,7 +326,7 @@ export function BomCalculator({
                     </div>
                     
                     {tempRecipe.ingredients.length === 0 ? (
-                      <div className="text-xs text-slate-400 italic bg-slate-50 p-3 rounded border border-dashed text-center">
+                      <div className="text-xs text-slate-400 dark:text-slate-500 italic bg-slate-50 dark:bg-slate-900/50 p-3 rounded border dark:border-slate-800 border-dashed text-center">
                         Tidak ada bahan tambahan. (Hanya pakai base dough)
                       </div>
                     ) : (
@@ -342,7 +342,7 @@ export function BomCalculator({
                                 setTempRecipe({...tempRecipe, ingredients: newIng});
                               }}
                               placeholder="Nama bahan"
-                              className="flex-1 h-8 px-2 rounded border text-sm"
+                              className="flex-1 h-8 px-2 rounded border dark:border-slate-700 bg-white dark:bg-slate-950 dark:text-slate-100 text-sm"
                             />
                             <input 
                               type="number" 
@@ -353,7 +353,7 @@ export function BomCalculator({
                                 setTempRecipe({...tempRecipe, ingredients: newIng});
                               }}
                               placeholder="Jumlah"
-                              className="w-20 h-8 px-2 rounded border text-sm"
+                              className="w-20 h-8 px-2 rounded border dark:border-slate-700 bg-white dark:bg-slate-950 dark:text-slate-100 text-sm"
                             />
                             <input 
                               type="text" 
@@ -364,7 +364,7 @@ export function BomCalculator({
                                 setTempRecipe({...tempRecipe, ingredients: newIng});
                               }}
                               placeholder="Satuan"
-                              className="w-20 h-8 px-2 rounded border text-sm"
+                              className="w-20 h-8 px-2 rounded border dark:border-slate-700 bg-white dark:bg-slate-950 dark:text-slate-100 text-sm"
                             />
                             <Button 
                               variant="ghost" 
@@ -398,7 +398,7 @@ export function BomCalculator({
               )}
             </div>
           </div>
-          <DialogFooter className="p-4 border-t bg-slate-50">
+          <DialogFooter className="p-4 border-t dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
             <Button variant="outline" onClick={() => setIsRecipeModalOpen(false)}>Tutup</Button>
           </DialogFooter>
         </DialogContent>

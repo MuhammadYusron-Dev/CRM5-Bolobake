@@ -284,7 +284,7 @@ export function HistoryTable({
                           ) : item.sku}
                           {item.isSplitInvoice && <span className="text-[10px] text-orange-600 border border-orange-500 bg-orange-50 px-1 rounded ml-1.5 font-bold">[Pisah Nota]</span>}
                         </span>
-                        <span className="text-muted-foreground">{formatRp(item.qty * item.price)}</span>
+                        <span className="text-muted-foreground">{formatRp(item.qty * (item.sku.endsWith(' (sample)') ? 0 : item.price))}</span>
                       </div>
                     ))}
                     {order.shippingCost > 0 && (
@@ -389,8 +389,8 @@ export function HistoryTable({
                         <tr key={idx} className="border-b border-dashed border-slate-200 print:border-black/50">
                           <td className="py-2 pr-2 print:py-1">{item.sku}</td>
                           <td className="py-2 text-center print:py-1">{item.qty}</td>
-                          <td className="py-2 text-right print:py-1">{formatRp(item.price)}</td>
-                          <td className="py-2 text-right print:py-1">{formatRp(item.qty * item.price)}</td>
+                          <td className="py-2 text-right print:py-1">{formatRp(item.sku.endsWith(' (sample)') ? 0 : item.price)}</td>
+                          <td className="py-2 text-right print:py-1">{formatRp(item.qty * (item.sku.endsWith(' (sample)') ? 0 : item.price))}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -400,7 +400,7 @@ export function HistoryTable({
                 <div className="flex flex-col items-end text-sm text-black space-y-1 pt-2 print:text-[10px] print:pt-1">
                   <div className="flex justify-between w-48 print:w-40">
                     <span>Subtotal:</span>
-                    <span>{formatRp(printingOrder.items.filter(i => !i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0))}</span>
+                    <span>{formatRp(printingOrder.items.filter(i => !i.isSplitInvoice).reduce((acc, i) => acc + ((i.sku.endsWith(' (sample)') ? 0 : i.price) * i.qty), 0))}</span>
                   </div>
                   <div className="flex justify-between w-48 print:w-40 border-b border-slate-300 print:border-black pb-2 print:pb-1">
                     <span>Ongkir:</span>
@@ -408,7 +408,7 @@ export function HistoryTable({
                   </div>
                   <div className="flex justify-between w-48 print:w-40 font-bold pt-1 text-lg print:text-sm">
                     <span>Total:</span>
-                    <span>{formatRp(printingOrder.items.filter(i => !i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0) + printingOrder.shippingCost)}</span>
+                    <span>{formatRp(printingOrder.items.filter(i => !i.isSplitInvoice).reduce((acc, i) => acc + ((i.sku.endsWith(' (sample)') ? 0 : i.price) * i.qty), 0) + printingOrder.shippingCost)}</span>
                   </div>
                 </div>
                 
@@ -456,8 +456,8 @@ export function HistoryTable({
                           <tr key={idx} className="border-b border-dashed border-slate-200 print:border-black/50">
                             <td className="py-2 pr-2 print:py-1">{item.sku}</td>
                             <td className="py-2 text-center print:py-1">{item.qty}</td>
-                            <td className="py-2 text-right print:py-1">{formatRp(item.price)}</td>
-                            <td className="py-2 text-right print:py-1">{formatRp(item.qty * item.price)}</td>
+                            <td className="py-2 text-right print:py-1">{formatRp(item.sku.endsWith(' (sample)') ? 0 : item.price)}</td>
+                            <td className="py-2 text-right print:py-1">{formatRp(item.qty * (item.sku.endsWith(' (sample)') ? 0 : item.price))}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -467,7 +467,7 @@ export function HistoryTable({
                   <div className="flex flex-col items-end text-sm text-black space-y-1 pt-2 print:text-[10px] print:pt-1">
                     <div className="flex justify-between w-48 print:w-40">
                       <span>Subtotal:</span>
-                      <span>{formatRp(printingOrder.items.filter(i => i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0))}</span>
+                      <span>{formatRp(printingOrder.items.filter(i => i.isSplitInvoice).reduce((acc, i) => acc + ((i.sku.endsWith(' (sample)') ? 0 : i.price) * i.qty), 0))}</span>
                     </div>
                     <div className="flex justify-between w-48 print:w-40 border-b border-slate-300 print:border-black pb-2 print:pb-1">
                       <span>Ongkir:</span>
@@ -475,7 +475,7 @@ export function HistoryTable({
                     </div>
                     <div className="flex justify-between w-48 print:w-40 font-bold pt-1 text-lg print:text-sm">
                       <span>Total:</span>
-                      <span>{formatRp(printingOrder.items.filter(i => i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0))}</span>
+                      <span>{formatRp(printingOrder.items.filter(i => i.isSplitInvoice).reduce((acc, i) => acc + ((i.sku.endsWith(' (sample)') ? 0 : i.price) * i.qty), 0))}</span>
                     </div>
                   </div>
                   

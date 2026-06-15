@@ -277,7 +277,10 @@ export function OrderForm({
     if (items.length > 1) setItems(items.filter(item => item.id !== id));
   };
 
-  const subtotal = items.reduce((sum, item) => sum + (Number(item.price) * Number(item.qty)), 0);
+  const subtotal = items.reduce((sum, item) => {
+    const effectivePrice = item.isSample ? 0 : Number(item.price);
+    return sum + (effectivePrice * Number(item.qty));
+  }, 0);
   const finalShipping = isFreeShipping ? 0 : Number(shippingCost) || 0;
   const grandTotal = subtotal + finalShipping;
 
@@ -1055,7 +1058,7 @@ export function OrderForm({
                         {item.isSample && <span className="italic text-[10px] ml-1 text-primary">(sample)</span>}
                         {item.isSplitInvoice && <span className="italic text-[10px] ml-1 text-orange-500 font-bold">[Pisah Nota]</span>}
                       </span>
-                      <span className="text-[10px] text-muted-foreground">{formatRp(Number(item.price))}</span>
+                      <span className="text-[10px] text-muted-foreground">{item.isSample ? formatRp(0) : formatRp(Number(item.price))}</span>
                     </div>
                     <span className="font-bold bg-secondary px-2 py-1 rounded text-[10px]">{item.qty} pcs</span>
                   </div>
