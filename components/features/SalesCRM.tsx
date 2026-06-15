@@ -39,8 +39,6 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   const [isBlasting, setIsBlasting] = useState(false);
   const [apiToken, setApiToken] = useState<string>('SIMULATOR');
 
-  const [apiToken, setApiToken] = useState<string>('SIMULATOR');
-
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
   const rfmData = useMemo(() => {
