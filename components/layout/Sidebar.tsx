@@ -110,7 +110,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       <aside 
         className={`fixed md:static inset-y-0 left-0 z-50 bg-[#ea580c] text-white flex flex-col transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        } ${isCollapsed ? 'md:w-20' : 'w-64'}`}
+        } ${isCollapsed ? 'md:w-20' : 'w-72'}`}
       >
         <div className="p-4 flex items-center justify-between h-16 shrink-0 mt-2">
           <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'px-2'}`}>
@@ -162,13 +162,13 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
             <ThemeToggle isCollapsed={isCollapsed} />
           </div>
 
-          <div className={`flex items-center gap-1 transition-all w-full ${isCollapsed ? 'justify-center flex-col' : ''}`}>
+          <div className={`flex items-start gap-1 transition-all w-full ${isCollapsed ? 'justify-center flex-col items-center' : ''}`}>
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-3 hover:bg-white/10 p-2 rounded-xl transition-all flex-1 min-w-0 text-left group"
+              className="flex items-start gap-3 hover:bg-white/10 p-2 rounded-xl transition-all flex-1 min-w-0 text-left group"
               title="Pengaturan Profil"
             >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden transition-all">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden transition-all mt-0.5">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -176,17 +176,17 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                 )}
               </div>
               {!isCollapsed && (
-                <div className="flex flex-col flex-1 min-w-0 overflow-hidden text-white gap-0.5">
-                  <span className="text-sm font-bold truncate block">{user?.fullName || user?.username || 'Admin'}</span>
-                  <span className="text-[10px] text-white/90 truncate block">{user?.email || user?.username}</span>
-                  <div className="flex items-center mt-0.5">
-                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white">Owner</span>
+                <div className="flex flex-col flex-1 min-w-0 text-white gap-0.5">
+                  <span className="text-sm font-bold break-words leading-tight">{user?.fullName || user?.username || 'Admin'}</span>
+                  <span className="text-[10px] text-white/90 break-all leading-tight">{user?.email || user?.username}</span>
+                  <div className="flex items-center mt-1">
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm">Owner</span>
                   </div>
                 </div>
               )}
             </button>
             {!isCollapsed && (
-              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0" title="Keluar">
+              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0 mt-1" title="Keluar">
                 <LogOut className="w-5 h-5" />
               </button>
             )}
