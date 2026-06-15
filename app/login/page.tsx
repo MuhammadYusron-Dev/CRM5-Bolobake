@@ -114,17 +114,22 @@ export default function LoginPage() {
             </p>
 
             {/* Float Mockup Container Without Frame */}
-            <div className="w-full max-w-3xl aspect-[4/3] sm:aspect-video lg:aspect-[16/10] relative mt-4">
-              <div className="w-full h-full relative">
+            <div className="w-full relative mt-4 perspective-1000">
+              <div className="w-full relative">
                 {slides.map((slide, i) => (
                   <div
                     key={i}
-                    className={`absolute inset-0 transition-all duration-1000 ease-out ${i === currentSlide ? 'opacity-100 z-10 translate-y-0 scale-100' : 'opacity-0 z-0 translate-y-8 scale-95'}`}
+                    className={`transition-all duration-1000 ease-out ${i === currentSlide ? 'opacity-100 z-10 translate-y-0 scale-100 relative' : 'opacity-0 z-0 translate-y-8 scale-95 absolute inset-0'}`}
                   >
                     <img 
                       src={slide.img} 
                       alt={slide.title} 
-                      className="w-full h-full object-cover object-left-top rounded-xl shadow-2xl animate-float border border-white/10" 
+                      className="w-full h-auto object-contain rounded-xl shadow-2xl animate-float border border-white/10" 
+                      style={{ 
+                        imageRendering: 'high-quality', 
+                        transform: 'translateZ(0)', 
+                        willChange: 'transform' 
+                      }}
                     />
                   </div>
                 ))}
