@@ -409,7 +409,7 @@ export function OrderManager({
     switch (activeMenu) {
       case 'dashboard':
         return (
-          <div className="max-w-7xl mx-auto space-y-4">
+          <div className="w-full mx-auto space-y-4">
             <div className="relative z-50 flex items-center justify-between mb-4 bg-card/50 p-4 rounded-2xl border border-border/50 shadow-sm backdrop-blur-sm">
               <div className="flex items-center gap-2.5 text-sm font-semibold">
                 <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-lg border border-primary/20 shadow-sm">
@@ -429,7 +429,7 @@ export function OrderManager({
         );
       case 'history':
         return (
-          <div className="max-w-7xl mx-auto">
+          <div className="w-full mx-auto">
               <HistoryTable 
                 orderHistory={orderHistory}
                 editingOrderId={editingOrder?.id || null}
@@ -460,7 +460,7 @@ export function OrderManager({
       case 'new_order':
       default:
         return (
-          <div className="max-w-5xl mx-auto">
+          <div className="w-full mx-auto">
               <OrderForm 
                 katalog={katalog}
                 customers={customers}
