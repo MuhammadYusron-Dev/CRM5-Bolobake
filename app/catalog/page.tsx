@@ -472,27 +472,34 @@ export default function CatalogPage() {
 
       {/* --- HEADER --- */}
       <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-6">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Kembali
-            </Link>
-            <div className="h-6 w-px bg-secondary/80"></div>
-            <div className="flex items-center gap-2">
-              <ChefHat className="w-7 h-7 text-primary" />
-              <h1 className="text-2xl font-bold">Catalog Manager</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <div className="flex items-center gap-2 sm:gap-6 min-w-0">
+              <Link
+                href="/"
+                className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-primary transition-colors shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Kembali</span>
+              </Link>
+              <div className="h-5 sm:h-6 w-px bg-secondary/80 mx-1 sm:mx-0"></div>
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <ChefHat className="w-5 h-5 sm:w-7 sm:h-7 text-primary shrink-0" />
+                <h1 className="text-lg sm:text-2xl font-bold truncate">Catalog Manager</h1>
+              </div>
+            </div>
+            <div className="sm:hidden shrink-0 ml-2">
+              <CatalogTutorial />
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 text-primary px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-              <Package className="w-4 h-4" />
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="bg-primary/10 text-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 flex-1 sm:flex-none">
+              <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
               {catalog.length} SKU Terdaftar
             </div>
-            <CatalogTutorial />
+            <div className="hidden sm:block">
+              <CatalogTutorial />
+            </div>
           </div>
         </div>
       </header>

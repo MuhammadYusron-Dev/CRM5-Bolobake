@@ -596,60 +596,73 @@ export function OrderForm({
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto items-end">
-                      <div className="flex-1 sm:w-20">
-                        <label className="block text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Qty</label>
-                        <Input
-                          type="number" min="1" required
-                          value={item.qty}
-                          onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
-                          className="text-center"
-                        />
-                      </div>
-                      <div className="flex-[2] relative group/price">
-                        <label className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">
-                          Harga Satuan
-                          {isTierPrice && <span className="bg-primary text-primary-foreground text-[8px] px-1 rounded">TIER</span>}
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto items-start sm:items-end">
+                      <div className="flex w-full sm:w-auto gap-2 sm:gap-3 items-end">
+                        <div className="w-16 sm:w-20 shrink-0">
+                          <label className="block text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Qty</label>
                           <Input
-                            type="number" min="0" required
-                            value={item.price}
-                            onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
-                            className="pl-8"
+                            type="number" min="1" required
+                            value={item.qty}
+                            onChange={(e) => handleItemChange(item.id, 'qty', e.target.value)}
+                            className="text-center px-1"
                           />
                         </div>
+                        <div className="flex-1 min-w-0 relative group/price">
+                          <label className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider truncate">
+                            Harga Satuan
+                            {isTierPrice && <span className="bg-primary text-primary-foreground text-[8px] px-1 rounded shrink-0">TIER</span>}
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">Rp</span>
+                            <Input
+                              type="number" min="0" required
+                              value={item.price}
+                              onChange={(e) => handleItemChange(item.id, 'price', e.target.value)}
+                              className="pl-7 pr-2"
+                            />
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          type="button" variant="ghost" size="icon"
+                          onClick={() => handleRemoveItem(item.id)} 
+                          disabled={items.length === 1}
+                          className={`mb-0.5 hover:bg-destructive/10 hover:text-destructive shrink-0 sm:hidden ${items.length === 1 ? 'opacity-50' : 'text-destructive/70'}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                       
-                      <Button
-                        type="button"
-                        variant={item.isSample ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleItemChange(item.id, 'isSample', !item.isSample)}
-                        className={`mb-0.5 h-10 px-3 text-xs font-semibold ${item.isSample ? 'bg-primary text-primary-foreground border-primary' : 'text-muted-foreground hover:bg-primary/10'}`}
-                      >
-                        Sample
-                      </Button>
+                      <div className="flex w-full sm:w-auto gap-2 sm:gap-3 items-end mt-1 sm:mt-0">
+                        <Button
+                          type="button"
+                          variant={item.isSample ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleItemChange(item.id, 'isSample', !item.isSample)}
+                          className={`mb-0.5 h-10 px-3 text-xs font-semibold flex-1 sm:flex-none ${item.isSample ? 'bg-primary text-primary-foreground border-primary' : 'text-muted-foreground hover:bg-primary/10'}`}
+                        >
+                          Sample
+                        </Button>
 
-                      <Button
-                        type="button"
-                        variant={item.isSplitInvoice ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleItemChange(item.id, 'isSplitInvoice', !item.isSplitInvoice)}
-                        className={`mb-0.5 h-10 px-3 text-xs font-semibold ${item.isSplitInvoice ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600' : 'text-muted-foreground hover:bg-orange-500/10'}`}
-                      >
-                        Pisah Nota
-                      </Button>
+                        <Button
+                          type="button"
+                          variant={item.isSplitInvoice ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleItemChange(item.id, 'isSplitInvoice', !item.isSplitInvoice)}
+                          className={`mb-0.5 h-10 px-3 text-[11px] sm:text-xs font-semibold flex-1 sm:flex-none whitespace-nowrap ${item.isSplitInvoice ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600' : 'text-muted-foreground hover:bg-orange-500/10'}`}
+                        >
+                          Pisah Nota
+                        </Button>
 
-                      <Button 
-                        type="button" variant="ghost" size="icon"
-                        onClick={() => handleRemoveItem(item.id)} 
-                        disabled={items.length === 1}
-                        className={`mb-0.5 hover:bg-destructive/10 hover:text-destructive ${items.length === 1 ? 'opacity-50' : 'text-destructive/70'}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        <Button 
+                          type="button" variant="ghost" size="icon"
+                          onClick={() => handleRemoveItem(item.id)} 
+                          disabled={items.length === 1}
+                          className={`mb-0.5 hover:bg-destructive/10 hover:text-destructive shrink-0 hidden sm:flex ${items.length === 1 ? 'opacity-50' : 'text-destructive/70'}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   
