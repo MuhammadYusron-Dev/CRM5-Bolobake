@@ -37,7 +37,7 @@ export function ProductionBoard({ initialOrders }: { initialOrders: any[] }) {
   ];
 
   return (
-    <div className="h-full flex flex-col -m-4 sm:-m-6 lg:-m-8">
+    <div className="h-full flex flex-col">
       <KanbanBoard 
         initialOrders={initialOrders}
         columns={columns}
