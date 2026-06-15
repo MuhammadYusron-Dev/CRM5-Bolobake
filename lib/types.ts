@@ -13,6 +13,8 @@ export interface OrderItem {
   briocheCut?: string;
   bagelSplit?: string;
   bagelSplitType?: string;
+  sampleFeedback?: string;
+  sampleStatus?: string;
 }
 
 export type OrderStatus = 'Pesanan Dibuat' | 'Dikonfirmasi' | 'Produksi' | 'Packing' | 'Delivery' | 'Diterima';
