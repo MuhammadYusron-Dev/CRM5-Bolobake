@@ -23,7 +23,7 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
   const toggleExpand = (key: string) => {
-    setExpandedItems(prev => ({ ...prev, [key]: !prev[key] }));
+    setExpandedItems(prev => prev[key] ? {} : { [key]: true });
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
