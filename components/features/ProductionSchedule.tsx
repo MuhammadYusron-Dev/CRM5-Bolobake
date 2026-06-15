@@ -12,7 +12,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 
 export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }) {
-  const { data: orders = initialOrders } = useSWR('/api/orders', fetcher, { fallbackData: initialOrders });
+  const { data: orders = initialOrders } = useSWR<Order[]>('/api/orders', fetcher, { fallbackData: initialOrders });
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [rejects, setRejects] = useState<Record<string, number>>({});
   const [assignees, setAssignees] = useState<Record<string, string>>({});
@@ -108,7 +108,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
       return newState;
     });
   };
-  const scheduleData = useMemo(() => {
+  const scheduleData = useMemo<{ dateKey: string; items: [string, { qty: number; notes: string[] }][] }[]>(() => {
     const startObj = new Date(startDate);
     startObj.setHours(0, 0, 0, 0);
     const endObj = new Date(endDate);
@@ -156,7 +156,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
       const sortedItems = Object.entries(items).sort(([, a], [, b]) => b.qty - a.qty);
       return { dateKey, items: sortedItems };
     });
-  }, [orders]);
+  }, [orders, startDate, endDate]);
 
   const handlePrint = () => {
     setIsModalOpen(false);

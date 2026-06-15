@@ -40,7 +40,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
     setIsUpdating(orderId);
     
     // Find the order
-    const orderIndex = orders.findIndex(o => o.id === orderId);
+    const orderIndex = orders.findIndex((o: Order) => o.id === orderId);
     if (orderIndex === -1) {
       setIsUpdating(null);
       return;
@@ -48,7 +48,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
     const order = orders[orderIndex];
 
     // Optimistic UI
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    mutate(orders.map((o: Order) => o.id === orderId ? { ...o, status: newStatus } : o), false);
 
     try {
       const response = await fetch('/api/orders', {
@@ -119,13 +119,13 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
       {/* View Switcher */}
       {showOverview && activeView === 'schedule' ? (
         <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950">
-          <ProductionSchedule orders={orders} />
+          <ProductionSchedule initialOrders={orders} />
         </div>
       ) : (
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 sm:p-6 print:hidden snap-x snap-mandatory scroll-smooth custom-scrollbar">
         <div className="flex h-full gap-4 sm:gap-6 items-start w-full min-w-max pb-2 sm:pb-0">
           {columns.map((col) => {
-            const colOrders = orders.filter(o => col.statuses.includes(o.status || 'Pesanan Dibuat'));
+            const colOrders = orders.filter((o: Order) => col.statuses.includes(o.status || 'Pesanan Dibuat'));
             
             return (
               <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
@@ -152,7 +152,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                       Kosong
                     </div>
                   ) : (
-                    colOrders.map(order => (
+                    colOrders.map((order: Order) => (
                       <Card 
                         key={order.id} 
                         draggable={true}
@@ -171,7 +171,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                           </div>
                           
                           <div className="bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border">
-                            {(order.items || []).map((item, idx) => (
+                            {(order.items || []).map((item: any, idx: number) => (
                               <div key={idx} className="flex justify-between gap-2">
                                 <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
                                   {item.qty}x {item.sku.replace(' (sample)', '')}
@@ -225,7 +225,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
       {/* Footer / Info */}
       <div className="min-h-8 h-auto py-1.5 sm:py-0 bg-slate-900 text-slate-400 text-[10px] flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 font-medium shrink-0 print:hidden gap-1 sm:gap-0">
         <span className="truncate sm:whitespace-normal">Sinkronisasi realtime. Status otomatis tercatat.</span>
-        <span className="flex items-center gap-1.5 shrink-0" suppressHydrationWarning><RotateCcw className="w-3 h-3" /> Update: {lastSync}</span>
+        <span className="flex items-center gap-1.5 shrink-0" suppressHydrationWarning><RotateCcw className="w-3 h-3" /> Update: {new Date().toLocaleTimeString('id-ID')}</span>
       </div>
     </div>
   );

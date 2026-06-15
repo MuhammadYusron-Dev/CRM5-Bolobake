@@ -473,11 +473,11 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                             <h3 className="font-bold mb-3 flex items-center justify-between">
                                 {status}
                                 <span className="bg-slate-200 dark:bg-slate-800 text-xs px-2 py-1 rounded-full text-slate-600 dark:text-slate-400">
-                                    {leads.filter(l => l.status === status).length}
+                                    {leads.filter((l: any) => l.status === status).length}
                                 </span>
                             </h3>
                             <div className="space-y-3 min-h-[500px]">
-                                {leads.filter(l => l.status === status).map(lead => (
+                                {leads.filter((l: any) => l.status === status).map((lead: any) => (
                                     <Card key={lead.id} className="cursor-pointer border-border hover:border-primary transition-colors">
                                         <CardContent className="p-3">
                                             <div className="flex justify-between items-start mb-1">

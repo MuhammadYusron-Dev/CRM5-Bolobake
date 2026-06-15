@@ -18,7 +18,7 @@ interface SampleTrackerProps {
 }
 
 export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: SampleTrackerProps) {
-  const { data: initialOrders = serverOrders, mutate } = useSWR('/api/orders', fetcher, { fallbackData: serverOrders });
+  const { data: initialOrders = serverOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { fallbackData: serverOrders });
   const [activeMenu, setActiveMenu] = useState('samples');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
@@ -194,11 +194,11 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
     setIsSavingFeedback(true);
 
     try {
-      const orderIndex = initialOrders.findIndex(o => o.id === feedbackModal.orderId);
+      const orderIndex = initialOrders.findIndex((o: Order) => o.id === feedbackModal.orderId);
       if (orderIndex === -1) throw new Error("Order not found");
       const order = initialOrders[orderIndex];
 
-      const updatedItems = order.items.map(item => {
+      const updatedItems = order.items!.map((item: any) => {
         if (item.sku === feedbackModal.sku) {
           return {
             ...item,
@@ -219,7 +219,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
 
       if (!response.ok) throw new Error("Failed to save feedback");
 
-      setInitialOrders(prev => prev.map(o => o.id === feedbackModal.orderId ? updatedOrder : o));
+      mutate(initialOrders.map((o: Order) => o.id === feedbackModal.orderId ? updatedOrder : o), false);
       setFeedbackModal(null);
     } catch (error) {
       console.error(error);
@@ -491,6 +491,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
                               size="sm" 
                               className="h-7 text-[10px] font-bold px-2"
                               onClick={() => setFeedbackModal({
+                                isOpen: true,
                                 orderId: item.orderId,
                                 sku: item.originalSku,
                                 customer: item.customer,
