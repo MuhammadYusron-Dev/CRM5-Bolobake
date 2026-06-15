@@ -39,7 +39,7 @@
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #D4A847; }
+::-webkit-scrollbar-thumb:hover { background: #2563eb; }
 
 body {
   background: var(--color-background);

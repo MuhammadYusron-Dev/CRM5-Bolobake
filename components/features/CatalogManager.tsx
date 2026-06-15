@@ -449,7 +449,7 @@ export function CatalogManager() {
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #D4A847; }
+        ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
       `}</style>
 
 
@@ -682,7 +682,7 @@ export function CatalogManager() {
                 onDragOver={(e) => { e.preventDefault(); if (!isScanning) setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { if (!isScanning) handleDrop(e); else { e.preventDefault(); } }}
-                className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-12 text-center transition-all ${isScanning ? 'cursor-wait border-[#D4A847] bg-primary/5' : 'cursor-pointer'} ${!isScanning && dragOver ? "border-[#D4A847] bg-primary/5 scale-[1.01]" : ""} ${!isScanning && !dragOver ? "border-border hover:border-primary/50 hover:bg-secondary" : ""}`}
+                className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-12 text-center transition-all ${isScanning ? 'cursor-wait border-[#2563eb] bg-primary/5' : 'cursor-pointer'} ${!isScanning && dragOver ? "border-[#2563eb] bg-primary/5 scale-[1.01]" : ""} ${!isScanning && !dragOver ? "border-border hover:border-primary/50 hover:bg-secondary" : ""}`}
               >
                 <input
                   type="file"

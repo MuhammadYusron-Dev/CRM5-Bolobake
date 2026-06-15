@@ -329,32 +329,32 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
         <div className="space-y-6">
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="bg-white dark:bg-slate-900 shadow-sm border-border">
+                <Card className="bg-gradient-to-br from-blue-600 to-cyan-500 border-0 shadow-lg">
                     <CardContent className="p-4 flex flex-col justify-center items-center text-center">
-                        <Crown className="w-8 h-8 text-amber-500 mb-2" />
-                        <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{rfmData.summary.champions}</h4>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mt-1">Champions</p>
+                        <Crown className="w-8 h-8 text-white/90 mb-2" />
+                        <h4 className="text-2xl font-bold text-white">{rfmData.summary.champions}</h4>
+                        <p className="text-xs text-white/80 uppercase font-bold tracking-wider mt-1">Champions</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-white dark:bg-slate-900 shadow-sm border-border">
+                <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-500 border-0 shadow-lg">
                     <CardContent className="p-4 flex flex-col justify-center items-center text-center">
-                        <Users className="w-8 h-8 text-blue-500 mb-2" />
-                        <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{rfmData.summary.loyal}</h4>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mt-1">Loyal</p>
+                        <Users className="w-8 h-8 text-white/90 mb-2" />
+                        <h4 className="text-2xl font-bold text-white">{rfmData.summary.loyal}</h4>
+                        <p className="text-xs text-white/80 uppercase font-bold tracking-wider mt-1">Loyal</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900 shadow-sm">
+                <Card className="bg-gradient-to-br from-orange-500 to-red-500 border-0 shadow-lg">
                     <CardContent className="p-4 flex flex-col justify-center items-center text-center">
-                        <AlertTriangle className="w-8 h-8 text-red-500 mb-2" />
-                        <h4 className="text-2xl font-bold text-red-700 dark:text-red-400">{rfmData.summary.atRisk}</h4>
-                        <p className="text-xs text-red-600/80 dark:text-red-400/80 uppercase font-bold tracking-wider mt-1">At Risk (&gt;14 Hari)</p>
+                        <AlertTriangle className="w-8 h-8 text-white/90 mb-2" />
+                        <h4 className="text-2xl font-bold text-white">{rfmData.summary.atRisk}</h4>
+                        <p className="text-xs text-white/80 uppercase font-bold tracking-wider mt-1">At Risk (&gt;14 Hari)</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-100 dark:bg-slate-800 border-border shadow-sm">
+                <Card className="bg-gradient-to-br from-slate-600 to-slate-800 border-0 shadow-lg">
                     <CardContent className="p-4 flex flex-col justify-center items-center text-center">
-                        <UserMinus className="w-8 h-8 text-slate-500 mb-2" />
-                        <h4 className="text-2xl font-bold text-slate-700 dark:text-slate-300">{rfmData.summary.hibernating}</h4>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mt-1">Hibernating</p>
+                        <UserMinus className="w-8 h-8 text-white/70 mb-2" />
+                        <h4 className="text-2xl font-bold text-white">{rfmData.summary.hibernating}</h4>
+                        <p className="text-xs text-white/70 uppercase font-bold tracking-wider mt-1">Hibernating</p>
                     </CardContent>
                 </Card>
             </div>

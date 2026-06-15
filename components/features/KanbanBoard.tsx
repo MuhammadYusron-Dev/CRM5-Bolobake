@@ -83,9 +83,9 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
       <header className="min-h-16 h-auto py-3 sm:py-0 bg-white dark:bg-slate-900 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-6 shrink-0 shadow-sm z-10 gap-3 sm:gap-0 print:hidden">
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {icon === 'produksi' ? (
-            <ChefHat className="w-6 h-6 text-purple-600 shrink-0" />
+            <ChefHat className="w-6 h-6 text-violet-600 shrink-0" />
           ) : (
-            <PackageCheck className="w-6 h-6 text-orange-600 shrink-0" />
+            <PackageCheck className="w-6 h-6 text-blue-600 shrink-0" />
           )}
           <div className="flex-1 min-w-0">
             <h1 className="font-bold text-lg leading-tight truncate">Divisi {divisionName}</h1>
@@ -133,7 +133,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                 <div className={`p-4 rounded-t-2xl border-b flex flex-col gap-1.5 ${col.colorClass}`}>
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold">{col.title}</h3>
-                    <span className="bg-white/50 dark:bg-black/20 text-xs px-2 py-1 rounded-full font-bold shrink-0 ml-2">
+                    <span className="bg-white/30 text-white text-xs px-2 py-1 rounded-full font-bold shrink-0 ml-2 backdrop-blur-sm">
                       {colOrders.length}
                     </span>
                   </div>

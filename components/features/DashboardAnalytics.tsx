@@ -57,8 +57,8 @@ export function DashboardAnalytics({
   return (
     <div className="space-y-6 animate-in fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-primary text-primary-foreground relative overflow-hidden group border-0 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+        <Card className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div className="absolute -right-4 -top-4 opacity-15 group-hover:scale-110 transition-transform duration-500">
             <TrendingUp className="w-24 h-24" />
           </div>
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
@@ -70,12 +70,12 @@ export function DashboardAnalytics({
             </svg>
           </div>
           <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium">Total Omset</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/90">Total Omset</CardTitle>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
             {dashboard.trendText && (
-              <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/30 backdrop-blur-sm border border-white/40 mt-2 shadow-sm ${dashboard.trendText.startsWith('+') ? 'text-emerald-800' : 'text-rose-800'}`}>
+              <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/25 backdrop-blur-sm border border-white/30 mt-2 shadow-sm ${dashboard.trendText.startsWith('+') ? 'text-white' : 'text-rose-100'}`}>
                 {dashboard.trendText.startsWith('+') ? (
                   <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 7H7M17 7V17"/>
@@ -91,18 +91,18 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
+        <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-[0.05] animate-wave origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
                <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
             </svg>
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-[0.08] animate-wave-reverse origin-bottom text-amber-600" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-15 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
                <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
             </svg>
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Jumlah Transaksi</CardTitle>
-            <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl text-amber-600 dark:text-amber-400 group-hover:-translate-y-1 transition-transform shadow-sm">
+            <CardTitle className="text-sm font-medium text-white/90">Jumlah Transaksi</CardTitle>
+            <div className="p-3 bg-white/15 rounded-xl text-white group-hover:-translate-y-1 transition-transform shadow-sm backdrop-blur-sm">
               <ShoppingBag className="w-5 h-5" />
             </div>
           </CardHeader>
@@ -110,24 +110,29 @@ export function DashboardAnalytics({
             <div className="text-2xl font-bold">{dashboard.totalOrders}</div>
             <div className="flex items-center mt-1">
               <span className="relative flex h-2 w-2 mr-2">
-                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-400' : 'bg-slate-400'}`}></span>
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-500' : 'bg-slate-500'}`}></span>
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-300' : 'bg-white/50'}`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-400' : 'bg-white/60'}`}></span>
               </span>
-              <p className="text-xs text-muted-foreground">{dashboard.activeProductionOrders} pesanan sedang diproduksi</p>
+              <p className="text-xs text-white/80">{dashboard.activeProductionOrders} pesanan sedang diproduksi</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Produk</CardTitle>
-            <div className="p-3 bg-secondary rounded-xl text-primary group-hover:rotate-12 transition-transform shadow-sm">
+        <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
+            <CardTitle className="text-sm font-medium text-white/90">Total Produk</CardTitle>
+            <div className="p-3 bg-white/15 rounded-xl text-white group-hover:rotate-12 transition-transform shadow-sm backdrop-blur-sm">
               <Package className="w-5 h-5" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{dashboard.totalPcs}</div>
-            <p className="text-xs text-muted-foreground mt-1 mb-1">Rasio Croissant vs Cake</p>
+            <p className="text-xs text-white/80 mt-1 mb-1">Rasio Croissant vs Cake</p>
             {(() => {
               const croissant = dashboard.categorySales?.croissant || 0;
               const cake = dashboard.categorySales?.cake || 0;
@@ -136,9 +141,9 @@ export function DashboardAnalytics({
               const cakePct = total > 0 ? (cake / total) * 100 : 40;
 
               return (
-                <div className="w-full bg-secondary rounded-full h-1 mt-2 flex relative items-center">
-                   <div className="bg-amber-600 h-1 rounded-l-full transition-all duration-1000" style={{ width: `${croissantPct}%` }}></div>
-                   <div className="bg-amber-300 h-1 rounded-r-full transition-all duration-1000" style={{ width: `${cakePct}%` }}></div>
+                <div className="w-full bg-white/20 rounded-full h-1.5 mt-2 flex relative items-center">
+                   <div className="bg-white h-1.5 rounded-l-full transition-all duration-1000" style={{ width: `${croissantPct}%` }}></div>
+                   <div className="bg-white/40 h-1.5 rounded-r-full transition-all duration-1000" style={{ width: `${cakePct}%` }}></div>
                    
                    {/* Efek Sumbu Bom (Spark) */}
                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 transition-all duration-1000" style={{ left: `${croissantPct}%` }}>
@@ -160,17 +165,21 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-100 dark:border-slate-800 shadow-sm group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg relative overflow-hidden">
-
+        <Card className="bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-400 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
+            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-15 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
+               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
+            </svg>
+          </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Customer Aktif</CardTitle>
-            <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+            <CardTitle className="text-sm font-medium text-white/90">Customer Aktif</CardTitle>
+            <div className="p-3 bg-white/15 rounded-xl text-white group-hover:scale-110 transition-transform duration-300 shadow-sm backdrop-blur-sm">
               <Users className="w-5 h-5" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{dashboard.uniqueCustomers.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">{dashboard.newCustomersThisMonth} outlet baru bulan ini</p>
+            <p className="text-xs text-white/80 mt-1">{dashboard.newCustomersThisMonth} outlet baru bulan ini</p>
           </CardContent>
         </Card>
       </div>
@@ -180,7 +189,7 @@ export function DashboardAnalytics({
         <Card className="shadow-sm border-border/50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+              <span className="w-1.5 h-6 bg-gradient-to-b from-blue-600 to-cyan-500 rounded-full"></span>
               Performa Varian Terlaris
             </CardTitle>
           </CardHeader>
@@ -205,7 +214,7 @@ export function DashboardAnalytics({
                         </div>
                         <div className={`w-full bg-secondary rounded-full h-2.5 overflow-hidden ${idx === 0 ? 'shimmer-bar' : ''}`}>
                           <div 
-                            className={`bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full transition-all duration-1000 ease-out ${idx === 0 ? 'progress-striped relative' : ''}`}
+                            className={`h-2.5 rounded-full transition-all duration-1000 ease-out ${idx === 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-500 progress-striped relative' : idx === 1 ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
@@ -222,7 +231,7 @@ export function DashboardAnalytics({
           <CardHeader className="pb-3 border-b border-border/50">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <CardTitle className="text-lg flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-foreground rounded-full"></span>
+                <span className="w-1.5 h-6 bg-gradient-to-b from-violet-600 to-fuchsia-500 rounded-full"></span>
                 Top Customer
               </CardTitle>
               <div className="relative">

@@ -14,7 +14,7 @@ export function ProductionBoard({ initialOrders }: { initialOrders: any[] }) {
       statuses: ['Pesanan Dibuat'],
       actionLabel: 'Konfirmasi (Jadwalkan)',
       nextStatus: 'Dikonfirmasi',
-      colorClass: 'bg-slate-200/50 text-slate-800'
+      colorClass: 'bg-gradient-to-br from-blue-600 to-cyan-500 text-white border-transparent shadow-md'
     },
     {
       id: 'antrean',
@@ -23,7 +23,7 @@ export function ProductionBoard({ initialOrders }: { initialOrders: any[] }) {
       statuses: ['Dikonfirmasi'],
       actionLabel: 'Mulai Panggang',
       nextStatus: 'Produksi',
-      colorClass: 'bg-blue-100 text-blue-900 border-blue-200'
+      colorClass: 'bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white border-transparent shadow-md'
     },
     {
       id: 'produksi',
@@ -32,7 +32,7 @@ export function ProductionBoard({ initialOrders }: { initialOrders: any[] }) {
       statuses: ['Produksi'],
       actionLabel: 'Selesai & Oper ke Packing',
       nextStatus: 'Packing',
-      colorClass: 'bg-purple-100 text-purple-900 border-purple-200'
+      colorClass: 'bg-gradient-to-br from-orange-500 to-red-500 text-white border-transparent shadow-md'
     }
   ];
 

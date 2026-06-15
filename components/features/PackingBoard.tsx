@@ -12,7 +12,7 @@ export function PackingBoard({ initialOrders }: { initialOrders: any[] }) {
       statuses: ['Packing'],
       actionLabel: 'Kirim via Kurir',
       nextStatus: 'Delivery',
-      colorClass: 'bg-orange-100 text-orange-900 border-orange-200'
+      colorClass: 'bg-gradient-to-br from-blue-600 to-cyan-500 text-white border-transparent shadow-md'
     },
     {
       id: 'delivery',
@@ -20,13 +20,13 @@ export function PackingBoard({ initialOrders }: { initialOrders: any[] }) {
       statuses: ['Delivery'],
       actionLabel: 'Pesanan Diterima',
       nextStatus: 'Diterima',
-      colorClass: 'bg-teal-100 text-teal-900 border-teal-200'
+      colorClass: 'bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white border-transparent shadow-md'
     },
     {
       id: 'selesai',
       title: 'Selesai (Diterima)',
       statuses: ['Diterima'],
-      colorClass: 'bg-green-100 text-green-900 border-green-200'
+      colorClass: 'bg-gradient-to-br from-orange-500 to-red-500 text-white border-transparent shadow-md'
     }
   ];
 
