@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChefHat, Loader2, Eye, EyeOff } from 'lucide-react';
+import { ChefHat, Loader2, Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
@@ -19,6 +19,36 @@ export default function RegisterPage() {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    { 
+      img: "/login_slides/slide1.png", 
+      title: "Dashboard Analitik", 
+      desc: "Pantau Total Omzet, Jumlah Transaksi, Total Produk, Customer Aktif, Performa Varian Terlaris, dan Top Customer secara real-time."
+    },
+    { 
+      img: "/login_slides/slide2.png", 
+      title: "Buat Pesanan Baru", 
+      desc: "Proses pesanan kilat menggunakan Smart Text Parser AI (Gemini) dari chat pembeli, lengkapi Informasi Customer dan Detail Pesanan."
+    },
+    { 
+      img: "/login_slides/slide3.png", 
+      title: "Sales CRM", 
+      desc: "Pantau klasifikasi customer (Champions, Loyal, At Risk, Hibernating), dan gunakan Editor Pesan untuk Smart Broadcast ke Daftar Antrian."
+    },
+    { 
+      img: "/login_slides/slide4.png", 
+      title: "Tracking Sample", 
+      desc: "Analisis efektivitas sampel produk lewat Tingkat Konversi (ROI), Avg Time-to-Convert, Budget Terpakai, dan Top 5 Customer vs CLV."
+    },
+  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
@@ -90,60 +120,73 @@ export default function RegisterPage() {
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
       <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
-        {/* Left Side: Orange Banner */}
-        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-[#e65c00] to-[#ff9100] text-white p-8 lg:p-16 justify-between relative overflow-hidden">
+        {/* Left Side: Blue Banner */}
+        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-blue-700 to-cyan-500 text-white p-8 lg:p-12 relative overflow-hidden">
           {/* Logo */}
-          <div className="flex items-center gap-3 z-10">
+          <div className="absolute top-8 left-8 flex items-center gap-3 z-20">
             <ChefHat className="w-8 h-8" />
             <span className="text-2xl font-bold font-serif tracking-wide">Bolobake</span>
           </div>
 
-          {/* Center Content */}
-          <div className="flex flex-col items-center text-center mt-12 mb-auto z-10 max-w-lg mx-auto">
-            <h1 className="text-3xl lg:text-4xl font-bold mb-4">Analytics Mendalam</h1>
-            <p className="text-white/90 mb-12 text-sm lg:text-base">
-              Dapatkan analitik mendalam untuk pesanan B2B Anda atau secara keseluruhan bisnis Bolobake Anda.
+          {/* Center Content: Title, Subtitle, and Carousel Image */}
+          <div className="flex-1 flex flex-col justify-center items-start w-full z-10 pt-16 pb-8 px-4 lg:px-8">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight drop-shadow-md transition-opacity duration-500">
+              {slides[currentSlide].title}
+            </h1>
+            <p className="text-base lg:text-lg text-white/90 font-medium mb-12 max-w-xl leading-relaxed transition-opacity duration-500">
+              {slides[currentSlide].desc}
             </p>
 
-            {/* Dashboard Mockup Representation */}
-            <div className="w-full bg-white/95 rounded-2xl p-4 shadow-2xl text-slate-800">
-              <div className="flex justify-between items-center border-b pb-3 mb-4">
-                <span className="font-bold text-sm">Analytics Mendalam</span>
-                <div className="flex gap-2 text-xs font-semibold text-muted-foreground">
-                  <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded">Daily</span>
-                  <span>Weekly</span>
-                </div>
-              </div>
-              <div className="flex items-end gap-1 h-32 mb-4 w-full">
-                {[40, 60, 45, 75, 55, 80, 65].map((h, i) => (
-                  <div key={i} className="flex-1 bg-orange-400 rounded-sm" style={{ height: `${h}%` }}></div>
+            {/* Float Mockup Container Without Frame */}
+            <div className="w-full relative mt-4 perspective-1000">
+              <div className="w-full relative">
+                {slides.map((slide, i) => (
+                  <div
+                    key={i}
+                    className={`transition-all duration-1000 ease-out ${i === currentSlide ? 'opacity-100 z-10 translate-y-0 scale-100 relative' : 'opacity-0 z-0 translate-y-8 scale-95 absolute inset-0'}`}
+                  >
+                    <img 
+                      src={slide.img} 
+                      alt={slide.title} 
+                      className="w-full h-auto object-contain rounded-xl shadow-2xl animate-float border border-white/10" 
+                      style={{ 
+                        imageRendering: 'high-quality', 
+                        transform: 'translateZ(0)', 
+                        willChange: 'transform' 
+                      }}
+                    />
+                  </div>
                 ))}
-              </div>
-              <div className="flex justify-between items-center text-xs text-slate-500 mb-4 px-2">
-                <span>Jan</span>
-                <span>Mar</span>
-                <span>May</span>
-                <span>Jul</span>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-purple-50 text-purple-700 p-2 rounded-lg text-center font-bold">3.2%</div>
-                <div className="bg-orange-50 text-orange-700 p-2 rounded-lg text-center font-bold">1,234</div>
-                <div className="bg-green-50 text-green-700 p-2 rounded-lg text-center font-bold">250K</div>
-                <div className="bg-blue-50 text-blue-700 p-2 rounded-lg text-center font-bold">2.1%</div>
               </div>
             </div>
           </div>
 
           {/* Carousel Indicators */}
-          <div className="flex justify-center items-center gap-4 z-10 mt-8">
-            <button className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">&lt;</button>
-            <div className="flex gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
-              <span className="w-2 h-2 rounded-full bg-white/50"></span>
-              <span className="w-2 h-2 rounded-full bg-white/50"></span>
-              <span className="w-2 h-2 rounded-full bg-white/50"></span>
+          <div className="flex justify-center items-center gap-6 z-20 mt-auto">
+            <button 
+              onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors shadow-md text-slate-800"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="flex gap-2.5">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentSlide(i)}
+                  className={`h-2.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/70'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
             </div>
-            <button className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">&gt;</button>
+            <button 
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors shadow-md text-slate-800"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
