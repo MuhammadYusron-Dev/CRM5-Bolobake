@@ -67,18 +67,33 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
     }
   };
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard Analitik', icon: LayoutDashboard },
-    { id: 'new_order', label: 'Buat Pesanan Baru', icon: ShoppingCart },
-    { id: 'history', label: 'Riwayat Pesanan', icon: Clock },
-    { id: 'catalog', label: 'Katalog Manager', icon: Search },
-    { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
-    { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
-    { id: 'samples', label: 'Tracking Sample', icon: Gift },
-    { id: 'sales', label: 'Sales CRM', icon: BarChart3 },
+  const menuGroups = [
+    {
+      title: 'DASHBOARD',
+      items: [
+        { id: 'dashboard', label: 'Dashboard Analitik', icon: LayoutDashboard },
+        { id: 'sales', label: 'Sales CRM', icon: BarChart3 },
+      ]
+    },
+    {
+      title: 'PESANAN',
+      items: [
+        { id: 'new_order', label: 'Buat Pesanan Baru', icon: ShoppingCart },
+        { id: 'history', label: 'Riwayat Pesanan', icon: Clock },
+      ]
+    },
+    {
+      title: 'MANAJEMEN',
+      items: [
+        { id: 'catalog', label: 'Katalog Manager', icon: Search },
+        { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
+        { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
+        { id: 'samples', label: 'Tracking Sample', icon: Gift },
+      ]
+    }
   ];
 
-  const handleMenuClick = (item: typeof menuItems[0]) => {
+  const handleMenuClick = (item: { id: string }) => {
     setActiveMenu(item.id);
     setIsMobileOpen(false);
   };
@@ -93,87 +108,97 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       )}
 
       <aside 
-        className={`fixed md:static inset-y-0 left-0 z-50 bg-card border-r border-border flex flex-col transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
+        className={`fixed md:static inset-y-0 left-0 z-50 bg-[#ea580c] text-white flex flex-col transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } ${isCollapsed ? 'md:w-20' : 'w-64'}`}
       >
-        <div className="p-4 border-b border-border flex items-center justify-between h-16 shrink-0">
-          <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : ''}`}>
-            <ChefHat className="w-8 h-8 text-primary flex-shrink-0 drop-shadow-sm" />
+        <div className="p-4 flex items-center justify-between h-16 shrink-0 mt-2">
+          <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'px-2'}`}>
+            <ChefHat className="w-8 h-8 text-white flex-shrink-0 drop-shadow-sm" />
             {!isCollapsed && (
               <div className="flex flex-col whitespace-nowrap">
-                <span className="font-serif text-xl font-bold leading-tight">Bolobake</span>
-                <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">B2B Dashboard</span>
+                <span className="font-serif text-2xl font-bold leading-tight">Bolobake</span>
               </div>
             )}
           </div>
-          <button className="md:hidden p-1 rounded-md hover:bg-muted" onClick={() => setIsMobileOpen(false)}>
-            <X className="w-5 h-5 text-muted-foreground" />
+          <button className="md:hidden p-1 rounded-md hover:bg-white/20" onClick={() => setIsMobileOpen(false)}>
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-3">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeMenu === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleMenuClick(item)}
-                title={isCollapsed ? item.label : undefined}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group ${
-                  isActive 
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]' 
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                } ${isCollapsed ? 'justify-center' : ''}`}
-              >
-                <Icon className={`w-5 h-5 flex-shrink-0 transition-transform ${isActive ? 'text-primary-foreground' : 'group-hover:scale-110'}`} />
-                {!isCollapsed && <span className="font-semibold text-sm whitespace-nowrap">{item.label}</span>}
-              </button>
-            )
-          })}
+        <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-6 px-0 custom-scrollbar">
+          {menuGroups.map((group, gIdx) => (
+            <div key={gIdx} className="flex flex-col gap-1">
+              {!isCollapsed && (
+                <span className="text-[10px] uppercase font-bold text-white/70 tracking-widest px-6 mb-1">
+                  {group.title}
+                </span>
+              )}
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeMenu === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuClick(item)}
+                    title={isCollapsed ? item.label : undefined}
+                    className={`flex items-center gap-3 py-2.5 transition-all duration-200 group ${
+                      isActive 
+                        ? 'bg-white/20 text-white font-bold border-l-4 border-white' 
+                        : 'text-white/80 hover:bg-white/10 hover:text-white border-l-4 border-transparent'
+                    } ${isCollapsed ? 'justify-center px-0' : 'px-5'}`}
+                  >
+                    <Icon className={`w-5 h-5 flex-shrink-0 transition-transform ${isActive ? 'text-white' : 'group-hover:scale-110'}`} />
+                    {!isCollapsed && <span className="text-sm whitespace-nowrap">{item.label}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
         </div>
 
-        <div className="mt-auto px-4 pb-4 flex flex-col gap-4">
-          <div className="flex justify-center w-full">
-            <ThemeToggle isCollapsed={isCollapsed} />
+        <div className="mt-auto px-4 pb-4 flex flex-col gap-2">
+          <div className="flex justify-between items-center px-2 mb-2">
+             {!isCollapsed && <span className="text-xs text-white/70 font-medium">Theme</span>}
+             <div className="bg-white/10 rounded-full p-0.5">
+               <ThemeToggle isCollapsed={isCollapsed} />
+             </div>
           </div>
 
-          <div className={`bg-secondary/40 rounded-2xl p-2 flex items-center gap-2 transition-all ${isCollapsed ? 'justify-center flex-col' : ''}`}>
+          <div className={`bg-white/10 rounded-xl p-2 flex items-center gap-2 transition-all ${isCollapsed ? 'justify-center flex-col' : ''}`}>
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-3 hover:bg-background/50 p-1.5 rounded-xl transition-all flex-1 text-left group"
+              className="flex items-center gap-3 hover:bg-white/20 p-1.5 rounded-lg transition-all flex-1 text-left group"
               title="Pengaturan Profil"
             >
-              <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shrink-0 shadow-sm border border-border/50 overflow-hidden group-hover:ring-2 group-hover:ring-primary/50 transition-all">
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm overflow-hidden group-hover:ring-2 group-hover:ring-white/50 transition-all">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-5 h-5 text-muted-foreground" />
+                  <User className="w-5 h-5 text-white" />
                 )}
               </div>
               {!isCollapsed && (
-                <div className="flex flex-col flex-1 overflow-hidden">
-                  <span className="text-sm font-bold truncate group-hover:text-primary transition-colors">{user?.username || 'Admin'}</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-                    <span className="text-xs text-muted-foreground truncate">Admin store</span>
+                <div className="flex flex-col flex-1 overflow-hidden text-white">
+                  <span className="text-sm font-bold truncate group-hover:text-white transition-colors">{user?.username || 'Admin'}</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white/90 truncate">Owner</span>
                   </div>
                 </div>
               )}
             </button>
             {!isCollapsed && (
-              <button onClick={handleLogout} className="p-2 hover:bg-background rounded-xl text-muted-foreground transition-colors shrink-0" title="Keluar">
+              <button onClick={handleLogout} className="p-2 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-colors shrink-0" title="Keluar">
                 <LogOut className="w-4 h-4" />
               </button>
             )}
           </div>
         </div>
 
-        <div className="hidden md:flex p-4 border-t border-border justify-end shrink-0 h-16 items-center bg-muted/20">
+        <div className="hidden md:flex p-3 border-t border-white/10 justify-end shrink-0 items-center">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full flex justify-center"
+            className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors w-full flex justify-center"
           >
             {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </button>
