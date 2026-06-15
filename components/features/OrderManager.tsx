@@ -11,7 +11,6 @@ import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DateRangeFilter } from './DateRangeFilter';
-import { DynamicSkyBackground } from './DynamicSkyBackground';
 import { SalesTutorial } from './SalesTutorial';
 import { CatalogManager } from './CatalogManager';
 import { ProductionBoard } from './ProductionBoard';
@@ -486,10 +485,9 @@ export function OrderManager({
     return 'Selamat Malam, Admin 🌙';
   };
 
-  const isDarkSky = currentHour >= 18 || currentHour < 5;
-  const headerTextColor = isDarkSky ? 'text-white drop-shadow-md' : 'text-slate-800';
-  const subTextColor = isDarkSky ? 'text-slate-100 drop-shadow-sm' : 'text-slate-500';
-  const menuIconColor = isDarkSky ? 'text-white hover:bg-white/20' : 'text-slate-600 hover:bg-slate-200';
+  const headerTextColor = 'text-foreground';
+  const subTextColor = 'text-muted-foreground';
+  const menuIconColor = 'text-foreground hover:bg-accent';
 
   return (
     <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
@@ -514,8 +512,7 @@ export function OrderManager({
       </div>
 
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-transparent relative z-10">
-        <header className={`relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none overflow-hidden transition-colors duration-1000 ${isDarkSky ? 'bg-black/20 backdrop-blur-md border-b border-white/10' : 'bg-white/30 backdrop-blur-md border-b border-white/40'}`}>
-          {isMounted && <DynamicSkyBackground currentHour={currentHour} />}
+        <header className="relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none bg-card border-b border-border">
 
           {/* Left Content */}
           <div className="relative z-10 flex items-center gap-3">
@@ -545,9 +542,7 @@ export function OrderManager({
           {/* Middle Content - Centered Greeting */}
           <div className="absolute left-1/2 -translate-x-1/2 z-10 hidden sm:flex items-center justify-center pointer-events-none">
             {activeMenu === 'dashboard' && isMounted && (
-              <span className={`text-sm font-medium px-3 py-1 rounded-full backdrop-blur-md transition-all duration-1000 ${
-                isDarkSky ? 'bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]' : 'bg-white/40 text-slate-800 shadow-[0_0_10px_rgba(0,0,0,0.05)]'
-              }`}>
+              <span className="text-sm font-medium px-3 py-1 rounded-full bg-accent/50 text-foreground">
                 {getGreeting()}
               </span>
             )}
@@ -555,9 +550,7 @@ export function OrderManager({
           
           {/* Right Content */}
           <div className="relative z-10 flex items-center gap-3">
-            <div className={`hidden sm:flex px-3 py-1.5 rounded-full text-[11px] font-medium items-center gap-1.5 border transition-colors duration-1000 ${
-              isDarkSky ? 'bg-emerald-400/10 text-emerald-300 border-emerald-400/20' : 'bg-primary/10 text-primary border-primary/20'
-            }`}>
+            <div className="hidden sm:flex px-3 py-1.5 rounded-full text-[11px] font-medium items-center gap-1.5 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
               <span className="relative flex h-2 w-2 mr-0.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
