@@ -17,10 +17,26 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
-    { img: "/login_slides/slide1.png", desc: "Dashboard overview with key metrics" },
-    { img: "/login_slides/slide2.png", desc: "Detailed sales chart and trends" },
-    { img: "/login_slides/slide3.png", desc: "Order management summary" },
-    { img: "/login_slides/slide4.png", desc: "Customer insights and segmentation" },
+    { 
+      img: "/login_slides/slide1.png", 
+      title: "Analytics Mendalam", 
+      desc: "Pantau performa dan metrik bisnis Bolobake Anda secara komprehensif dari semua aspek."
+    },
+    { 
+      img: "/login_slides/slide2.png", 
+      title: "Manajemen Pesanan", 
+      desc: "Kelola pesanan B2B dan pantau progres status pemesanan pelanggan dengan mudah."
+    },
+    { 
+      img: "/login_slides/slide3.png", 
+      title: "Jadwal Produksi", 
+      desc: "Optimalkan jadwal dan kapasitas produksi dapur secara otomatis dan terukur."
+    },
+    { 
+      img: "/login_slides/slide4.png", 
+      title: "Manajemen Katalog", 
+      desc: "Atur katalog produk, varian, dan ketersediaan stok bahan baku dengan lebih efisien."
+    },
   ];
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,90 +97,63 @@ export default function LoginPage() {
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
       <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
         {/* Left Side: Orange Banner */}
-        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-[#e65c00] to-[#ff9100] text-white p-8 lg:p-16 justify-between relative overflow-hidden">
+        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-[#e65c00] to-[#ff9100] text-white p-8 lg:p-12 relative overflow-hidden">
           {/* Logo */}
-          <div className="flex items-center gap-3 z-10">
+          <div className="absolute top-8 left-8 flex items-center gap-3 z-20">
             <ChefHat className="w-8 h-8" />
             <span className="text-2xl font-bold font-serif tracking-wide">Bolobake</span>
           </div>
 
-          {/* Center Content */}
-          <div className="flex flex-col items-center text-center mt-12 mb-auto z-10 max-w-lg mx-auto">
-            <h1 className="text-3xl lg:text-4xl font-bold mb-4">Analytics Mendalam</h1>
-            <p className="text-white/90 mb-12 text-sm lg:text-base">
-              Dapatkan analitik mendalam untuk pesanan B2B Anda atau secara keseluruhan bisnis Bolobake Anda.
+          {/* Center Content: Title, Subtitle, and Carousel Image */}
+          <div className="flex-1 flex flex-col justify-center items-center w-full z-10 pt-16 pb-8">
+            <h1 className="text-3xl lg:text-4xl font-bold mb-3 text-center transition-opacity duration-500">
+              {slides[currentSlide].title}
+            </h1>
+            <p className="text-white/90 text-sm lg:text-base text-center max-w-md mb-10 transition-opacity duration-500">
+              {slides[currentSlide].desc}
             </p>
 
-            {/* Auto Sliding Preview Carousel */}
-            <div className="relative w-full max-w-md mx-auto h-64 overflow-hidden rounded-xl shadow-lg">
-              {/* Slides */}
-              {slides.map((slide, i) => (
-                <div
-                  key={i}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-                >
-                  <img src={slide.img} alt={slide.desc} className="w-full h-full object-contain" />
-                  <div className="absolute bottom-0 left-0 w-full bg-black/30 text-white text-sm p-2">
-                    {slide.desc}
+            {/* Mockup Card Container */}
+            <div className="w-full max-w-2xl aspect-[4/3] sm:aspect-video lg:aspect-[16/10] relative rounded-2xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center p-2 border border-white/20">
+              <div className="w-full h-full relative rounded-xl overflow-hidden bg-white shadow-inner">
+                {slides.map((slide, i) => (
+                  <div
+                    key={i}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                  >
+                    <img src={slide.img} alt={slide.title} className="w-full h-full object-cover object-top" />
                   </div>
-                </div>
-              ))}
-              {/* Navigation arrows */}
-              <button
-                onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-1"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </button>
-              <button
-                onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-1"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="w-5 h-5 text-white" />
-              </button>
-            </div>
-            {/* End Auto Sliding Preview Carousel */}
-            {/* End Auto Sliding Preview Carousel */}
-            <div className="w-full bg-white/95 rounded-2xl p-4 shadow-2xl text-slate-800">
-              <div className="flex justify-between items-center border-b pb-3 mb-4">
-                <span className="font-bold text-sm">Analytics Mendalam</span>
-                <div className="flex gap-2 text-xs font-semibold text-muted-foreground">
-                  <span className="text-orange-500 bg-orange-50 px-2 py-0.5 rounded">Daily</span>
-                  <span>Weekly</span>
-                </div>
-              </div>
-              <div className="flex items-end gap-1 h-32 mb-4 w-full">
-                {[40, 60, 45, 75, 55, 80, 65].map((h, i) => (
-                  <div key={i} className="flex-1 bg-orange-400 rounded-sm" style={{ height: `${h}%` }}></div>
                 ))}
-              </div>
-              <div className="flex justify-between items-center text-xs text-slate-500 mb-4 px-2">
-                <span>Jan</span>
-                <span>Mar</span>
-                <span>May</span>
-                <span>Jul</span>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-purple-50 text-purple-700 p-2 rounded-lg text-center font-bold">3.2%</div>
-                <div className="bg-orange-50 text-orange-700 p-2 rounded-lg text-center font-bold">1,234</div>
-                <div className="bg-green-50 text-green-700 p-2 rounded-lg text-center font-bold">250K</div>
-                <div className="bg-blue-50 text-blue-700 p-2 rounded-lg text-center font-bold">2.1%</div>
               </div>
             </div>
           </div>
 
           {/* Carousel Indicators */}
-          <div className="flex justify-center items-center gap-4 z-10 mt-8">
-            <button className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">&lt;</button>
-            <div className="flex gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-white"></span>
-              <span className="w-2 h-2 rounded-full bg-white/50"></span>
-              <span className="w-2 h-2 rounded-full bg-white/50"></span>
-              <span className="w-2 h-2 rounded-full bg-white/50"></span>
+          <div className="flex justify-center items-center gap-6 z-20 mt-auto">
+            <button 
+              onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors shadow-md text-slate-800"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="flex gap-2.5">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentSlide(i)}
+                  className={`h-2.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/70'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
             </div>
-            <button className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">&gt;</button>
+            <button 
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors shadow-md text-slate-800"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
