@@ -15,7 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [user, setUser] = useState<{username: string, avatarUrl: string} | null>(null);
+  const [user, setUser] = useState<{username: string, avatarUrl: string, email?: string, fullName?: string} | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
@@ -177,7 +177,8 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               </div>
               {!isCollapsed && (
                 <div className="flex flex-col flex-1 min-w-0 overflow-hidden text-white gap-0.5">
-                  <span className="text-sm font-bold truncate block">{user?.username || 'Admin'}</span>
+                  <span className="text-sm font-bold truncate block">{user?.fullName || user?.username || 'Admin'}</span>
+                  <span className="text-[10px] text-white/90 truncate block">{user?.email || user?.username}</span>
                   <div className="flex items-center mt-0.5">
                     <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white">Owner</span>
                   </div>

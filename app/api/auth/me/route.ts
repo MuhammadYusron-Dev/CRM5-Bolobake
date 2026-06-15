@@ -20,7 +20,14 @@ export async function GET() {
 
     return NextResponse.json({ 
       success: true, 
-      user: { username: payload.username, avatarUrl: payload.avatarUrl } 
+      user: { 
+        username: payload.username, 
+        avatarUrl: payload.avatarUrl,
+        email: payload.email,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        fullName: payload.firstName ? `${payload.firstName} ${payload.lastName || ''}`.trim() : null
+      } 
     });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
