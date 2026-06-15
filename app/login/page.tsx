@@ -126,21 +126,6 @@ export default function LoginPage() {
               </button>
             </div>
             {/* End Auto Sliding Preview Carousel */}
-{/* Duplicate carousel removed */}
-              <div className="relative h-64 overflow-hidden rounded-xl shadow-lg">
-                {slides.map((slide, i) => (
-                  <div
-                    key={i}
-                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
-                  >
-                    <img src={slide.img} alt={slide.desc} className="w-full h-full object-contain" />
-                    <div className="absolute bottom-0 left-0 w-full bg-black/30 text-white text-sm p-2">
-                      {slide.desc}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
             {/* End Auto Sliding Preview Carousel */}
             <div className="w-full bg-white/95 rounded-2xl p-4 shadow-2xl text-slate-800">
               <div className="flex justify-between items-center border-b pb-3 mb-4">
