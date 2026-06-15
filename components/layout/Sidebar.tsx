@@ -157,21 +157,18 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           ))}
         </div>
 
-        <div className="mt-auto px-4 pb-4 flex flex-col gap-2">
-          <div className="flex justify-between items-center px-2 mb-2">
-             {!isCollapsed && <span className="text-xs text-white/70 font-medium">Theme</span>}
-             <div className="bg-white/10 rounded-full p-0.5">
-               <ThemeToggle isCollapsed={isCollapsed} />
-             </div>
+        <div className="mt-auto px-4 pb-4 flex flex-col gap-4">
+          <div className="flex justify-center w-full">
+            <ThemeToggle isCollapsed={isCollapsed} />
           </div>
 
-          <div className={`bg-white/10 rounded-xl p-2 flex items-center gap-2 transition-all ${isCollapsed ? 'justify-center flex-col' : ''}`}>
+          <div className={`bg-white/10 rounded-2xl p-2 flex items-center gap-2 transition-all overflow-hidden ${isCollapsed ? 'justify-center flex-col' : ''}`}>
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-3 hover:bg-white/20 p-1.5 rounded-lg transition-all flex-1 text-left group"
+              className="flex items-center gap-3 hover:bg-white/20 p-1.5 rounded-xl transition-all flex-1 min-w-0 text-left group"
               title="Pengaturan Profil"
             >
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm overflow-hidden group-hover:ring-2 group-hover:ring-white/50 transition-all">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/10 overflow-hidden group-hover:ring-2 group-hover:ring-white/50 transition-all">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -179,16 +176,16 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                 )}
               </div>
               {!isCollapsed && (
-                <div className="flex flex-col flex-1 overflow-hidden text-white">
-                  <span className="text-sm font-bold truncate group-hover:text-white transition-colors">{user?.username || 'Admin'}</span>
+                <div className="flex flex-col flex-1 min-w-0 overflow-hidden text-white">
+                  <span className="text-sm font-bold truncate block group-hover:text-white transition-colors">{user?.username || 'Admin'}</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white/90 truncate">Owner</span>
+                    <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white/90 truncate block max-w-full">Owner</span>
                   </div>
                 </div>
               )}
             </button>
             {!isCollapsed && (
-              <button onClick={handleLogout} className="p-2 hover:bg-white/20 rounded-lg text-white/80 hover:text-white transition-colors shrink-0" title="Keluar">
+              <button onClick={handleLogout} className="p-2 hover:bg-white/20 rounded-xl text-white/80 hover:text-white transition-colors shrink-0" title="Keluar">
                 <LogOut className="w-4 h-4" />
               </button>
             )}
