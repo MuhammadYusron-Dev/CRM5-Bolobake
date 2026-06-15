@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChefHat, Loader2, Eye, EyeOff } from 'lucide-react';
+import { ChefHat, Loader2, Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
@@ -96,7 +96,37 @@ export default function LoginPage() {
             </p>
 
             {/* Auto Sliding Preview Carousel */}
-            <div className="w-full max-w-md mx-auto">
+            <div className="relative w-full max-w-md mx-auto h-64 overflow-hidden rounded-xl shadow-lg">
+              {/* Slides */}
+              {slides.map((slide, i) => (
+                <div
+                  key={i}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                >
+                  <img src={slide.img} alt={slide.desc} className="w-full h-full object-contain" />
+                  <div className="absolute bottom-0 left-0 w-full bg-black/30 text-white text-sm p-2">
+                    {slide.desc}
+                  </div>
+                </div>
+              ))}
+              {/* Navigation arrows */}
+              <button
+                onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-1"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-5 h-5 text-white" />
+              </button>
+              <button
+                onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-1"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-5 h-5 text-white" />
+              </button>
+            </div>
+            {/* End Auto Sliding Preview Carousel */}
+{/* Duplicate carousel removed */}
               <div className="relative h-64 overflow-hidden rounded-xl shadow-lg">
                 {slides.map((slide, i) => (
                   <div
