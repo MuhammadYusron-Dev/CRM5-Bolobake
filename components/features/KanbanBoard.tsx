@@ -153,7 +153,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
             const colOrders = orders.filter(o => col.statuses.includes(o.status || 'Pesanan Dibuat'));
             
             return (
-              <div key={col.id} className="w-[85vw] max-w-[300px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-center sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
+              <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
                 {/* Column Header */}
                 <div className={`p-4 rounded-t-2xl border-b flex flex-col gap-1.5 ${col.colorClass}`}>
                   <div className="flex items-center justify-between">
@@ -187,20 +187,20 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                         }}
                         className={`shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
                       >
-                        <CardContent className="p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-bold text-sm">{order.customer}</h4>
-                            <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+                        <CardContent className="p-3 sm:p-4">
+                          <div className="flex justify-between items-start gap-2 mb-2">
+                            <h4 className="font-bold text-sm line-clamp-2">{order.customer}</h4>
+                            <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0">
                               {order.status || 'Pesanan Dibuat'}
                             </span>
                           </div>
                           
-                          <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg text-xs space-y-1 mb-3 border">
+                          <div className="bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border">
                             {(order.items || []).map((item, idx) => (
                               <div key={idx} className="flex justify-between gap-2">
                                 <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
                                   {item.qty}x {item.sku.replace(' (sample)', '')}
-                                  {item.isSample && <span className="text-[10px] bg-orange-100 text-orange-700 px-1 ml-1 rounded">S</span>}
+                                  {item.isSample && <span className="text-[10px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">S</span>}
                                 </span>
                               </div>
                             ))}
@@ -208,20 +208,20 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
 
                           {order.notes && divisionName === 'Produksi' && (
                             <div className="mb-3 text-[11px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded border border-red-200 dark:border-red-800/50 leading-tight">
-                              <span className="font-bold block mb-0.5 flex items-center gap-1"><ChefHat className="w-3 h-3"/> Catatan Produksi:</span>
-                              {order.notes}
+                              <span className="font-bold flex items-center gap-1 mb-0.5"><ChefHat className="w-3 h-3 shrink-0"/> Catatan Produksi:</span>
+                              <p className="break-words">{order.notes}</p>
                             </div>
                           )}
 
                           {order.deliveryNotes && divisionName === 'Packing' && (
                             <div className="mb-3 text-[11px] bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-200 dark:border-blue-800/50 leading-tight">
-                              <span className="font-bold block mb-0.5 flex items-center gap-1"><PackageCheck className="w-3 h-3"/> Catatan Pengiriman:</span>
-                              {order.deliveryNotes}
+                              <span className="font-bold flex items-center gap-1 mb-0.5"><PackageCheck className="w-3 h-3 shrink-0"/> Catatan Pengiriman:</span>
+                              <p className="break-words">{order.deliveryNotes}</p>
                             </div>
                           )}
 
-                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-4">
-                            {order.productionDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3"/> Prod: {order.productionDate}</span>}
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-3 sm:mb-4">
+                            {order.productionDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3 shrink-0"/> Prod: {order.productionDate}</span>}
                           </div>
 
                           {/* Action Button */}
