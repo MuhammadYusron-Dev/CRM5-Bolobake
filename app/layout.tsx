@@ -34,8 +34,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          {children}
-          <InternalChat />
+          <div id="main-app" className="flex flex-col flex-1">
+            {children}
+            <InternalChat />
+          </div>
         </ThemeProvider>
       </body>
     </html>

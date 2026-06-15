@@ -200,3 +200,62 @@ body {
     animation: twinkle ease-in-out infinite alternate;
   }
 }
+
+/* Global Print Styles for Dialogs */
+@media print {
+  /* Remove browser headers and footers completely */
+  @page {
+    margin: 0;
+  }
+
+  /* Only apply when a Radix Dialog is open */
+  body:has([role="dialog"][data-state="open"]) {
+    background: white !important;
+    color: black !important;
+    padding: 1cm !important; /* Safety padding since @page margin is 0 */
+  }
+
+  /* Hide the main app content when a dialog is open */
+  body:has([role="dialog"][data-state="open"]) #main-app {
+    display: none !important;
+  }
+
+  /* Force the portal container to be static and visible */
+  body:has([role="dialog"][data-state="open"]) > div:not(#main-app) {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Hide the dark overlay backdrop of the dialog */
+  body:has([role="dialog"][data-state="open"]) > div:not(#main-app) > .fixed.inset-0 {
+    display: none !important;
+  }
+
+  /* Reset all positioning on the Dialog content so it flows naturally for multi-page printing */
+  [role="dialog"] {
+    display: block !important;
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Tailwind print utilities */
+  .print\:hidden { display: none !important; }
+  .print\:block { display: block !important; }
+  .print\:grid { display: grid !important; }
+  .print\:flex { display: flex !important; }
+  .print\:text-black { color: black !important; }
+  .print\:flex-wrap { flex-wrap: wrap !important; }
+  .print\:bg-transparent { background-color: transparent !important; }
+  .print\:border-black { border-color: black !important; }
+}

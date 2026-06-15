@@ -35,7 +35,7 @@ export function OrderForm({
   const [capacityWarning, setCapacityWarning] = useState('');
   
   const [deliveryDate, setDeliveryDate] = useState('');
-  const [items, setItems] = useState<OrderItem[]>([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
+  const [items, setItems] = useState<OrderItem[]>([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false, isSplitInvoice: false }]);
   const [isFreeShipping, setIsFreeShipping] = useState(true);
   const [shippingCost, setShippingCost] = useState('');
   
@@ -236,7 +236,7 @@ export function OrderForm({
       setTierPrices({});
       setProductionDate('');
       setDeliveryDate('');
-      setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
+      setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false, isSplitInvoice: false }]);
       setNotes('');
       setDeliveryOption('');
       setDeliveryRoute('');
@@ -257,8 +257,7 @@ export function OrderForm({
     }
   }, [productionDate, totalPcsOrder]);
 
-
-  const handleAddItem = () => setItems([...items, { id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
+  const handleAddItem = () => setItems([...items, { id: Date.now(), sku: '', price: 0, qty: 1, isSample: false, isSplitInvoice: false }]);
 
   const handleItemChange = (id: number, field: string, value: string | boolean | number) => {
     const updatedItems = items.map(item => {
@@ -361,7 +360,7 @@ export function OrderForm({
     setTierPrices({});
     setProductionDate('');
     setDeliveryDate('');
-    setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false }]);
+    setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false, isSplitInvoice: false }]);
     setNotes('');
     setDeliveryNotes('');
     setDeliveryOption('');
@@ -631,6 +630,16 @@ export function OrderForm({
                         className={`mb-0.5 h-10 px-3 text-xs font-semibold ${item.isSample ? 'bg-primary text-primary-foreground border-primary' : 'text-muted-foreground hover:bg-primary/10'}`}
                       >
                         Sample
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant={item.isSplitInvoice ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleItemChange(item.id, 'isSplitInvoice', !item.isSplitInvoice)}
+                        className={`mb-0.5 h-10 px-3 text-xs font-semibold ${item.isSplitInvoice ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600' : 'text-muted-foreground hover:bg-orange-500/10'}`}
+                      >
+                        Pisah Nota
                       </Button>
 
                       <Button 
@@ -1031,6 +1040,7 @@ export function OrderForm({
                       <span className="font-medium">
                         {item.sku}
                         {item.isSample && <span className="italic text-[10px] ml-1 text-primary">(sample)</span>}
+                        {item.isSplitInvoice && <span className="italic text-[10px] ml-1 text-orange-500 font-bold">[Pisah Nota]</span>}
                       </span>
                       <span className="text-[10px] text-muted-foreground">{formatRp(Number(item.price))}</span>
                     </div>

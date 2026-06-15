@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { History, Filter, Search, X, Clock, Calendar, Truck, Edit, Trash2 } from 'lucide-react';
+import { History, Filter, Search, X, Clock, Calendar, Truck, Edit, Trash2, Printer } from 'lucide-react';
 import { Order, OrderStatus } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DateRangeFilter } from './DateRangeFilter';
 
 interface HistoryTableProps {
@@ -34,8 +35,16 @@ export function HistoryTable({
   const [searchHistoryInput, setSearchHistoryInput] = useState('');
   const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
   const [highlightedOutlet, setHighlightedOutlet] = useState('');
+  const [printingOrder, setPrintingOrder] = useState<Order | null>(null);
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+
+  const handlePrintReceipt = (order: Order) => {
+    setPrintingOrder(order);
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setSearchHistoryQuery(searchHistoryInput), 300);
@@ -248,6 +257,14 @@ export function HistoryTable({
                         </Button>
                       )}
                       <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePrintReceipt(order)}
+                        className="h-8 text-xs font-bold gap-1.5"
+                      >
+                        <Printer className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Cetak Struk</span>
+                      </Button>
+                      <Button 
                         variant={editingOrderId === order.id ? "secondary" : "outline"}
                         size="sm"
                         onClick={() => handleEditOrder(order)}
@@ -263,8 +280,9 @@ export function HistoryTable({
                       <div key={idx} className="flex justify-between">
                         <span>
                           {item.qty}x {item.sku.endsWith(' (sample)') ? (
-                            <>{item.sku.replace(' (sample)', '')} <span className="italic text-xs">(sample)</span></>
+                            <>{item.sku.replace(' (sample)', '')} <span className="italic text-xs text-primary ml-1">(sample)</span></>
                           ) : item.sku}
+                          {item.isSplitInvoice && <span className="text-[10px] text-orange-600 border border-orange-500 bg-orange-50 px-1 rounded ml-1.5 font-bold">[Pisah Nota]</span>}
                         </span>
                         <span className="text-muted-foreground">{formatRp(item.qty * item.price)}</span>
                       </div>
@@ -308,6 +326,174 @@ export function HistoryTable({
               </Card>
             );
           })
+      )}
+
+      {printingOrder && (
+        <Dialog open={!!printingOrder} onOpenChange={(open) => !open && setPrintingOrder(null)}>
+          <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto print:max-w-[80mm] print:w-full print:p-0 print:m-0 print:h-auto print:overflow-visible print:border-none print:shadow-none bg-white print:static print:transform-none print:inset-auto">
+            <style>
+              {`
+                @media print {
+                  @page {
+                    size: 80mm auto; /* Ukuran kertas printer thermal (80mm) */
+                    margin: 0mm;
+                  }
+                  body {
+                    margin: 0;
+                    padding: 0;
+                    background: white;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                  }
+                  /* Menyembunyikan elemen background dari radix dialog */
+                  [data-radix-focus-guard],
+                  body > *:not([data-radix-portal]) {
+                    display: none !important;
+                  }
+                }
+              `}
+            </style>
+            <DialogHeader className="print:hidden">
+              <DialogTitle>Cetak Struk Pesanan</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-8 print:gap-4 print:p-2 print:mx-auto print:w-[80mm] print:text-xs">
+              {/* Nota Utama */}
+              <div className="border border-slate-200 rounded-xl p-6 print:border-none print:p-0 print:rounded-none">
+                <div className="text-center mb-6 border-b border-dashed border-slate-300 pb-4 print:border-black print:mb-2 print:pb-2">
+                  <h2 className="text-xl font-bold uppercase tracking-widest text-black mb-1 print:text-lg">BOLOBAKE</h2>
+                  <p className="text-sm text-slate-600 print:text-black print:text-xs">Receipt / Struk Pesanan</p>
+                </div>
+                
+                <div className="flex justify-between text-sm mb-4 text-black print:text-[10px] print:mb-2">
+                  <div>
+                    <p><span className="font-semibold w-16 inline-block">Pelanggan</span>: {printingOrder.customer}</p>
+                    <p><span className="font-semibold w-16 inline-block">Tanggal</span>: {printingOrder.deliveryDate || printingOrder.productionDate}</p>
+                  </div>
+                  <div className="text-right">
+                    <p><span className="font-semibold">Order ID</span>: #{printingOrder.id.toString().slice(-6)}</p>
+                  </div>
+                </div>
+
+                <div className="mb-4 text-sm text-black print:text-[10px] print:mb-2">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-300 print:border-black">
+                        <th className="text-left py-2 print:py-1">Item</th>
+                        <th className="text-center py-2 print:py-1">Qty</th>
+                        <th className="text-right py-2 print:py-1">Harga</th>
+                        <th className="text-right py-2 print:py-1">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {printingOrder.items.filter(i => !i.isSplitInvoice).map((item, idx) => (
+                        <tr key={idx} className="border-b border-dashed border-slate-200 print:border-black/50">
+                          <td className="py-2 pr-2 print:py-1">{item.sku}</td>
+                          <td className="py-2 text-center print:py-1">{item.qty}</td>
+                          <td className="py-2 text-right print:py-1">{formatRp(item.price)}</td>
+                          <td className="py-2 text-right print:py-1">{formatRp(item.qty * item.price)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex flex-col items-end text-sm text-black space-y-1 pt-2 print:text-[10px] print:pt-1">
+                  <div className="flex justify-between w-48 print:w-40">
+                    <span>Subtotal:</span>
+                    <span>{formatRp(printingOrder.items.filter(i => !i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0))}</span>
+                  </div>
+                  <div className="flex justify-between w-48 print:w-40 border-b border-slate-300 print:border-black pb-2 print:pb-1">
+                    <span>Ongkir:</span>
+                    <span>{formatRp(printingOrder.shippingCost)}</span>
+                  </div>
+                  <div className="flex justify-between w-48 print:w-40 font-bold pt-1 text-lg print:text-sm">
+                    <span>Total:</span>
+                    <span>{formatRp(printingOrder.items.filter(i => !i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0) + printingOrder.shippingCost)}</span>
+                  </div>
+                </div>
+                
+                {printingOrder.notes && (
+                  <div className="mt-6 pt-4 border-t border-dashed border-slate-300 print:border-black text-xs text-black print:mt-2 print:pt-2 print:text-[10px]">
+                    <span className="font-bold">Catatan:</span> {printingOrder.notes}
+                  </div>
+                )}
+                <div className="mt-8 text-center text-xs text-slate-500 print:text-black print:mt-4 print:text-[10px]">
+                  <p>Terima kasih atas pesanan Anda!</p>
+                </div>
+              </div>
+
+              {/* Nota Pisah */}
+              {printingOrder.items.some(i => i.isSplitInvoice) && (
+                <div className="border border-slate-200 rounded-xl p-6 print:border-none print:p-0 print:rounded-none print:break-before-page mt-8 print:mt-4">
+                  <div className="text-center mb-6 border-b border-dashed border-slate-300 pb-4 print:border-black print:mb-2 print:pb-2">
+                    <h2 className="text-xl font-bold uppercase tracking-widest text-black mb-1 print:text-lg">BOLOBAKE</h2>
+                    <p className="text-sm text-slate-600 print:text-black print:text-xs">Receipt / Struk Pesanan</p>
+                    <span className="inline-block border border-black font-bold uppercase text-[10px] px-2 py-0.5 mt-1 tracking-widest">[NOTA PISAH]</span>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm mb-4 text-black print:text-[10px] print:mb-2">
+                    <div>
+                      <p><span className="font-semibold w-16 inline-block">Pelanggan</span>: {printingOrder.customer} (Pisah)</p>
+                      <p><span className="font-semibold w-16 inline-block">Tanggal</span>: {printingOrder.deliveryDate || printingOrder.productionDate}</p>
+                    </div>
+                    <div className="text-right">
+                      <p><span className="font-semibold">Order ID</span>: #{printingOrder.id.toString().slice(-6)}-P</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-4 text-sm text-black print:text-[10px] print:mb-2">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-slate-300 print:border-black">
+                          <th className="text-left py-2 print:py-1">Item</th>
+                          <th className="text-center py-2 print:py-1">Qty</th>
+                          <th className="text-right py-2 print:py-1">Harga</th>
+                          <th className="text-right py-2 print:py-1">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {printingOrder.items.filter(i => i.isSplitInvoice).map((item, idx) => (
+                          <tr key={idx} className="border-b border-dashed border-slate-200 print:border-black/50">
+                            <td className="py-2 pr-2 print:py-1">{item.sku}</td>
+                            <td className="py-2 text-center print:py-1">{item.qty}</td>
+                            <td className="py-2 text-right print:py-1">{formatRp(item.price)}</td>
+                            <td className="py-2 text-right print:py-1">{formatRp(item.qty * item.price)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="flex flex-col items-end text-sm text-black space-y-1 pt-2 print:text-[10px] print:pt-1">
+                    <div className="flex justify-between w-48 print:w-40">
+                      <span>Subtotal:</span>
+                      <span>{formatRp(printingOrder.items.filter(i => i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0))}</span>
+                    </div>
+                    <div className="flex justify-between w-48 print:w-40 border-b border-slate-300 print:border-black pb-2 print:pb-1">
+                      <span>Ongkir:</span>
+                      <span>Rp 0</span>
+                    </div>
+                    <div className="flex justify-between w-48 print:w-40 font-bold pt-1 text-lg print:text-sm">
+                      <span>Total:</span>
+                      <span>{formatRp(printingOrder.items.filter(i => i.isSplitInvoice).reduce((acc, i) => acc + (i.price * i.qty), 0))}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 text-center text-xs text-slate-500 print:text-black print:mt-4 print:text-[10px]">
+                    <p>Terima kasih atas pesanan Anda!</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end gap-3 mt-4 print:hidden">
+              <Button variant="outline" onClick={() => setPrintingOrder(null)}>Tutup</Button>
+              <Button onClick={() => handlePrintReceipt(printingOrder)}>
+                <Printer className="w-4 h-4 mr-2" /> Cetak
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

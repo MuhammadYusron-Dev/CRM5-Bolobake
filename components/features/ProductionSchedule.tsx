@@ -222,19 +222,6 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{__html: `
-        @media print {
-          body.printing-modal > * { display: none !important; }
-          body.printing-modal [role="dialog"] { display: block !important; position: absolute; left: 0; top: 0; margin: 0; padding: 0; width: 100%; max-width: 100% !important; transform: none !important; box-shadow: none; }
-          body { background: white !important; color: black !important; }
-          .print\\:hidden { display: none !important; }
-          .print\\:block { display: block !important; }
-          .print\\:grid { display: grid !important; }
-          .print\\:flex-wrap { flex-wrap: wrap !important; }
-          @page { size: A4 portrait; margin: 1.5cm; }
-        }
-      `}} />
-
       <div className="w-full p-4 sm:p-6 flex flex-col gap-6 print:bg-white print:p-0 print:w-full print:max-w-full">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-slate-800 dark:text-slate-200 print:mb-6">
@@ -643,9 +630,7 @@ export function ProductionSchedule({ orders }: { orders: Order[] }) {
           <DialogFooter className="sm:justify-end print:hidden">
             <Button variant="outline" onClick={() => setIsReportModalOpen(false)}>Tutup</Button>
             <Button onClick={() => {
-              document.body.classList.add('printing-modal');
               window.print();
-              setTimeout(() => document.body.classList.remove('printing-modal'), 100);
             }} className="gap-2">
               <Printer className="w-4 h-4" /> Cetak Laporan
             </Button>

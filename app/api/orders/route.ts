@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
 import { syncRekapSheet, syncCapacity, syncLaporanBorders } from '@/lib/rekap-sync';
 
@@ -169,35 +169,41 @@ export async function PUT(request: Request) {
       },
     });
 
-    // Sort sheet by Production Date
-    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
-    const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
-    if (sheet?.properties?.sheetId !== undefined) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        requestBody: {
-          requests: [
-            {
-              sortRange: {
-                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
-                sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
-              }
+    after(async () => {
+      try {
+        // Sort sheet by Production Date
+        const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+        const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
+        if (sheet?.properties?.sheetId !== undefined) {
+          await sheets.spreadsheets.batchUpdate({
+            spreadsheetId: SPREADSHEET_ID,
+            requestBody: {
+              requests: [
+                {
+                  sortRange: {
+                    range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
+                    sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
+                  }
+                }
+              ]
             }
-          ]
+          });
         }
-      });
-    }
 
-    // Sync human-readable Rekap Produksi sheet
-    await syncRekapSheet();
-    
-    // Sync Laporan Transaksi Harian Borders
-    await syncLaporanBorders();
-    
-    // Sync Production Capacity sheet
-    if (body.productionDate) {
-      await syncCapacity(body.productionDate);
-    }
+        // Sync human-readable Rekap Produksi sheet
+        await syncRekapSheet();
+        
+        // Sync Laporan Transaksi Harian Borders
+        await syncLaporanBorders();
+        
+        // Sync Production Capacity sheet
+        if (body.productionDate) {
+          await syncCapacity(body.productionDate);
+        }
+      } catch (e) {
+        console.error('Background sync failed', e);
+      }
+    });
 
     return NextResponse.json({ success: true, message: 'Order updated in Sheets' });
   } catch (error: any) {
@@ -275,35 +281,41 @@ export async function POST(request: Request) {
       },
     });
 
-    // Sort sheet by Production Date
-    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
-    const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
-    if (sheet?.properties?.sheetId !== undefined) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        requestBody: {
-          requests: [
-            {
-              sortRange: {
-                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
-                sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
-              }
+    after(async () => {
+      try {
+        // Sort sheet by Production Date
+        const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+        const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
+        if (sheet?.properties?.sheetId !== undefined) {
+          await sheets.spreadsheets.batchUpdate({
+            spreadsheetId: SPREADSHEET_ID,
+            requestBody: {
+              requests: [
+                {
+                  sortRange: {
+                    range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
+                    sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
+                  }
+                }
+              ]
             }
-          ]
+          });
         }
-      });
-    }
 
-    // Sync human-readable Rekap Produksi sheet
-    await syncRekapSheet();
+        // Sync human-readable Rekap Produksi sheet
+        await syncRekapSheet();
 
-    // Sync Laporan Transaksi Harian Borders
-    await syncLaporanBorders();
+        // Sync Laporan Transaksi Harian Borders
+        await syncLaporanBorders();
 
-    // Sync Production Capacity sheet
-    if (body.productionDate) {
-      await syncCapacity(body.productionDate);
-    }
+        // Sync Production Capacity sheet
+        if (body.productionDate) {
+          await syncCapacity(body.productionDate);
+        }
+      } catch (e) {
+        console.error('Background sync failed', e);
+      }
+    });
 
     return NextResponse.json({ success: true, message: 'Order saved to Sheets', id: body.id || Date.now() });
   } catch (error: any) {
@@ -389,16 +401,22 @@ export async function DELETE(request: Request) {
       },
     });
 
-    // Sync human-readable Rekap Produksi sheet
-    await syncRekapSheet();
+    after(async () => {
+      try {
+        // Sync human-readable Rekap Produksi sheet
+        await syncRekapSheet();
 
-    // Sync Laporan Transaksi Harian Borders
-    await syncLaporanBorders();
-    
-    if (deletedOrderDate) {
-      const { syncCapacity } = await import('@/lib/rekap-sync');
-      await syncCapacity(deletedOrderDate);
-    }
+        // Sync Laporan Transaksi Harian Borders
+        await syncLaporanBorders();
+        
+        if (deletedOrderDate) {
+          const { syncCapacity } = await import('@/lib/rekap-sync');
+          await syncCapacity(deletedOrderDate);
+        }
+      } catch (e) {
+        console.error('Background sync failed', e);
+      }
+    });
 
     return NextResponse.json({ success: true, message: 'Order deleted successfully' });
   } catch (error: any) {

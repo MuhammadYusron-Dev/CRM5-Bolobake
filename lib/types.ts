@@ -4,6 +4,7 @@ export interface OrderItem {
   price: number;
   qty: number;
   isSample?: boolean;
+  isSplitInvoice?: boolean;
   shape?: string;
   cut?: string;
   millescrepeType?: string;

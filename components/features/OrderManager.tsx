@@ -254,24 +254,17 @@ export function OrderManager({
     try {
       await persistOrderToDb(order, isEdit, imageFile);
       
-      try {
-        const res = await fetch('/api/orders');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.data) {
-            setOrderHistory(data.data);
-          }
-        } else {
-          throw new Error('Fetch failed');
-        }
-      } catch (fetchErr) {
-        // Optimistic fallback
-        if (isEdit) {
-          setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
-        } else {
-          setOrderHistory(prev => [order, ...prev]);
-        }
+      // Optimistic update so UI is fast
+      if (isEdit) {
+        setOrderHistory(prev => prev.map(o => o.id === order.id ? order : o));
+      } else {
+        setOrderHistory(prev => [order, ...prev]);
       }
+
+      // Background sync
+      fetch('/api/orders').then(res => res.json()).then(data => {
+        if (data.success && data.data) setOrderHistory(data.data);
+      }).catch(console.error);
 
       setEditingOrder(null);
       showToast(isEdit ? 'Pesanan berhasil diperbarui di server!' : 'Pesanan berhasil dikirim ke Dapur & Sheet!');
