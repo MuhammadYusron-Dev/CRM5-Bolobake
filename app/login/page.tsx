@@ -96,8 +96,8 @@ export default function LoginPage() {
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
       <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
-        {/* Left Side: Orange Banner */}
-        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-[#e65c00] to-[#ff9100] text-white p-8 lg:p-12 relative overflow-hidden">
+        {/* Left Side: Blue Banner */}
+        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-blue-700 to-cyan-500 text-white p-8 lg:p-12 relative overflow-hidden">
           {/* Logo */}
           <div className="absolute top-8 left-8 flex items-center gap-3 z-20">
             <ChefHat className="w-8 h-8" />
