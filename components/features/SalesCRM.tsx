@@ -267,37 +267,6 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     }
   };
 
-  const handleExportExcel = () => {
-      const dataToExport = rfmData.list.map((cust: any) => ({
-          'Nama Outlet': cust.name,
-          'WhatsApp': cust.whatsapp,
-          'Tier': cust.tier,
-          'Segmentasi (RFM)': cust.segment,
-          'Total Order (Freq)': cust.totalOrders,
-          'Total Belanja (Monetary)': cust.totalSpent,
-          'Hari Sejak Order Terakhir': cust.daysSinceLastOrder === 999 ? 'Belum pernah' : cust.daysSinceLastOrder,
-          'Rata-rata Jeda Order': cust.avgOrderInterval > 0 ? cust.avgOrderInterval : '-',
-          'Produk Terlaris': cust.favoriteProduct,
-          'Catatan Khusus': cust.notes || '-'
-      }));
-
-      const ws = XLSX.utils.json_to_sheet(dataToExport);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Database RFM");
-      XLSX.writeFile(wb, `SalesCRM_RFM_${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
-
-  const onDragEnd = (result: any) => {
-      if (!result.destination) return;
-      
-      const { source, destination, draggableId } = result;
-      if (source.droppableId === destination.droppableId) return;
-
-      const lead = leads.find((l: any) => l.id.toString() === draggableId);
-      if (lead) {
-          handleMoveLead(lead, destination.droppableId);
-      }
-  };
 
   // Broadcast Logic
   const filteredBroadcastTargets = useMemo(() => {
