@@ -73,10 +73,8 @@ export async function syncRekapSheet(syncData?: SyncData) {
         })).filter((item: any) => item.sku !== '');
       }
 
-      // Convert "Kamis, 15 Juni 2026" to a sortable date if possible, or just string match
       const rawProdDate = row[11] || ''; // Production Date (e.g. 2026-06-15)
       
-      // If productionDate is empty, try to extract from Time display (row[0])
       let prodDate = rawProdDate;
       if (!prodDate && row[0]) {
         const pMatch = row[0].match(/Produksi:\s*(.+)/);
@@ -89,8 +87,6 @@ export async function syncRekapSheet(syncData?: SyncData) {
         if (dMatch) delivDateStr = dMatch[1].trim();
       }
 
-      // Ensure consistent formatting (optional string manipulation if needed)
-      
       return {
         timestamp: row[0],
         customer: row[1] || '',
@@ -106,7 +102,6 @@ export async function syncRekapSheet(syncData?: SyncData) {
 
     // Sort orders by production date, then original input order
     orders.sort((a, b) => {
-      // Very basic string sort if they are in YYYY-MM-DD, otherwise input order
       if (a.productionDate < b.productionDate) return -1;
       if (a.productionDate > b.productionDate) return 1;
       return a.originalIndex - b.originalIndex;
@@ -126,9 +121,8 @@ export async function syncRekapSheet(syncData?: SyncData) {
     const dateStartRows: number[] = [];
 
     for (const order of orders) {
-      if (order.status?.toLowerCase() === 'cancelled') continue; // Skip cancelled
+      if (order.status?.toLowerCase() === 'cancelled') continue;
 
-      // Determine Date display
       let displayDate = '';
       if (order.productionDate !== currentDate) {
         currentDate = order.productionDate;
@@ -145,7 +139,6 @@ export async function syncRekapSheet(syncData?: SyncData) {
       let displayNo = currentCustomerCount.toString();
       let displayCustomer = order.customer;
       
-      // Parse delivery from notes
       let rawNotes = order.notes || '';
       
       let imageUrl = '';
@@ -173,7 +166,6 @@ export async function syncRekapSheet(syncData?: SyncData) {
       const ongkirNum = Number(String(order.shippingCost).replace(/\D/g, ''));
       if (ongkirNum > 0) displayOngkir = `Rp${ongkirNum.toLocaleString('id-ID')}`;
 
-      // Split items into categories
       const leftItems = [];
       const rightItems = [];
 
@@ -190,7 +182,6 @@ export async function syncRekapSheet(syncData?: SyncData) {
         }
       }
 
-      // Figure out how many rows this order takes
       const rowCount = Math.max(leftItems.length, rightItems.length, imageUrl ? 2 : 1);
 
       for (let i = 0; i < rowCount; i++) {
@@ -221,13 +212,9 @@ export async function syncRekapSheet(syncData?: SyncData) {
           rightItem ? rightItem.satuan : '',              // J: SATUAN
         ]);
       }
-      
-      // Add a small spacer row between orders for readability, except we might not need it if they prefer compact.
-      // But looking at Gambar 1, there's no spacer row. Just straight to the next outlet.
     }
 
     // 4. Update the Rekap Produksi sheet
-    // Get sheet ID
     const spreadsheet = syncData?.spreadsheetProps || await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     let rekapSheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === REKAP_SHEET_NAME);
 
@@ -241,7 +228,7 @@ export async function syncRekapSheet(syncData?: SyncData) {
               properties: {
                 title: REKAP_SHEET_NAME,
                 gridProperties: {
-                  frozenRowCount: 1, // Freeze header
+                  frozenRowCount: 1,
                   columnCount: 10
                 }
               }
@@ -252,63 +239,22 @@ export async function syncRekapSheet(syncData?: SyncData) {
       rekapSheet = res.data.replies?.[0].addSheet;
     }
 
-    // Clear
-/**
- * runFullBackgroundSync
- * Consolidates all sync operations after a change to the orders sheet.
- * Fetches required data once and reuses it across the individual sync functions.
- * Optionally updates production capacity for a specific date.
- */
-export async function runFullBackgroundSync(targetDate?: string) {
-  try {
-    // Parallel fetch of all data needed for syncs
-    const [catalogRes, ordersRes, capacityRes, spreadsheetProps] = await Promise.all([
-      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'Master Katalog!A2:F' }),
-      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'Laporan Transaksi Harian!A2:M' }),
-      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'production_capacities!A2:C' }),
-      sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID }),
-    ]);
+    // Clear and write new content
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${REKAP_SHEET_NAME}!A:J`,
+    });
 
-    const syncData: SyncData = { catalogRes, ordersRes, capacityRes, spreadsheetProps };
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${REKAP_SHEET_NAME}!A1:J`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: rekapRows
+      }
+    });
 
-    // Execute individual syncs, reusing fetched data
-    await Promise.all([
-      syncRekapSheet(syncData),
-      syncLaporanBorders(syncData),
-    ]);
-
-    if (targetDate) {
-      await syncCapacity(targetDate, syncData);
-    }
-
-    // Sort Laporan Transaksi Harian by production date (column L index 11)
-    const sheet = spreadsheetProps.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
-    if (sheet?.properties?.sheetId !== undefined) {
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: SPREADSHEET_ID,
-        requestBody: {
-          requests: [
-            {
-              sortRange: {
-                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
-                sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }],
-              },
-            },
-          ],
-        },
-      });
-    }
-
-    console.log('Full background sync completed');
-    return true;
-  } catch (e) {
-    console.error('Full background sync failed', e);
-    return false;
-  }
-}
-
-
-    // Formatting Header & Cells (Black background, white text, bold, centered)
+    // Formatting Header & Cells
     if (rekapSheet?.properties?.sheetId !== undefined) {
       const formatRequests: any[] = [
         // Column Widths
@@ -329,7 +275,7 @@ export async function runFullBackgroundSync(targetDate?: string) {
             },
             cell: {
               userEnteredFormat: {
-                backgroundColor: { red: 0.2, green: 0.2, blue: 0.2 }, // Dark Gray/Black
+                backgroundColor: { red: 0.2, green: 0.2, blue: 0.2 },
                 textFormat: { foregroundColor: { red: 1, green: 1, blue: 1 }, bold: true },
                 horizontalAlignment: 'CENTER',
                 verticalAlignment: 'MIDDLE'
@@ -394,7 +340,7 @@ export async function runFullBackgroundSync(targetDate?: string) {
       }
 
       // Add rich text format for Outlet and Sample columns
-      for (let i = 1; i < rekapRows.length; i++) { // skip header at 0
+      for (let i = 1; i < rekapRows.length; i++) {
         const row = rekapRows[i];
         
         // Outlet (C: index 2)
@@ -408,7 +354,7 @@ export async function runFullBackgroundSync(targetDate?: string) {
           currentIdx += parts[0].length;
           
           for (let p = 1; p < parts.length; p++) {
-            currentIdx += 1; // Account for the newline character
+            currentIdx += 1;
             if (parts[p].startsWith('Note:')) {
               runs.push({ startIndex: currentIdx, format: { bold: false, italic: true, foregroundColor: { red: 1, green: 0, blue: 0 } } });
             } else {
@@ -496,7 +442,6 @@ export async function runFullBackgroundSync(targetDate?: string) {
     return true;
   } catch (error) {
     console.error('Error syncing Rekap Produksi sheet:', error);
-    // Don't throw, just log so it doesn't break the main API flow
     return false;
   }
 }
@@ -533,7 +478,6 @@ export async function syncCapacity(targetDate: string, syncData?: SyncData) {
     const rowIndex = capRows.findIndex(row => row[0] === targetDate);
 
     if (rowIndex !== -1) {
-      // Update existing row (Row 2 is index 0)
       const sheetRow = rowIndex + 2;
       await sheets.spreadsheets.values.update({
         spreadsheetId: SPREADSHEET_ID,
@@ -542,7 +486,6 @@ export async function syncCapacity(targetDate: string, syncData?: SyncData) {
         requestBody: { values: [[totalBooked]] }
       });
     } else {
-      // Append new row
       await sheets.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
         range: 'production_capacities!A:C',
@@ -639,95 +582,57 @@ export async function syncLaporanBorders(syncData?: SyncData) {
     return false;
   }
 }
+
+/**
+ * runFullBackgroundSync
+ * Menggabungkan semua operasi sync setelah ada perubahan pada orders.
+ * Mengambil data sekali dan menggunakannya kembali di semua fungsi sync.
+ * Opsional: memperbarui kapasitas produksi untuk tanggal tertentu.
+ */
+export async function runFullBackgroundSync(targetDate?: string) {
   try {
-    if (!SPREADSHEET_ID) return false;
+    // Ambil semua data yang diperlukan secara paralel
+    const [catalogRes, ordersRes, capacityRes, spreadsheetProps] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'Master Katalog!A2:F' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'Laporan Transaksi Harian!A2:M' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'production_capacities!A2:C' }),
+      sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID }),
+    ]);
 
-    // Fetch Laporan Transaksi Harian
-    const res = syncData?.ordersRes || await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A2:M',
-    });
+    const syncData: SyncData = { catalogRes, ordersRes, capacityRes, spreadsheetProps };
 
-    const rows = res.data.values || [];
-    if (rows.length === 0) return true;
+    // Jalankan sync secara paralel, reuse data yang sudah diambil
+    await Promise.all([
+      syncRekapSheet(syncData),
+      syncLaporanBorders(syncData),
+    ]);
 
-    // Get Sheet ID
-    const spreadsheet = syncData?.spreadsheetProps || await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
-    const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
-    
-    if (!sheet || sheet.properties?.sheetId === undefined) {
-      return false;
-    }
-    const sheetId = sheet.properties.sheetId;
-
-    let currentDate = '';
-    const dateStartRows: number[] = [];
-
-    // Row A2 starts at index 1
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const rowDate = row[11] || ''; // Tanggal Produksi is column L (index 11)
-      
-      // Skip empty dates or first row date setting
-      if (rowDate) {
-        if (!currentDate) {
-          currentDate = rowDate; // First valid date
-        } else if (rowDate !== currentDate) {
-          currentDate = rowDate;
-          dateStartRows.push(i + 1); // i=0 is A2 (index 1), i=1 is A3 (index 2)
-        }
-      }
+    if (targetDate) {
+      await syncCapacity(targetDate, syncData);
     }
 
-    const formatRequests: any[] = [
-      // Clear existing horizontal borders from row 2 downwards, up to column J
-      {
-        updateBorders: {
-          range: {
-            sheetId: sheetId,
-            startRowIndex: 1, // Start from A2
-            startColumnIndex: 0,
-            endColumnIndex: 10 // Up to column J
-          },
-          top: { style: 'NONE' },
-          bottom: { style: 'NONE' },
-          innerHorizontal: { style: 'NONE' }
-        }
-      }
-    ];
-
-    // Add top border for each new date row
-    for (const rowIndex of dateStartRows) {
-      formatRequests.push({
-        updateBorders: {
-          range: {
-            sheetId: sheetId,
-            startRowIndex: rowIndex,
-            endRowIndex: rowIndex + 1,
-            startColumnIndex: 0,
-            endColumnIndex: 10 // Up to column J
-          },
-          top: {
-            style: 'SOLID_MEDIUM', // Using slightly thicker line for better visibility
-            width: 1,
-            color: { red: 0, green: 0, blue: 0 }
-          }
-        }
+    // Sort Laporan Transaksi Harian berdasarkan tanggal produksi (kolom L, index 11)
+    const sheet = spreadsheetProps.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
+    if (sheet?.properties?.sheetId !== undefined) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        requestBody: {
+          requests: [
+            {
+              sortRange: {
+                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
+                sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }],
+              },
+            },
+          ],
+        },
       });
     }
 
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: SPREADSHEET_ID,
-      requestBody: {
-        requests: formatRequests
-      }
-    });
-
-    console.log('Successfully synced Laporan Transaksi Harian borders');
+    console.log('Full background sync completed');
     return true;
-  } catch (error) {
-    console.error('Error syncing Laporan Transaksi Harian borders:', error);
+  } catch (e) {
+    console.error('Full background sync failed', e);
     return false;
   }
 }
-
