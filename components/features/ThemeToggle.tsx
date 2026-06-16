@@ -42,10 +42,10 @@ export function ThemeToggle({ isCollapsed }: { isCollapsed?: boolean }) {
     <div className="flex items-center justify-between p-1 bg-secondary/60 rounded-full w-full max-w-[220px] relative">
       {/* Sliding Highlight Background */}
       <div 
-        className="absolute h-[calc(100%-8px)] w-[calc(33.33%-4px)] bg-background rounded-full shadow-sm transition-all duration-300 ease-out z-0"
+        className="absolute h-[calc(100%-8px)] bg-background rounded-full shadow-sm transition-all duration-300 ease-out z-0"
         style={{ 
-          left: '4px',
-          transform: `translateX(${theme === 'light' ? '0%' : theme === 'dark' ? '106%' : '212%'})` 
+          width: 'calc((100% - 8px) / 3)',
+          left: theme === 'light' ? '4px' : theme === 'dark' ? 'calc(4px + (100% - 8px) / 3)' : 'calc(4px + (100% - 8px) * 2 / 3)'
         }}
       />
 
