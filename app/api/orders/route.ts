@@ -187,6 +187,8 @@ export async function PUT(request: Request) {
       },
     });
 
+    invalidateCache(CACHE_KEY);
+
     after(async () => {
       try {
         await runFullBackgroundSync(body.productionDate);
@@ -275,6 +277,8 @@ export async function POST(request: Request) {
         values: [rowData],
       },
     });
+
+    invalidateCache(CACHE_KEY);
 
     after(async () => {
       try {
@@ -368,6 +372,8 @@ export async function DELETE(request: Request) {
         ],
       },
     });
+
+    invalidateCache(CACHE_KEY);
 
     after(async () => {
       try {

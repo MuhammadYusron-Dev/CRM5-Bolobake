@@ -162,10 +162,10 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
             <ThemeToggle isCollapsed={isCollapsed} />
           </div>
 
-          <div className={`flex items-start transition-all duration-300 ease-in-out w-full ${isCollapsed ? 'justify-center flex-col items-center' : ''}`}>
+          <div className={`flex items-center transition-all duration-300 ease-in-out w-full gap-1 ${isCollapsed ? 'flex-col justify-center' : ''}`}>
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center hover:bg-white/10 p-2 rounded-xl transition-all w-full min-w-0 text-left group"
+              className="flex-1 flex items-center hover:bg-white/10 p-2 rounded-xl transition-all min-w-0 text-left group"
               title="Pengaturan Profil"
             >
               <div className={`w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden transition-all duration-300 ${isCollapsed ? 'mx-auto' : ''}`}>
@@ -175,16 +175,16 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                   <span className="text-white font-bold text-lg">{user?.username?.[0]?.toUpperCase() || 'A'}</span>
                 )}
               </div>
-              <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[150px] opacity-100 ml-3'}`}>
-                <span className="text-sm font-bold break-words leading-tight">{user?.fullName || user?.username || 'Admin'}</span>
-                <span className="text-[10px] text-white/90 break-all leading-tight">{user?.email || user?.username}</span>
-                <div className="flex items-center mt-1">
-                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm">Owner</span>
+              <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'opacity-100 ml-3'}`}>
+                <span className="text-sm font-bold truncate leading-tight block">{user?.fullName || user?.username || 'Admin'}</span>
+                <span className="text-[10px] text-white/90 truncate leading-tight block mt-0.5">{user?.email || user?.username}</span>
+                <div className="flex items-center mt-1.5">
+                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm shrink-0">Owner</span>
                 </div>
               </div>
             </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 max-h-0' : 'max-w-[40px] max-h-[40px] opacity-100 ml-auto'}`}>
-              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0" title="Keluar">
+            <div className={`overflow-hidden shrink-0 flex items-center transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 max-h-0' : 'max-w-[40px] opacity-100'}`}>
+              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0 flex items-center justify-center" title="Keluar">
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
