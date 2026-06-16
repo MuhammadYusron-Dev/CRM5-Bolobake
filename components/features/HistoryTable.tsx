@@ -196,15 +196,21 @@ export function HistoryTable({
           <Clock className="w-10 h-10 mx-auto mb-3 opacity-20" />
           <p className="text-sm">{orderHistory.length === 0 ? 'Belum ada pesanan yang dibuat.' : 'Tidak ada pesanan pada periode ini.'}</p>
         </div>
-      ) : (
-        [...filteredHistory]
-          .sort((a, b) => {
-            const dateA = a.productionDate || '';
-            const dateB = b.productionDate || '';
-            if (dateA !== dateB) return dateB.localeCompare(dateA);
-            return b.id - a.id;
-          })
-          .map(order => {
+      ) : (() => {
+        const d = new Date();
+        const todayStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        
+        const sortedHistory = [...filteredHistory].sort((a, b) => {
+          const dateA = a.productionDate || '';
+          const dateB = b.productionDate || '';
+          if (dateA !== dateB) return dateB.localeCompare(dateA);
+          return b.id - a.id;
+        });
+
+        const leftOrders = sortedHistory.filter(o => !o.productionDate || o.productionDate <= todayStr);
+        const rightOrders = sortedHistory.filter(o => o.productionDate && o.productionDate > todayStr);
+
+        const renderOrderCard = (order: Order) => {
             const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
             return (
               <Card key={order.id} className={`transition-all duration-300 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/40 scale-[1.01] z-10 relative' : 'hover:border-primary/50 hover:shadow-md'}`}>
@@ -325,8 +331,41 @@ export function HistoryTable({
                 </CardContent>
               </Card>
             );
-          })
-      )}
+          };
+
+          return (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+              <div className="space-y-4">
+                <h4 className="font-bold text-slate-700 bg-slate-100 p-3 rounded-lg border flex items-center justify-between shadow-sm">
+                  <span>Hari Ini & Sebelumnya</span>
+                  <span className="bg-white text-slate-700 text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm">{leftOrders.length} Pesanan</span>
+                </h4>
+                <div className="space-y-4">
+                  {leftOrders.map(renderOrderCard)}
+                  {leftOrders.length === 0 && (
+                    <p className="text-sm text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl bg-slate-50/50">
+                      Tidak ada pesanan
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h4 className="font-bold text-slate-700 bg-slate-100 p-3 rounded-lg border flex items-center justify-between shadow-sm">
+                  <span>Besok & Selanjutnya</span>
+                  <span className="bg-white text-slate-700 text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm">{rightOrders.length} Pesanan</span>
+                </h4>
+                <div className="space-y-4">
+                  {rightOrders.map(renderOrderCard)}
+                  {rightOrders.length === 0 && (
+                    <p className="text-sm text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl bg-slate-50/50">
+                      Tidak ada pesanan
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+      })()}
 
       {printingOrder && (
         <Dialog open={!!printingOrder} onOpenChange={(open) => !open && setPrintingOrder(null)}>

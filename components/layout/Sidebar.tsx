@@ -73,6 +73,8 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       items: [
         { id: 'dashboard', label: 'Dashboard Analitik', icon: LayoutDashboard },
         { id: 'sales', label: 'Sales CRM', icon: BarChart3 },
+        { id: 'samples', label: 'Tracking Sample', icon: Gift },
+        { id: 'catalog', label: 'Katalog Manager', icon: Search },
       ]
     },
     {
@@ -85,10 +87,8 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
     {
       title: 'MANAJEMEN',
       items: [
-        { id: 'catalog', label: 'Katalog Manager', icon: Search },
         { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
         { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
-        { id: 'samples', label: 'Tracking Sample', icon: Gift },
       ]
     }
   ];
@@ -112,14 +112,12 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } ${isCollapsed ? 'md:w-20' : 'w-72'}`}
       >
-        <div className="p-4 flex items-center justify-between h-16 shrink-0 mt-2">
-          <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'px-2'}`}>
-            <ChefHat className="w-8 h-8 text-white flex-shrink-0 drop-shadow-sm" />
-            {!isCollapsed && (
-              <div className="flex flex-col whitespace-nowrap">
-                <span className="font-serif text-2xl font-bold leading-tight">Bolobake</span>
-              </div>
-            )}
+        <div className="p-4 flex items-center h-16 shrink-0 mt-2">
+          <div className="flex items-center overflow-hidden w-full px-2">
+            <ChefHat className={`w-8 h-8 text-white flex-shrink-0 drop-shadow-sm transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
+            <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
+              <span className="font-serif text-2xl font-bold leading-tight">Bolobake</span>
+            </div>
           </div>
           <button className="md:hidden p-1 rounded-md hover:bg-white/20" onClick={() => setIsMobileOpen(false)}>
             <X className="w-5 h-5 text-white" />
@@ -129,11 +127,11 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
         <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-6 px-0 custom-scrollbar">
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="flex flex-col gap-1">
-              {!isCollapsed && (
-                <span className="text-[10px] uppercase font-bold text-white/70 tracking-widest px-6 mb-1">
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0' : 'max-h-8 opacity-100'}`}>
+                <span className="text-[10px] uppercase font-bold text-white/70 tracking-widest px-6 block whitespace-nowrap">
                   {group.title}
                 </span>
-              )}
+              </div>
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeMenu === item.id;
@@ -142,14 +140,16 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                     key={item.id}
                     onClick={() => handleMenuClick(item)}
                     title={isCollapsed ? item.label : undefined}
-                    className={`flex items-center gap-3 py-2.5 transition-all duration-200 group ${
+                    className={`flex items-center py-2.5 transition-all duration-300 group ${
                       isActive 
-                        ? 'bg-white/20 text-white font-bold border-l-4 border-white' 
-                        : 'text-white/80 hover:bg-white/10 hover:text-white border-l-4 border-transparent'
+                        ? 'bg-white/20 text-white font-bold border-l-4 border-white border-r-4 border-r-transparent' 
+                        : 'text-white/80 hover:bg-white/10 hover:text-white border-l-4 border-transparent border-r-4 border-r-transparent'
                     } ${isCollapsed ? 'justify-center px-0' : 'px-5'}`}
                   >
-                    <Icon className={`w-5 h-5 flex-shrink-0 transition-transform ${isActive ? 'text-white' : 'group-hover:scale-110'}`} />
-                    {!isCollapsed && <span className="text-sm whitespace-nowrap">{item.label}</span>}
+                    <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:scale-110'}`} />
+                    <span className={`text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[200px] opacity-100 ml-3'}`}>
+                      {item.label}
+                    </span>
                   </button>
                 )
               })}
@@ -162,34 +162,32 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
             <ThemeToggle isCollapsed={isCollapsed} />
           </div>
 
-          <div className={`flex items-start gap-1 transition-all w-full ${isCollapsed ? 'justify-center flex-col items-center' : ''}`}>
+          <div className={`flex items-start transition-all duration-300 ease-in-out w-full ${isCollapsed ? 'justify-center flex-col items-center' : ''}`}>
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-start gap-3 hover:bg-white/10 p-2 rounded-xl transition-all flex-1 min-w-0 text-left group"
+              className="flex items-center hover:bg-white/10 p-2 rounded-xl transition-all w-full min-w-0 text-left group"
               title="Pengaturan Profil"
             >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden transition-all mt-0.5">
+              <div className={`w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden transition-all duration-300 ${isCollapsed ? 'mx-auto' : ''}`}>
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-white font-bold text-lg">{user?.username?.[0]?.toUpperCase() || 'A'}</span>
                 )}
               </div>
-              {!isCollapsed && (
-                <div className="flex flex-col flex-1 min-w-0 text-white gap-0.5">
-                  <span className="text-sm font-bold break-words leading-tight">{user?.fullName || user?.username || 'Admin'}</span>
-                  <span className="text-[10px] text-white/90 break-all leading-tight">{user?.email || user?.username}</span>
-                  <div className="flex items-center mt-1">
-                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm">Owner</span>
-                  </div>
+              <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[150px] opacity-100 ml-3'}`}>
+                <span className="text-sm font-bold break-words leading-tight">{user?.fullName || user?.username || 'Admin'}</span>
+                <span className="text-[10px] text-white/90 break-all leading-tight">{user?.email || user?.username}</span>
+                <div className="flex items-center mt-1">
+                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm">Owner</span>
                 </div>
-              )}
+              </div>
             </button>
-            {!isCollapsed && (
-              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0 mt-1" title="Keluar">
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 max-h-0' : 'max-w-[40px] max-h-[40px] opacity-100 ml-auto'}`}>
+              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0" title="Keluar">
                 <LogOut className="w-5 h-5" />
               </button>
-            )}
+            </div>
           </div>
         </div>
 

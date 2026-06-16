@@ -70,7 +70,7 @@ export function DashboardAnalytics({
             </svg>
           </div>
           <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-white/90">Total Omset</CardTitle>
+            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Total Omset</CardTitle>
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
@@ -101,7 +101,7 @@ export function DashboardAnalytics({
             </svg>
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-white/90">Jumlah Transaksi</CardTitle>
+            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Jumlah Transaksi</CardTitle>
             <div className="p-3 bg-white/15 rounded-xl text-white group-hover:-translate-y-1 transition-transform shadow-sm backdrop-blur-sm">
               <ShoppingBag className="w-5 h-5" />
             </div>
@@ -125,7 +125,7 @@ export function DashboardAnalytics({
             </svg>
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-white/90">Total Produk</CardTitle>
+            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Total Produk</CardTitle>
             <div className="p-3 bg-white/15 rounded-xl text-white group-hover:rotate-12 transition-transform shadow-sm backdrop-blur-sm">
               <Package className="w-5 h-5" />
             </div>
@@ -172,7 +172,7 @@ export function DashboardAnalytics({
             </svg>
           </div>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-sm font-medium text-white/90">Customer Aktif</CardTitle>
+            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Customer Aktif</CardTitle>
             <div className="p-3 bg-white/15 rounded-xl text-white group-hover:scale-110 transition-transform duration-300 shadow-sm backdrop-blur-sm">
               <Users className="w-5 h-5" />
             </div>
