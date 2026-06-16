@@ -16,6 +16,25 @@ interface DashboardData {
   categorySales?: { croissant: number; cake: number };
 }
 
+const AnimatedProgressBar = ({ percentage, colorClass }: { percentage: string; colorClass: string }) => {
+  const [width, setWidth] = React.useState('0%');
+  
+  React.useEffect(() => {
+    // Delay setting width so CSS transition triggers properly from 0% on mount
+    const timer = setTimeout(() => {
+      setWidth(`${percentage}%`);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [percentage]);
+
+  return (
+    <div 
+      className={`h-2.5 rounded-full transition-all duration-1000 ease-out ${colorClass}`}
+      style={{ width }}
+    ></div>
+  );
+};
+
 export function DashboardAnalytics({ 
   dashboard, 
   isLoading, 
@@ -213,10 +232,10 @@ export function DashboardAnalytics({
                           <span className="font-medium text-primary">{percentage}% <span className="text-muted-foreground text-xs font-normal ml-1">({formatRp(data.omset)})</span></span>
                         </div>
                         <div className={`w-full bg-secondary rounded-full h-2.5 overflow-hidden ${idx === 0 ? 'shimmer-bar' : ''}`}>
-                          <div 
-                            className={`h-2.5 rounded-full transition-all duration-1000 ease-out ${idx === 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-500 progress-striped relative' : idx === 1 ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}
-                            style={{ width: `${percentage}%` }}
-                          ></div>
+                          <AnimatedProgressBar 
+                            percentage={percentage} 
+                            colorClass={idx === 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-500 progress-striped relative' : idx === 1 ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500' : 'bg-gradient-to-r from-orange-500 to-red-500'} 
+                          />
                         </div>
                       </div>
                     );
