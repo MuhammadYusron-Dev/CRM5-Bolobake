@@ -59,4 +59,5 @@ export interface Customer {
   tier: string;
   whatsapp: string;
   address: string;
+  notes?: string;
 }

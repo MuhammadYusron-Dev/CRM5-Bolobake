@@ -16,7 +16,7 @@ export async function GET() {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'customers!A2:F',
+      range: 'customers!A2:G',
     });
 
     const rows = response.data.values || [];
@@ -28,7 +28,8 @@ export async function GET() {
       tier: row[2] || 'STANDARD',
       whatsapp: row[3] || '',
       address: row[4] || '',
-      createdAt: row[5] || ''
+      createdAt: row[5] || '',
+      notes: row[6] || ''
     }));
 
     setCache(CACHE_KEY, customers);
@@ -57,7 +58,8 @@ export async function POST(request: Request) {
       tier: body.tier || 'STANDARD',
       whatsapp: body.whatsapp || '',
       address: body.address || '',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      notes: body.notes || ''
     };
 
     const rowData = [
@@ -66,12 +68,13 @@ export async function POST(request: Request) {
       newCustomer.tier,
       newCustomer.whatsapp,
       newCustomer.address,
-      newCustomer.createdAt
+      newCustomer.createdAt,
+      newCustomer.notes
     ];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'customers!A:F',
+      range: 'customers!A:G',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
@@ -101,12 +104,13 @@ export async function PUT(request: Request) {
       body.tier,
       body.whatsapp,
       body.address,
-      body.createdAt || new Date().toISOString()
+      body.createdAt || new Date().toISOString(),
+      body.notes || ''
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `customers!A${body.rowNumber}:F${body.rowNumber}`,
+      range: `customers!A${body.rowNumber}:G${body.rowNumber}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],

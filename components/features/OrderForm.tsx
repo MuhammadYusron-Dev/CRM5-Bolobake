@@ -231,9 +231,20 @@ export function OrderForm({
       setNotes(orderToEdit.notes || '');
       setDeliveryNotes(orderDeliveryNotes);
     } else {
-      setCustomer('');
-      setSelectedCustomerObj(null);
-      setTierPrices({});
+      let initialCustomer = '';
+      if (typeof window !== 'undefined') {
+          const searchParams = new URLSearchParams(window.location.search);
+          const urlCustomer = searchParams.get('customer');
+          if (urlCustomer) initialCustomer = urlCustomer;
+      }
+
+      if (initialCustomer) {
+          handleCustomerChange(initialCustomer);
+      } else {
+          setCustomer('');
+          setSelectedCustomerObj(null);
+          setTierPrices({});
+      }
       setProductionDate('');
       setDeliveryDate('');
       setItems([{ id: Date.now(), sku: '', price: 0, qty: 1, isSample: false, isSplitInvoice: false }]);

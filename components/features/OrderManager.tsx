@@ -44,8 +44,6 @@ export function OrderManager({
       const tab = searchParams.get('tab');
       if (tab) {
         setActiveMenu(tab);
-        // Clean up URL without triggering navigation
-        window.history.replaceState({}, '', window.location.pathname);
       }
     }
     

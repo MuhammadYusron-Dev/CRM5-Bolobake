@@ -4,18 +4,22 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Search, Trophy, AlertTriangle, UserMinus, Crown, MessageCircle, BarChart3, Users, Filter, Plus, Edit, Send } from 'lucide-react';
+import { Search, Trophy, AlertTriangle, UserMinus, Crown, MessageCircle, BarChart3, Users, Filter, Plus, Edit, Send, Download, ShoppingCart, Activity, FileText, X } from 'lucide-react';
 import { Order, Customer } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
+import * as XLSX from 'xlsx';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { useRouter } from 'next/navigation';
 
 interface SalesCRMProps {
   initialOrders: Order[];
 }
 
 export function SalesCRM({ initialOrders }: SalesCRMProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'rfm' | 'leads' | 'broadcast'>('rfm');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -29,6 +33,8 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   // Modal States
   const [customerModal, setCustomerModal] = useState<{ isOpen: boolean, data: any } | null>(null);
   const [leadModal, setLeadModal] = useState<{ isOpen: boolean, data: any } | null>(null);
+  const [customer360, setCustomer360] = useState<any | null>(null);
+  const [customerNotes, setCustomerNotes] = useState('');
 
   // Broadcast States
   const [broadcastSegment, setBroadcastSegment] = useState<string>('Jadwal Restock');
@@ -50,6 +56,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             whatsapp: c.whatsapp,
             address: c.address,
             tier: c.tier,
+            notes: c.notes,
             rowNumber: c.rowNumber,
             id: c.id,
             totalOrders: 0, 
@@ -73,6 +80,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
               whatsapp: '', 
               address: '', 
               tier: 'STANDARD',
+              notes: '',
               totalOrders: 0, 
               totalSpent: 0, 
               firstOrderTime: 0,
@@ -259,6 +267,38 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     }
   };
 
+  const handleExportExcel = () => {
+      const dataToExport = rfmData.list.map((cust: any) => ({
+          'Nama Outlet': cust.name,
+          'WhatsApp': cust.whatsapp,
+          'Tier': cust.tier,
+          'Segmentasi (RFM)': cust.segment,
+          'Total Order (Freq)': cust.totalOrders,
+          'Total Belanja (Monetary)': cust.totalSpent,
+          'Hari Sejak Order Terakhir': cust.daysSinceLastOrder === 999 ? 'Belum pernah' : cust.daysSinceLastOrder,
+          'Rata-rata Jeda Order': cust.avgOrderInterval > 0 ? cust.avgOrderInterval : '-',
+          'Produk Terlaris': cust.favoriteProduct,
+          'Catatan Khusus': cust.notes || '-'
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(dataToExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Database RFM");
+      XLSX.writeFile(wb, `SalesCRM_RFM_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const onDragEnd = (result: any) => {
+      if (!result.destination) return;
+      
+      const { source, destination, draggableId } = result;
+      if (source.droppableId === destination.droppableId) return;
+
+      const lead = leads.find((l: any) => l.id.toString() === draggableId);
+      if (lead) {
+          handleMoveLead(lead, destination.droppableId);
+      }
+  };
+
   // Broadcast Logic
   const filteredBroadcastTargets = useMemo(() => {
       if (broadcastSegment === 'Semua') return rfmData.list;
@@ -317,6 +357,66 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     setIsBlasting(false);
   };
 
+  const handleExportExcel = () => {
+    const exportData = rfmData.list.map((c: any) => ({
+        'Nama Outlet': c.name,
+        'WhatsApp': c.whatsapp || '-',
+        'Tier': c.tier,
+        'Alamat': c.address,
+        'Segmen': c.segment,
+        'Total Orders': c.totalOrders,
+        'Total Belanja (Rp)': c.totalSpent,
+        'Hari Sejak Order Terakhir': c.daysSinceLastOrder === 999 ? 'Belum Order' : c.daysSinceLastOrder,
+        'Rata-rata Jeda Order (Hari)': c.avgOrderInterval,
+        'Top Produk': c.favoriteProduct,
+        'Catatan / Notes': c.notes || '-'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Database RFM");
+    XLSX.writeFile(wb, `Sales_CRM_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const onDragEnd = async (result: DropResult) => {
+    const { source, destination, draggableId } = result;
+
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+    const leadId = draggableId;
+    const lead = leads.find((l: any) => l.id === leadId);
+    if (!lead) return;
+
+    const newStatus = destination.droppableId;
+    
+    mutateLeads((prev: any) => {
+        if (!prev) return prev;
+        return prev.map((l: any) => l.id === leadId ? { ...l, status: newStatus } : l);
+    }, false);
+
+    await handleMoveLead(lead, newStatus);
+  };
+
+  const saveNotes = async () => {
+      if (!customer360) return;
+      const updatedCust = { ...customer360, notes: customerNotes };
+      try {
+          const res = await fetch('/api/customers', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updatedCust)
+          });
+          if (res.ok) {
+              mutateCustomers();
+              setCustomer360(updatedCust);
+              alert('Catatan berhasil disimpan!');
+          }
+      } catch (e) {
+          console.error(e);
+      }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -373,6 +473,9 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                             <Search className="w-4 h-4 text-muted-foreground mr-2" />
                             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari nama outlet..." className="bg-transparent text-sm outline-none w-full" />
                         </div>
+                        <Button variant="outline" size="sm" onClick={handleExportExcel} className="text-emerald-600 border-emerald-200 bg-emerald-50 hover:bg-emerald-100">
+                            <Download className="w-4 h-4 mr-1" /> Export Excel
+                        </Button>
                         <Button size="sm" onClick={() => setCustomerModal({ isOpen: true, data: { name: '', whatsapp: '', address: '', tier: 'STANDARD' } })}>
                             <Plus className="w-4 h-4 mr-1" /> Outlet
                         </Button>
@@ -408,7 +511,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                                     <tr key={idx} className="hover:bg-muted/30 transition-colors">
                                         <td className="px-4 py-3">
                                             <div className="font-bold text-foreground flex items-center gap-2">
-                                                {cust.name}
+                                                <button onClick={() => { setCustomer360(cust); setCustomerNotes(cust.notes || ''); }} className="hover:text-primary transition-colors text-left">{cust.name}</button>
                                                 <button onClick={() => setCustomerModal({ isOpen: true, data: cust })} className="text-muted-foreground hover:text-primary"><Edit className="w-3 h-3" /></button>
                                             </div>
                                             <div className="text-[10px] text-muted-foreground font-medium">{cust.whatsapp || 'No WA (-) '} • {cust.tier}</div>
@@ -432,13 +535,18 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                                             <span className="font-bold text-primary">{cust.favoriteProduct}</span>
                                         </td>
                                         <td className="px-4 py-3 text-center">
-                                            <a 
-                                                href={generateWA(cust.whatsapp, cust.name, cust.favoriteProduct, cust.daysSinceLastOrder)} 
-                                                target="_blank" rel="noreferrer"
-                                                className={`inline-flex p-2 rounded-lg transition-colors ${!cust.whatsapp ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : cust.segment === 'At Risk' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
-                                            >
-                                                <MessageCircle className="w-4 h-4" />
-                                            </a>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <a 
+                                                    href={generateWA(cust.whatsapp, cust.name, cust.favoriteProduct, cust.daysSinceLastOrder)} 
+                                                    target="_blank" rel="noreferrer"
+                                                    className={`inline-flex p-2 rounded-lg transition-colors ${!cust.whatsapp ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : cust.segment === 'At Risk' ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-green-100 text-green-600 hover:bg-green-200'}`}
+                                                >
+                                                    <MessageCircle className="w-4 h-4" />
+                                                </a>
+                                                <Button size="icon" variant="outline" className="h-8 w-8 text-primary" onClick={() => router.push(`/?tab=new_order&customer=${encodeURIComponent(cust.name)}&wa=${cust.whatsapp}`)}>
+                                                    <ShoppingCart className="w-4 h-4" />
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -450,46 +558,62 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
 
             {/* Tab: Leads Pipeline */}
             {activeTab === 'leads' && (
-                <div className="flex gap-4 overflow-x-auto pb-4 items-start">
-                    {['Prospek Baru', 'Dihubungi', 'Kirim Sampel', 'Negosiasi', 'Closed Won'].map(status => (
-                        <div key={status} className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 w-80 shrink-0 border border-border">
-                            <h3 className="font-bold mb-3 flex items-center justify-between">
-                                {status}
-                                <span className="bg-slate-200 dark:bg-slate-800 text-xs px-2 py-1 rounded-full text-slate-600 dark:text-slate-400">
-                                    {leads.filter((l: any) => l.status === status).length}
-                                </span>
-                            </h3>
-                            <div className="space-y-3 min-h-[500px]">
-                                {leads.filter((l: any) => l.status === status).map((lead: any) => (
-                                    <Card key={lead.id} className="cursor-pointer border-border hover:border-primary transition-colors">
-                                        <CardContent className="p-3">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <h4 className="font-bold text-sm">{lead.name}</h4>
-                                                <button onClick={() => setLeadModal({ isOpen: true, data: lead })} className="text-muted-foreground hover:text-primary"><Edit className="w-3 h-3" /></button>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground mb-2">{lead.whatsapp || 'No WA (-)'}</p>
-                                            {lead.notes && <p className="text-xs bg-muted p-2 rounded-md mb-2 italic line-clamp-2">{lead.notes}</p>}
-                                            
-                                            <div className="mt-3 pt-2 border-t border-border">
-                                                <select 
-                                                    className="w-full text-xs bg-transparent border-none focus:ring-0 cursor-pointer text-primary font-medium"
-                                                    value={lead.status}
-                                                    onChange={(e) => handleMoveLead(lead, e.target.value)}
-                                                >
-                                                    <option value="Prospek Baru">Pindah ke: Prospek Baru</option>
-                                                    <option value="Dihubungi">Pindah ke: Dihubungi</option>
-                                                    <option value="Kirim Sampel">Pindah ke: Kirim Sampel</option>
-                                                    <option value="Negosiasi">Pindah ke: Negosiasi</option>
-                                                    <option value="Closed Won">Goal! (Pindah ke Customer)</option>
-                                                </select>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <div className="flex gap-4 overflow-x-auto pb-4 items-start">
+                        {['Prospek Baru', 'Dihubungi', 'Kirim Sampel', 'Negosiasi', 'Closed Won'].map(status => (
+                            <Droppable key={status} droppableId={status}>
+                                {(provided) => (
+                                    <div 
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 w-80 shrink-0 border border-border"
+                                    >
+                                        <h3 className="font-bold mb-3 flex items-center justify-between">
+                                            {status}
+                                            <span className="bg-slate-200 dark:bg-slate-800 text-xs px-2 py-1 rounded-full text-slate-600 dark:text-slate-400">
+                                                {leads.filter((l: any) => l.status === status).length}
+                                            </span>
+                                        </h3>
+                                        <div className="space-y-3 min-h-[500px]">
+                                            {leads.filter((l: any) => l.status === status).map((lead: any, index: number) => (
+                                                <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                                                    {(provided) => (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                        >
+                                                            <Card className="cursor-grab active:cursor-grabbing border-border hover:border-primary transition-colors">
+                                                                <CardContent className="p-3">
+                                                                    <div className="flex justify-between items-start mb-1">
+                                                                        <h4 className="font-bold text-sm">{lead.name}</h4>
+                                                                        <button onClick={() => setLeadModal({ isOpen: true, data: lead })} className="text-muted-foreground hover:text-primary"><Edit className="w-3 h-3" /></button>
+                                                                    </div>
+                                                                    <p className="text-xs text-muted-foreground mb-2">{lead.whatsapp || 'No WA (-)'}</p>
+                                                                    {lead.notes && <p className="text-xs bg-muted p-2 rounded-md mb-2 italic line-clamp-2">{lead.notes}</p>}
+                                                                    
+                                                                    <div className="mt-3 pt-2 border-t border-border flex justify-between items-center">
+                                                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{lead.status}</span>
+                                                                        {lead.status === 'Closed Won' && (
+                                                                            <Button size="icon" variant="ghost" className="h-6 w-6 text-emerald-600" onClick={() => router.push(`/?tab=new_order&customer=${encodeURIComponent(lead.name)}&wa=${lead.whatsapp}`)}>
+                                                                                <ShoppingCart className="w-3 h-3" />
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+                                                                </CardContent>
+                                                            </Card>
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {provided.placeholder}
+                                        </div>
+                                    </div>
+                                )}
+                            </Droppable>
+                        ))}
+                    </div>
+                </DragDropContext>
             )}
 
             {/* Tab: Smart Broadcast */}
@@ -660,6 +784,80 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Customer 360 Drawer */}
+      {customer360 && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+              <div className="fixed inset-0 bg-black/50" onClick={() => setCustomer360(null)}></div>
+              <div className="relative w-full max-w-md bg-white dark:bg-slate-950 shadow-2xl h-full flex flex-col animate-in slide-in-from-right-full duration-300">
+                  <div className="flex items-center justify-between p-4 border-b border-border">
+                      <div className="flex items-center gap-2">
+                          <div className={`p-2 rounded-lg ${customer360.segmentColor}`}>
+                              <customer360.icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                              <h3 className="font-bold text-lg">{customer360.name}</h3>
+                              <p className="text-xs text-muted-foreground">{customer360.whatsapp || 'No WA (-) '} • {customer360.tier}</p>
+                          </div>
+                      </div>
+                      <button onClick={() => setCustomer360(null)} className="p-2 hover:bg-slate-100 rounded-full dark:hover:bg-slate-800 transition-colors">
+                          <X className="w-5 h-5" />
+                      </button>
+                  </div>
+                  
+                  <div className="p-4 flex-1 overflow-y-auto space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-border">
+                              <p className="text-xs text-muted-foreground mb-1 uppercase font-bold tracking-wide">Total Belanja</p>
+                              <p className="text-lg font-bold text-emerald-600">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(customer360.totalSpent)}</p>
+                          </div>
+                          <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-border">
+                              <p className="text-xs text-muted-foreground mb-1 uppercase font-bold tracking-wide">Total Order</p>
+                              <p className="text-lg font-bold">{customer360.totalOrders}x</p>
+                          </div>
+                      </div>
+
+                      <div>
+                          <h4 className="font-bold mb-3 flex items-center text-sm"><Activity className="w-4 h-4 mr-2 text-primary" /> Pola Pembelian</h4>
+                          <div className="space-y-2 text-sm">
+                              <div className="flex justify-between border-b border-border pb-2">
+                                  <span className="text-muted-foreground">Order Terakhir</span>
+                                  <span className="font-bold">{customer360.daysSinceLastOrder === 999 ? 'Belum pernah' : `${customer360.daysSinceLastOrder} hari lalu`}</span>
+                              </div>
+                              <div className="flex justify-between border-b border-border pb-2">
+                                  <span className="text-muted-foreground">Rata-rata Jeda Order</span>
+                                  <span className="font-bold">{customer360.avgOrderInterval > 0 ? `${customer360.avgOrderInterval} hari` : '-'}</span>
+                              </div>
+                              <div className="flex justify-between pb-2">
+                                  <span className="text-muted-foreground">Top Produk</span>
+                                  <span className="font-bold text-primary">{customer360.favoriteProduct}</span>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div>
+                          <h4 className="font-bold mb-3 flex items-center text-sm"><FileText className="w-4 h-4 mr-2 text-primary" /> Catatan Interaksi</h4>
+                          <textarea 
+                              className="w-full border border-border bg-background p-3 rounded-lg text-sm min-h-[120px]" 
+                              placeholder="Ketik catatan obrolan, komplain, atau info khusus pelanggan ini..." 
+                              value={customerNotes} 
+                              onChange={e => setCustomerNotes(e.target.value)} 
+                          />
+                          <Button className="w-full mt-2" onClick={saveNotes}>Simpan Catatan</Button>
+                      </div>
+
+                      <div className="pt-4 border-t border-border">
+                          <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => {
+                              router.push(`/?tab=new_order&customer=${encodeURIComponent(customer360.name)}&wa=${customer360.whatsapp}`);
+                          }}>
+                              <ShoppingCart className="w-4 h-4 mr-2" /> Buat Pesanan Baru
+                          </Button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+
     </div>
   );
 }
