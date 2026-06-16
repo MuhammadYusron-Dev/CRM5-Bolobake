@@ -1,5 +1,12 @@
 import { sheets, SPREADSHEET_ID } from './google-sheets';
 
+export interface SyncData {
+  catalogRes?: any;
+  ordersRes?: any;
+  capacityRes?: any;
+  spreadsheetProps?: any;
+}
+
 const REKAP_SHEET_NAME = 'Rekap Produksi';
 
 // Helper to determine if a category belongs to Cake/Other
@@ -11,12 +18,12 @@ function isCakeOrOther(category: string): boolean {
   return false; // Default to Croissant / Artisan Bakery
 }
 
-export async function syncRekapSheet() {
+export async function syncRekapSheet(syncData?: SyncData) {
   try {
     if (!SPREADSHEET_ID) throw new Error('Missing SPREADSHEET_ID');
 
     // 1. Get Master Katalog to map SKU -> Category & Satuan
-    const catalogRes = await sheets.spreadsheets.values.get({
+    const catalogRes = syncData?.catalogRes || await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'Master Katalog!A2:F',
     });
@@ -33,7 +40,7 @@ export async function syncRekapSheet() {
     });
 
     // 2. Fetch all orders from Laporan Transaksi Harian
-    const ordersRes = await sheets.spreadsheets.values.get({
+    const ordersRes = syncData?.ordersRes || await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'Laporan Transaksi Harian!A2:M',
     });
@@ -221,7 +228,7 @@ export async function syncRekapSheet() {
 
     // 4. Update the Rekap Produksi sheet
     // Get sheet ID
-    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+    const spreadsheet = syncData?.spreadsheetProps || await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     let rekapSheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === REKAP_SHEET_NAME);
 
     // If sheet doesn't exist, create it
@@ -245,7 +252,61 @@ export async function syncRekapSheet() {
       rekapSheet = res.data.replies?.[0].addSheet;
     }
 
-    // Clear existing content and write new content
+    // Clear
+/**
+ * runFullBackgroundSync
+ * Consolidates all sync operations after a change to the orders sheet.
+ * Fetches required data once and reuses it across the individual sync functions.
+ * Optionally updates production capacity for a specific date.
+ */
+export async function runFullBackgroundSync(targetDate?: string) {
+  try {
+    // Parallel fetch of all data needed for syncs
+    const [catalogRes, ordersRes, capacityRes, spreadsheetProps] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'Master Katalog!A2:F' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'Laporan Transaksi Harian!A2:M' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: 'production_capacities!A2:C' }),
+      sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID }),
+    ]);
+
+    const syncData: SyncData = { catalogRes, ordersRes, capacityRes, spreadsheetProps };
+
+    // Execute individual syncs, reusing fetched data
+    await Promise.all([
+      syncRekapSheet(syncData),
+      syncLaporanBorders(syncData),
+    ]);
+
+    if (targetDate) {
+      await syncCapacity(targetDate, syncData);
+    }
+
+    // Sort Laporan Transaksi Harian by production date (column L index 11)
+    const sheet = spreadsheetProps.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
+    if (sheet?.properties?.sheetId !== undefined) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        requestBody: {
+          requests: [
+            {
+              sortRange: {
+                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
+                sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }],
+              },
+            },
+          ],
+        },
+      });
+    }
+
+    console.log('Full background sync completed');
+    return true;
+  } catch (e) {
+    console.error('Full background sync failed', e);
+    return false;
+  }
+}
+nt and write new content
     await sheets.spreadsheets.values.clear({
       spreadsheetId: SPREADSHEET_ID,
       range: `${REKAP_SHEET_NAME}!A:J`,
@@ -453,12 +514,12 @@ export async function syncRekapSheet() {
   }
 }
 
-export async function syncCapacity(targetDate: string) {
+export async function syncCapacity(targetDate: string, syncData?: SyncData) {
   try {
     if (!SPREADSHEET_ID || !targetDate) return false;
 
     // 1. Calculate total booked_pcs for this date from Laporan Transaksi Harian
-    const ordersRes = await sheets.spreadsheets.values.get({
+    const ordersRes = syncData?.ordersRes || await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'Laporan Transaksi Harian!A2:M',
     });
@@ -477,7 +538,7 @@ export async function syncCapacity(targetDate: string) {
     });
 
     // 2. Update production_capacities
-    const capRes = await sheets.spreadsheets.values.get({
+    const capRes = syncData?.capacityRes || await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'production_capacities!A2:C',
     });
@@ -512,12 +573,90 @@ export async function syncCapacity(targetDate: string) {
   }
 }
 
-export async function syncLaporanBorders() {
+export async function syncLaporanBorders(syncData?: SyncData) {
+  try {
+    if (!SPREADSHEET_ID) return false;
+
+    // Fetch Laporan Transaksi Harian (reuse if provided)
+    const res = syncData?.ordersRes || await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Laporan Transaksi Harian!A2:M',
+    });
+
+    const rows = res.data.values || [];
+    if (rows.length === 0) return true;
+
+    // Get Sheet ID (reuse cached spreadsheet if provided)
+    const spreadsheet = syncData?.spreadsheetProps || await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+    const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
+    if (!sheet || sheet.properties?.sheetId === undefined) {
+      return false;
+    }
+    const sheetId = sheet.properties.sheetId;
+
+    let currentDate = '';
+    const dateStartRows: number[] = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowDate = row[11] || '';
+      if (rowDate) {
+        if (!currentDate) {
+          currentDate = rowDate;
+        } else if (rowDate !== currentDate) {
+          currentDate = rowDate;
+          dateStartRows.push(i + 1);
+        }
+      }
+    }
+
+    const formatRequests: any[] = [
+      {
+        updateBorders: {
+          range: {
+            sheetId: sheetId,
+            startRowIndex: 1,
+            startColumnIndex: 0,
+            endColumnIndex: 10,
+          },
+          top: { style: 'NONE' },
+          bottom: { style: 'NONE' },
+          innerHorizontal: { style: 'NONE' },
+        },
+      },
+    ];
+
+    for (const rowIndex of dateStartRows) {
+      formatRequests.push({
+        updateBorders: {
+          range: {
+            sheetId: sheetId,
+            startRowIndex: rowIndex,
+            endRowIndex: rowIndex + 1,
+            startColumnIndex: 0,
+            endColumnIndex: 10,
+          },
+          top: { style: 'SOLID_MEDIUM', width: 1, color: { red: 0, green: 0, blue: 0 } },
+        },
+      });
+    }
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: SPREADSHEET_ID,
+      requestBody: { requests: formatRequests },
+    });
+
+    console.log('Successfully synced Laporan Transaksi Harian borders');
+    return true;
+  } catch (error) {
+    console.error('Error syncing Laporan Transaksi Harian borders:', error);
+    return false;
+  }
+}
   try {
     if (!SPREADSHEET_ID) return false;
 
     // Fetch Laporan Transaksi Harian
-    const res = await sheets.spreadsheets.values.get({
+    const res = syncData?.ordersRes || await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: 'Laporan Transaksi Harian!A2:M',
     });
@@ -526,7 +665,7 @@ export async function syncLaporanBorders() {
     if (rows.length === 0) return true;
 
     // Get Sheet ID
-    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
+    const spreadsheet = syncData?.spreadsheetProps || await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
     const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
     
     if (!sheet || sheet.properties?.sheetId === undefined) {

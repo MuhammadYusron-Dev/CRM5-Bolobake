@@ -1,6 +1,6 @@
 import { NextResponse, after } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
-import { syncRekapSheet, syncCapacity, syncLaporanBorders } from '@/lib/rekap-sync';
+import { runFullBackgroundSync } from '@/lib/rekap-sync';
 import { getFromCache, setCache, invalidateCache } from '@/lib/cache';
 
 const CACHE_KEY = 'orders_data';
@@ -181,35 +181,7 @@ export async function PUT(request: Request) {
 
     after(async () => {
       try {
-        // Sort sheet by Production Date
-        const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
-        const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
-        if (sheet?.properties?.sheetId !== undefined) {
-          await sheets.spreadsheets.batchUpdate({
-            spreadsheetId: SPREADSHEET_ID,
-            requestBody: {
-              requests: [
-                {
-                  sortRange: {
-                    range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
-                    sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
-                  }
-                }
-              ]
-            }
-          });
-        }
-
-        // Sync human-readable Rekap Produksi sheet
-        await syncRekapSheet();
-        
-        // Sync Laporan Transaksi Harian Borders
-        await syncLaporanBorders();
-        
-        // Sync Production Capacity sheet
-        if (body.productionDate) {
-          await syncCapacity(body.productionDate);
-        }
+        await runFullBackgroundSync(body.productionDate);
       } catch (e) {
         console.error('Background sync failed', e);
       }
@@ -293,35 +265,7 @@ export async function POST(request: Request) {
 
     after(async () => {
       try {
-        // Sort sheet by Production Date
-        const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID });
-        const sheet = spreadsheet.data.sheets?.find((s: any) => s.properties?.title === 'Laporan Transaksi Harian');
-        if (sheet?.properties?.sheetId !== undefined) {
-          await sheets.spreadsheets.batchUpdate({
-            spreadsheetId: SPREADSHEET_ID,
-            requestBody: {
-              requests: [
-                {
-                  sortRange: {
-                    range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
-                    sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }]
-                  }
-                }
-              ]
-            }
-          });
-        }
-
-        // Sync human-readable Rekap Produksi sheet
-        await syncRekapSheet();
-
-        // Sync Laporan Transaksi Harian Borders
-        await syncLaporanBorders();
-
-        // Sync Production Capacity sheet
-        if (body.productionDate) {
-          await syncCapacity(body.productionDate);
-        }
+        await runFullBackgroundSync(body.productionDate);
       } catch (e) {
         console.error('Background sync failed', e);
       }
@@ -346,7 +290,7 @@ export async function DELETE(request: Request) {
         range: 'Laporan Transaksi Harian!A2:R',
       });
       invalidateCache(CACHE_KEY);
-      await syncRekapSheet();
+      await runFullBackgroundSync();
       
       // Reset all booked capacities to 0
       const capRes = await sheets.spreadsheets.values.get({
@@ -414,16 +358,7 @@ export async function DELETE(request: Request) {
 
     after(async () => {
       try {
-        // Sync human-readable Rekap Produksi sheet
-        await syncRekapSheet();
-
-        // Sync Laporan Transaksi Harian Borders
-        await syncLaporanBorders();
-        
-        if (deletedOrderDate) {
-          const { syncCapacity } = await import('@/lib/rekap-sync');
-          await syncCapacity(deletedOrderDate);
-        }
+        await runFullBackgroundSync(deletedOrderDate);
       } catch (e) {
         console.error('Background sync failed', e);
       }
