@@ -306,20 +306,7 @@ export async function runFullBackgroundSync(targetDate?: string) {
     return false;
   }
 }
-nt and write new content
-    await sheets.spreadsheets.values.clear({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${REKAP_SHEET_NAME}!A:J`,
-    });
 
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${REKAP_SHEET_NAME}!A1:J`,
-      valueInputOption: 'USER_ENTERED',
-      requestBody: {
-        values: rekapRows
-      }
-    });
 
     // Formatting Header & Cells (Black background, white text, bold, centered)
     if (rekapSheet?.properties?.sheetId !== undefined) {
