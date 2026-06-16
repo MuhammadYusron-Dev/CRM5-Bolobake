@@ -117,6 +117,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
             <ChefHat className={`w-8 h-8 text-white flex-shrink-0 drop-shadow-sm transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
             <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
               <span className="font-serif text-2xl font-bold leading-tight">Bolobake</span>
+              <span className="text-[9px] text-white/60 tracking-widest font-bold uppercase mt-0.5">Powered by Yusron</span>
             </div>
           </div>
           <button className="md:hidden p-1 rounded-md hover:bg-white/20" onClick={() => setIsMobileOpen(false)}>
