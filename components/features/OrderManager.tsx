@@ -17,6 +17,7 @@ import { ProductionBoard } from './ProductionBoard';
 import { PackingBoard } from './PackingBoard';
 import { SampleTracker } from './SampleTracker';
 import { SalesCRM } from './SalesCRM';
+import { useSearchParams } from 'next/navigation';
 
 export function OrderManager({ 
   initialOrders, 
@@ -37,16 +38,17 @@ export function OrderManager({
   const [currentHour, setCurrentHour] = useState(12); // Default safe hour for SSR
   const [isMounted, setIsMounted] = useState(false);
 
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams?.get('tab');
+    if (tab) {
+      setActiveMenu(tab);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     setIsMounted(true);
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      const tab = searchParams.get('tab');
-      if (tab) {
-        setActiveMenu(tab);
-      }
-    }
-    
     const updateTime = () => {
       const now = new Date();
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
