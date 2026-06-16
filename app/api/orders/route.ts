@@ -14,7 +14,7 @@ export async function GET() {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A2:S',
+      range: 'Laporan Transaksi Harian!A2:U',
     });
 
     const rows = response.data.values || [];
@@ -54,12 +54,16 @@ export async function GET() {
         const names = colC.split('\n');
         const qtys = colD.split('\n');
         const prices = colE.split('\n');
+        const sampleStatuses = (row[19] || '').split('\n');
+        const sampleFeedbacks = (row[20] || '').split('\n');
         
         items = names.map((name: string, i: number) => ({
           id: index * 1000 + i,
           sku: name.trim(),
           qty: parseInt(qtys[i] || '1', 10),
-          price: parseInt(prices[i] || '0', 10)
+          price: parseInt(prices[i] || '0', 10),
+          sampleStatus: sampleStatuses[i] || 'Pending',
+          sampleFeedback: sampleFeedbacks[i] || ''
         })).filter((item: any) => item.sku !== '');
       }
 
@@ -136,6 +140,8 @@ export async function PUT(request: Request) {
     const productNames = body.items.map((item: any) => item.sku).join('\n');
     const productQtys = body.items.map((item: any) => item.qty).join('\n');
     const productPrices = body.items.map((item: any) => item.price).join('\n');
+    const sampleStatuses = body.items.map((item: any) => item.sampleStatus || 'Pending').join('\n');
+    const sampleFeedbacks = body.items.map((item: any) => item.sampleFeedback || '').join('\n');
     
     const formatDate = (dateString: string) => {
       if (!dateString) return '-';
@@ -167,12 +173,14 @@ export async function PUT(request: Request) {
       body.statusTimestamps?.packing || '',
       body.statusTimestamps?.delivery || '',
       body.statusTimestamps?.diterima || '',
-      body.deliveryNotes || ''  // Catatan Pengiriman
+      body.deliveryNotes || '', // Catatan Pengiriman
+      sampleStatuses,           // Status Follow-up Sampel
+      sampleFeedbacks           // Feedback Sampel
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Laporan Transaksi Harian!A${body.rowNumber}:S${body.rowNumber}`,
+      range: `Laporan Transaksi Harian!A${body.rowNumber}:U${body.rowNumber}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
@@ -216,6 +224,8 @@ export async function POST(request: Request) {
     const productNames = body.items.map((item: any) => item.sku).join('\n');
     const productQtys = body.items.map((item: any) => item.qty).join('\n');
     const productPrices = body.items.map((item: any) => item.price).join('\n');
+    const sampleStatuses = body.items.map((item: any) => item.sampleStatus || 'Pending').join('\n');
+    const sampleFeedbacks = body.items.map((item: any) => item.sampleFeedback || '').join('\n');
     
     // Default Status
     const status = body.status || 'Pesanan Dibuat';
@@ -251,12 +261,15 @@ export async function POST(request: Request) {
       body.statusTimestamps?.produksi || '',
       body.statusTimestamps?.packing || '',
       body.statusTimestamps?.delivery || '',
-      body.statusTimestamps?.diterima || ''
+      body.statusTimestamps?.diterima || '',
+      body.deliveryNotes || '',
+      sampleStatuses,
+      sampleFeedbacks
     ];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A:R',
+      range: 'Laporan Transaksi Harian!A:U',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
