@@ -10,6 +10,7 @@ export interface ProductionQueueItem {
   status: string;
   timestamp: string;
   sourceOrderId?: string;
+  assignedTo?: string;
 }
 
 export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
@@ -17,7 +18,7 @@ export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'ProductionQueue!A2:I',
+      range: 'ProductionQueue!A2:J',
     });
     const rows = response.data.values || [];
     return rows.map(row => ({
@@ -25,9 +26,10 @@ export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
       targetDate: row[1] || '',
       sku: row[2] || '',
       deficit: parseInt(row[3] || '0', 10),
-      status: row[4] || 'Menunggu',
+      status: row[4] || 'Pending',
       timestamp: row[5] || '',
       sourceOrderId: row[6] || '',
+      assignedTo: row[7] || '',
     })).filter(item => item.id !== '');
   } catch (error) {
     console.error('Error fetching production queue:', error);
@@ -42,10 +44,11 @@ export async function addProductionQueue(targetDate: string, sku: string, defici
     const timestamp = new Date().toISOString();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'ProductionQueue!A:G',
+      range: 'ProductionQueue!A:H',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
-        values: [[id, targetDate, sku, deficit, 'Menunggu', timestamp, sourceOrderId]]
+        // ID, Target Date, SKU, Deficit, Status, Timestamp, Source Order ID, Assigned To
+        values: [[id, targetDate, sku, deficit, 'Pending', timestamp, sourceOrderId, '']]
       }
     });
   } catch (error) {
@@ -53,34 +56,40 @@ export async function addProductionQueue(targetDate: string, sku: string, defici
   }
 }
 
-export async function completeProduction(queueId: string) {
+export async function updateProductionQueue(queueId: string, updates: Partial<ProductionQueueItem>) {
   await ensureInventorySheets();
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'ProductionQueue!A:G',
+      range: 'ProductionQueue!A:H',
     });
     const rows = response.data.values || [];
     const rowIndex = rows.findIndex(row => row[0] === queueId);
 
     if (rowIndex !== -1) {
-      const row = rows[rowIndex];
-      const sku = row[2];
-      const deficit = parseInt(row[3] || '0', 10);
-      const status = row[4];
+      const currentRow = rows[rowIndex];
+      // ID[0], TargetDate[1], SKU[2], Deficit[3], Status[4], Timestamp[5], SourceOrderId[6], AssignedTo[7]
+      const newStatus = updates.status !== undefined ? updates.status : currentRow[4];
+      const newAssignedTo = updates.assignedTo !== undefined ? updates.assignedTo : (currentRow[7] || '');
+      
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `ProductionQueue!E${rowIndex + 1}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [[newStatus]] }
+      });
 
-      if (status !== 'Selesai') {
-        // Update status to Selesai
-        await sheets.spreadsheets.values.update({
-          spreadsheetId: SPREADSHEET_ID,
-          range: `ProductionQueue!E${rowIndex + 1}`,
-          valueInputOption: 'USER_ENTERED',
-          requestBody: {
-            values: [['Selesai']]
-          }
-        });
-
-        // Add to Total Stock in Inventory and log movement
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `ProductionQueue!H${rowIndex + 1}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [[newAssignedTo]] }
+      });
+      
+      // If status changed to Completed, trigger complete logic
+      if (newStatus === 'Completed' && currentRow[4] !== 'Completed') {
+        const sku = currentRow[2];
+        const deficit = parseInt(currentRow[3] || '0', 10);
         await adjustStock(
           sku, 
           deficit, 
@@ -93,8 +102,12 @@ export async function completeProduction(queueId: string) {
       }
     }
   } catch (error) {
-    console.error(`Error completing production ${queueId}:`, error);
+    console.error(`Error updating production queue ${queueId}:`, error);
   }
+}
+
+export async function completeProduction(queueId: string) {
+  await updateProductionQueue(queueId, { status: 'Completed' });
 }
 
 // Handle Stock Insufficient Event

@@ -50,6 +50,19 @@ export interface InventoryItem {
   totalStock: number;
   reservedStock: number;
   availableStock: number;
+  minStock: number;
+}
+
+export interface InventoryMovement {
+  id: string;
+  timestamp: string;
+  sku: string;
+  movementType: string;
+  quantity: number;
+  refType: string;
+  refId: string;
+  user: string;
+  notes: string;
 }
 
 export async function getInventory(): Promise<InventoryItem[]> {
@@ -57,7 +70,7 @@ export async function getInventory(): Promise<InventoryItem[]> {
   return withRetry(async () => {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Inventory!A2:D',
+      range: 'Inventory!A2:E',
     });
     const rows = response.data.values || [];
     return rows.map(row => ({
@@ -65,7 +78,30 @@ export async function getInventory(): Promise<InventoryItem[]> {
       totalStock: parseInt(row[1] || '0', 10),
       reservedStock: parseInt(row[2] || '0', 10),
       availableStock: parseInt(row[3] || '0', 10),
+      minStock: parseInt(row[4] || '50', 10), // Default 50 if missing
     })).filter(item => item.sku !== '');
+  });
+}
+
+export async function getInventoryMovements(): Promise<InventoryMovement[]> {
+  await ensureInventorySheets();
+  return withRetry(async () => {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'InventoryMovements!A2:I',
+    });
+    const rows = response.data.values || [];
+    return rows.map(row => ({
+      id: row[0] || '',
+      timestamp: row[1] || '',
+      sku: row[2] || '',
+      movementType: row[3] || '',
+      quantity: parseInt(row[4] || '0', 10),
+      refType: row[5] || '',
+      refId: row[6] || '',
+      user: row[7] || '',
+      notes: row[8] || '',
+    })).filter(item => item.id !== '').reverse(); // reverse for chronological UI
   });
 }
 
@@ -77,7 +113,7 @@ export async function adjustStock(
   refType: string, 
   refId: string, 
   notes: string = ''
-): Promise<{ totalStock: number, reservedStock: number, availableStock: number }> {
+): Promise<{ totalStock: number, reservedStock: number, availableStock: number, minStock: number }> {
   await ensureInventorySheets();
   const unlock = await inventoryMutex.lock(`inv_${sku}`);
   
@@ -86,17 +122,19 @@ export async function adjustStock(
       // 1. Fetch current row
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'Inventory!A:D',
+        range: 'Inventory!A:E',
       });
       const rows = response.data.values || [];
       const rowIndex = rows.findIndex(row => row[0] === sku);
 
       let totalStock = 0;
       let reservedStock = 0;
+      let minStock = 50;
 
       if (rowIndex !== -1) {
         totalStock = parseInt(rows[rowIndex][1] || '0', 10);
         reservedStock = parseInt(rows[rowIndex][2] || '0', 10);
+        minStock = parseInt(rows[rowIndex][4] || '50', 10);
       }
 
       totalStock += totalStockDiff;
@@ -107,19 +145,19 @@ export async function adjustStock(
       if (rowIndex === -1) {
         await sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
-          range: 'Inventory!A:D',
+          range: 'Inventory!A:E',
           valueInputOption: 'USER_ENTERED',
           requestBody: {
-            values: [[sku, totalStock, reservedStock, `=INDIRECT("B"&ROW())-INDIRECT("C"&ROW())`]]
+            values: [[sku, totalStock, reservedStock, `=INDIRECT("B"&ROW())-INDIRECT("C"&ROW())`, minStock]]
           }
         });
       } else {
         await sheets.spreadsheets.values.update({
           spreadsheetId: SPREADSHEET_ID,
-          range: `Inventory!A${rowIndex + 1}:D${rowIndex + 1}`,
+          range: `Inventory!A${rowIndex + 1}:E${rowIndex + 1}`,
           valueInputOption: 'USER_ENTERED',
           requestBody: {
-            values: [[sku, totalStock, reservedStock, `=INDIRECT("B"&ROW())-INDIRECT("C"&ROW())`]]
+            values: [[sku, totalStock, reservedStock, `=INDIRECT("B"&ROW())-INDIRECT("C"&ROW())`, minStock]]
           }
         });
       }
@@ -137,7 +175,7 @@ export async function adjustStock(
         }
       });
 
-      return { totalStock, reservedStock, availableStock };
+      return { totalStock, reservedStock, availableStock, minStock };
     });
   } catch (error) {
     console.error(`Error adjusting stock for SKU ${sku}:`, error);
