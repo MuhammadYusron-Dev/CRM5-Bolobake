@@ -88,15 +88,15 @@ export async function ensureInventorySheets() {
     });
     const sheetsList = spreadsheet.data.sheets || [];
     const hasInventory = sheetsList.some(s => s.properties?.title === 'Inventory');
-    const hasProductionQueue = sheetsList.some(s => s.properties?.title === 'ProductionQueue');
+    const hasProductionProgress = sheetsList.some(s => s.properties?.title === 'ProductionProgress');
     const hasInventoryMovements = sheetsList.some(s => s.properties?.title === 'InventoryMovements');
     
     const requests: any[] = [];
     if (!hasInventory) {
       requests.push({ addSheet: { properties: { title: 'Inventory' } } });
     }
-    if (!hasProductionQueue) {
-      requests.push({ addSheet: { properties: { title: 'ProductionQueue' } } });
+    if (!hasProductionProgress) {
+      requests.push({ addSheet: { properties: { title: 'ProductionProgress' } } });
     }
     if (!hasInventoryMovements) {
       requests.push({ addSheet: { properties: { title: 'InventoryMovements' } } });
@@ -116,12 +116,12 @@ export async function ensureInventorySheets() {
           requestBody: { values: [['SKU', 'Stok Total', 'Stok Direservasi', 'Stok Tersedia']] }
         });
       }
-      if (!hasProductionQueue) {
+      if (!hasProductionProgress) {
         await sheets.spreadsheets.values.update({
           spreadsheetId: SPREADSHEET_ID,
-          range: 'ProductionQueue!A1:F1',
+          range: 'ProductionProgress!A1:F1',
           valueInputOption: 'USER_ENTERED',
-          requestBody: { values: [['ID', 'Tanggal Target', 'SKU', 'Jumlah Kurang', 'Status', 'Timestamp']] }
+          requestBody: { values: [['DateKey', 'SKU', 'DoneQty', 'RejectQty', 'QCChecked', 'AssignedTo']] }
         });
       }
       if (!hasInventoryMovements) {

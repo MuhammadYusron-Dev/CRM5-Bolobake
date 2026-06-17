@@ -95,13 +95,12 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       title: 'INVENTORY & PRODUKSI',
       items: [
         { id: 'inventory', label: 'Inventory Center', icon: PackageSearch },
-        { id: 'production', label: 'Production Queue', icon: Factory },
       ]
     }
   ];
 
   const handleMenuClick = (item: { id: string }) => {
-    if (['inventory', 'production'].includes(item.id)) {
+    if (['inventory'].includes(item.id)) {
       if (item.id === 'inventory') router.push('/inventory');
       if (item.id === 'production') router.push('/production');
     } else {

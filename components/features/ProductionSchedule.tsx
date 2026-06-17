@@ -51,21 +51,64 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
     setHiddenNotes(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
-    const saved = localStorage.getItem('bolobake_production_progress');
-    if (saved) {
-      try { setProgress(JSON.parse(saved)); } catch (e) {}
-    }
-    const savedRejects = localStorage.getItem('bolobake_production_rejects');
-    if (savedRejects) {
-      try { setRejects(JSON.parse(savedRejects)); } catch (e) {}
-    }
-    const savedAssignees = localStorage.getItem('bolobake_production_assignees');
-    if (savedAssignees) {
-      try { setAssignees(JSON.parse(savedAssignees)); } catch (e) {}
-    }
-    setIsLoaded(true);
+    fetch('/api/production/progress')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const loadedProgress: Record<string, number> = {};
+          const loadedRejects: Record<string, number> = {};
+          const loadedAssignees: Record<string, string> = {};
+          const loadedQc: Record<string, boolean> = {};
+
+          data.data.forEach((item: any) => {
+            const key = `${item.dateKey}|${item.sku}`;
+            loadedProgress[key] = item.doneQty;
+            loadedRejects[key] = item.rejectQty;
+            loadedQc[key] = item.qcChecked;
+            loadedAssignees[key] = item.assignedTo;
+          });
+
+          setProgress(loadedProgress);
+          setRejects(loadedRejects);
+          setQcChecked(loadedQc);
+          setAssignees(loadedAssignees);
+        }
+        setIsLoaded(true);
+      })
+      .catch(err => {
+        console.error('Failed to load production progress', err);
+        setIsLoaded(true);
+      });
   }, []);
+
+  const saveToServer = async (dateKey: string, sku: string, data: any) => {
+    const key = `${dateKey}|${sku}`;
+    setIsSyncing(true);
+    try {
+      await fetch('/api/production/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'upsert',
+          item: {
+            dateKey,
+            sku,
+            doneQty: data.doneQty ?? (progress[key] || 0),
+            rejectQty: data.rejectQty ?? (rejects[key] || 0),
+            qcChecked: data.qcChecked ?? (qcChecked[key] || false),
+            assignedTo: data.assignedTo ?? (assignees[key] || '')
+          }
+        })
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const updateProgress = (dateKey: string, sku: string, amount: number, max: number) => {
     setProgress(prev => {
@@ -73,7 +116,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
       const current = prev[key] || 0;
       const next = Math.max(0, Math.min(max, current + amount));
       const newState = { ...prev, [key]: next };
-      localStorage.setItem('bolobake_production_progress', JSON.stringify(newState));
+      saveToServer(dateKey, sku, { doneQty: next });
       return newState;
     });
   };
@@ -84,7 +127,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
       const current = prev[key] || 0;
       const next = Math.max(0, current + amount);
       const newState = { ...prev, [key]: next };
-      localStorage.setItem('bolobake_production_rejects', JSON.stringify(newState));
+      saveToServer(dateKey, sku, { rejectQty: next });
       return newState;
     });
   };
@@ -93,7 +136,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
     setAssignees(prev => {
       const key = `${dateKey}|${sku}`;
       const newState = { ...prev, [key]: name };
-      localStorage.setItem('bolobake_production_assignees', JSON.stringify(newState));
+      saveToServer(dateKey, sku, { assignedTo: name });
       return newState;
     });
   };
@@ -101,14 +144,52 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
   const setExactProgress = (dateKey: string, sku: string, exactAmount: number, max: number) => {
     setProgress(prev => {
       const key = `${dateKey}|${sku}`;
-      // Allow user to temporarily type empty string or invalid number (handled by fallback to 0 in UI), but store valid bounds.
       const next = Math.max(0, Math.min(max, exactAmount));
       const newState = { ...prev, [key]: next };
-      localStorage.setItem('bolobake_production_progress', JSON.stringify(newState));
+      saveToServer(dateKey, sku, { doneQty: next });
       return newState;
     });
   };
-  const scheduleData = useMemo<{ dateKey: string; items: [string, { qty: number; notes: string[] }][] }[]>(() => {
+
+  const toggleQcChecked = (dateKey: string, sku: string, isChecked: boolean) => {
+    setQcChecked(prev => {
+      const key = `${dateKey}|${sku}`;
+      const newState = { ...prev, [key]: isChecked };
+      saveToServer(dateKey, sku, { qcChecked: isChecked });
+      return newState;
+    });
+  };
+
+  const handleCompleteBatch = async (dateKey: string, sku: string, doneQty: number, sourceOrderIds: string[]) => {
+    if (!confirm(`Selesaikan produksi ${sku} sebanyak ${doneQty} dan update otomatis kartu pesanan ke Packing?`)) return;
+    
+    try {
+      setIsSyncing(true);
+      const res = await fetch('/api/production/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'completeBatch',
+          item: { dateKey, sku, doneQty },
+          sourceOrderIds
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Produksi berhasil diselesaikan dan Papan Antrean terupdate!');
+        // Update local state to reflect it's completely done
+        // Usually we might want to refresh the page or wait for SWR to catch up.
+      } else {
+        alert('Gagal menyelesaikan: ' + data.error);
+      }
+    } catch (e: any) {
+      alert('Terjadi kesalahan: ' + e.message);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const scheduleData = useMemo<{ dateKey: string; items: [string, { qty: number; notes: string[], sourceOrderIds: string[] }][] }[]>(() => {
     const startObj = new Date(startDate);
     startObj.setHours(0, 0, 0, 0);
     const endObj = new Date(endDate);
@@ -117,7 +198,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
     // Filter statuses we want to ignore (already passed production)
     const ignoreStatuses = ['Packing', 'Delivery', 'Diterima'];
 
-    const grouped: Record<string, Record<string, { qty: number; notes: string[] }>> = {};
+    const grouped: Record<string, Record<string, { qty: number; notes: string[], sourceOrderIds: string[] }>> = {};
 
     orders.forEach(order => {
       // 1. Skip if no date or invalid date
@@ -136,10 +217,15 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
         order.items.forEach(item => {
           const skuName = item.sku.replace(' (sample)', '');
           if (!grouped[dateKey][skuName]) {
-            grouped[dateKey][skuName] = { qty: 0, notes: [] };
+            grouped[dateKey][skuName] = { qty: 0, notes: [], sourceOrderIds: [] };
           }
           
           grouped[dateKey][skuName].qty += item.qty;
+          
+          // Only add order.id if not already added to avoid duplicates (though usually 1-to-1)
+          if (order.id && !grouped[dateKey][skuName].sourceOrderIds.includes(String(order.id))) {
+            grouped[dateKey][skuName].sourceOrderIds.push(String(order.id));
+          }
           
           if (order.notes && order.notes.trim() !== '') {
             grouped[dateKey][skuName].notes.push(`[${order.customer}]: ${order.notes.trim()}`);
@@ -428,18 +514,29 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
                                           type="checkbox" 
                                           id={`qc-${key}`}
                                           checked={qcChecked[key] || false}
-                                          onChange={e => setQcChecked(prev => ({...prev, [key]: e.target.checked}))}
+                                          onChange={e => toggleQcChecked(dateKey, sku, e.target.checked)}
                                           className="w-3 h-3 text-primary border-slate-300 rounded focus:ring-primary cursor-pointer"
                                         />
                                         Lolos QC <Info className="w-2.5 h-2.5 text-slate-400" />
                                       </label>
+                                      
+                                      {!isComplete ? (
+                                        <button 
+                                          onClick={() => setExactProgress(dateKey, sku, targetQty, targetQty)}
+                                          className="h-6 sm:h-6 px-3 sm:px-2 flex items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold hover:bg-primary hover:text-white transition-colors shadow-sm uppercase"
+                                          title="Isi Sukses 100%"
+                                        >
+                                          Max
+                                        </button>
+                                      ) : null}
+
                                       <button 
-                                        onClick={() => setExactProgress(dateKey, sku, targetQty, targetQty)}
-                                        disabled={isComplete || !qcChecked[key]}
-                                        className="h-6 sm:h-6 px-3 sm:px-2 flex items-center justify-center rounded bg-primary/10 text-primary text-[10px] font-bold disabled:opacity-50 hover:bg-primary hover:text-white transition-colors shadow-sm uppercase"
-                                        title={!qcChecked[key] ? "Centang Lolos QC terlebih dahulu" : "Selesaikan 100%"}
+                                        onClick={() => handleCompleteBatch(dateKey, sku, doneQty, data.sourceOrderIds)}
+                                        disabled={doneQty <= 0 || !qcChecked[key] || isSyncing}
+                                        className="h-6 sm:h-6 px-3 sm:px-2 flex items-center justify-center rounded bg-green-600 text-white text-[10px] font-bold disabled:opacity-50 disabled:bg-slate-300 hover:bg-green-700 transition-colors shadow-sm uppercase"
+                                        title={!qcChecked[key] ? "Centang Lolos QC terlebih dahulu" : doneQty <= 0 ? "Sukses tidak boleh 0" : "Selesaikan produksi & update Kanban"}
                                       >
-                                        Max
+                                        {isSyncing ? 'Loading...' : 'Selesaikan'}
                                       </button>
                                     </div>
                                   </div>
