@@ -286,6 +286,22 @@ export async function POST(request: Request) {
       } catch (e) {
         console.error('Background sync failed', e);
       }
+
+      try {
+        const { eventBus } = await import('@/lib/events');
+        await import('@/lib/inventory');
+        await import('@/lib/production');
+        
+        eventBus.emit('ORDER_CREATED', {
+          id: body.id || Date.now(),
+          customer: body.customer,
+          items: body.items,
+          productionDate: body.productionDate,
+          deliveryDate: body.deliveryDate
+        });
+      } catch (e) {
+        console.error('Event Bus trigger failed', e);
+      }
     });
 
     return NextResponse.json({ success: true, message: 'Order saved to Sheets', id: body.id || Date.now() });

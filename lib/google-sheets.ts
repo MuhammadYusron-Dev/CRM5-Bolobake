@@ -78,6 +78,55 @@ export async function ensureAdminsSheet() {
   }
 }
 
+let inventorySheetsVerified = false;
+
+export async function ensureInventorySheets() {
+  if (inventorySheetsVerified) return;
+  try {
+    const spreadsheet = await sheets.spreadsheets.get({
+      spreadsheetId: SPREADSHEET_ID,
+    });
+    const sheetsList = spreadsheet.data.sheets || [];
+    const hasInventory = sheetsList.some(s => s.properties?.title === 'Inventory');
+    const hasProductionQueue = sheetsList.some(s => s.properties?.title === 'ProductionQueue');
+    
+    const requests: any[] = [];
+    if (!hasInventory) {
+      requests.push({ addSheet: { properties: { title: 'Inventory' } } });
+    }
+    if (!hasProductionQueue) {
+      requests.push({ addSheet: { properties: { title: 'ProductionQueue' } } });
+    }
+
+    if (requests.length > 0) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        requestBody: { requests }
+      });
+
+      if (!hasInventory) {
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: 'Inventory!A1:D1',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [['SKU', 'Stok Total', 'Stok Direservasi', 'Stok Tersedia']] }
+        });
+      }
+      if (!hasProductionQueue) {
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: 'ProductionQueue!A1:F1',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [['ID', 'Tanggal Target', 'SKU', 'Jumlah Kurang', 'Status', 'Timestamp']] }
+        });
+      }
+    }
+    inventorySheetsVerified = true;
+  } catch (error) {
+    console.error('Error ensuring Inventory sheets:', error);
+  }
+}
+
 export async function getAdmins() {
   await ensureAdminsSheet();
   try {

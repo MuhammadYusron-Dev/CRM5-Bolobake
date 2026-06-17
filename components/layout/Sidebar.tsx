@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Pencil, PackageCheck, Gift, BarChart3 } from 'lucide-react';
+import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Pencil, PackageCheck, Gift, BarChart3, PackageSearch, Factory } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/features/ThemeToggle';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -90,11 +90,27 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
         { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
         { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
       ]
+    },
+    {
+      title: 'INVENTORY & PRODUKSI',
+      items: [
+        { id: 'inventory', label: 'Inventory Center', icon: PackageSearch },
+        { id: 'production', label: 'Production Queue', icon: Factory },
+      ]
     }
   ];
 
   const handleMenuClick = (item: { id: string }) => {
-    setActiveMenu(item.id);
+    if (['inventory', 'production'].includes(item.id)) {
+      if (item.id === 'inventory') router.push('/inventory');
+      if (item.id === 'production') router.push('/production');
+    } else {
+      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+        router.push(`/?tab=${item.id}`);
+      } else {
+        setActiveMenu(item.id);
+      }
+    }
     setIsMobileOpen(false);
   };
 
