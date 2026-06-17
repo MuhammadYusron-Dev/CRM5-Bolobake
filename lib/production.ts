@@ -97,22 +97,41 @@ export async function resolveOrdersStatus(orderIds: string[]) {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A:U',
+      range: 'Laporan Transaksi Harian!A2:R',
     });
     const rows = response.data.values || [];
-    const timestampStr = new Date().toISOString();
+    const now = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
     
     for (const orderId of orderIds) {
-      // Using indexOf since ID is likely in the customer column or derived, 
-      // but wait, in CRM5 we don't have explicit ID column in 'Laporan Transaksi Harian', 
-      // wait, refId usually corresponds to something. Let's see how order.id is used.
-      // Usually it's in the row itself or we need to find it. 
-      // Actually `Laporan Transaksi Harian` doesn't have an ID column explicitly by default, it uses row numbers or customer name + timestamp.
-      // Let's assume orderId is the row index or unique string.
-      // Let's check `app/api/orders/route.ts` to see what `order.id` is. 
-      // Wait, we need to know what orderId actually is.
-      // If it's the timestamp or something, we can find it.
-      // For now, let's call our internal `/api/orders` to do this safely!
+      const rowIndex = rows.findIndex((r) => {
+        const rowId = new Date(r[0]).getTime() || '';
+        return String(rowId) === String(orderId) || String(r[0]) === String(orderId);
+      });
+
+      if (rowIndex !== -1) {
+        const actualRowNumber = rowIndex + 2;
+        const currentRow = rows[rowIndex];
+        
+        // Pad array if needed up to column R (index 17)
+        while (currentRow.length < 18) currentRow.push('');
+
+        // Update status to 'Packing' (column K, index 10)
+        currentRow[10] = 'Packing';
+        
+        // Update timestamps
+        currentRow[13] = currentRow[13] || now; // Dikonfirmasi
+        currentRow[14] = currentRow[14] || now; // Produksi
+        currentRow[15] = currentRow[15] || now; // Packing
+
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: `Laporan Transaksi Harian!K${actualRowNumber}:R${actualRowNumber}`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [currentRow.slice(10, 18)],
+          },
+        });
+      }
     }
   } catch (e) {
     console.error('Failed to resolve orders status', e);
@@ -165,19 +184,7 @@ export async function updateProductionQueue(queueId: string, updates: Partial<Pr
         const orderIdsStr = currentRow[6] || '';
         const sourceOrderIds = orderIdsStr.split(',').map((id: string) => id.trim()).filter((id: string) => id.length > 0);
         if (sourceOrderIds.length > 0) {
-          // Trigger internal API call to update order status to 'Packing'
-          try {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-            for (const oId of sourceOrderIds) {
-              await fetch(`${baseUrl}/api/orders`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: oId, status: 'Packing' })
-              });
-            }
-          } catch (e) {
-            console.error('Error auto-resolving order status:', e);
-          }
+          await resolveOrdersStatus(sourceOrderIds);
         }
       }
     }
