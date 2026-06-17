@@ -21,16 +21,8 @@ export function ProductionBoard({ initialOrders }: { initialOrders: Order[] }) {
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 overflow-hidden print:h-auto print:overflow-visible print:bg-white">
       {/* Header with View Switcher */}
-      <header className="min-h-16 h-auto py-3 sm:py-0 bg-white dark:bg-slate-900 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-6 shrink-0 shadow-sm z-10 gap-3 sm:gap-0 print:hidden">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <ChefHat className="w-6 h-6 text-violet-600 shrink-0" />
-          <div className="flex-1 min-w-0">
-            <h1 className="font-bold text-lg leading-tight truncate">Divisi Produksi</h1>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider truncate">Bolobake Workflow System</p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+      <header className="py-3 flex flex-col sm:flex-row items-end sm:items-center justify-end px-4 sm:px-6 shrink-0 z-10 gap-3 print:hidden">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex-1 sm:flex-none justify-between sm:justify-start">
             <button 
               onClick={() => setActiveView('board')}
