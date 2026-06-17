@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 
 export async function POST(request: Request) {
   try {
@@ -14,22 +14,55 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'raw_text is required' }, { status: 400 });
     }
 
-    const currentYear = new Date().getFullYear();
+    const currentDateObj = new Date();
+    const currentMonth = currentDateObj.toLocaleString('id-ID', { month: 'long' });
+    const currentYear = currentDateObj.getFullYear();
     const skuListString = Array.isArray(valid_skus) && valid_skus.length > 0 
       ? valid_skus.join(', ')
       : '"Butter Croissant 75gr", "Butter Croissant 30gr", "Butter Croissant 50gr", "Mochi Croissant Tiramisu", "Pain Au Suisse", "Almond Croissant", dll.';
+
+    const responseSchema = {
+      type: Type.OBJECT,
+      properties: {
+        customer_name: { type: Type.STRING, nullable: true },
+        delivery_date: { type: Type.STRING, description: "Format YYYY-MM-DD", nullable: true },
+        delivery_option: { type: Type.STRING, nullable: true, description: "Salah satu dari: BUDIMAS, BOLOBAKE, EKSPEDISI, EKSPEDISI TRAVEL, SELF PICKUP" },
+        delivery_route: { type: Type.STRING, nullable: true, description: "Salah satu dari: Tawangmangu, Boyolali, Wonogiri, KALOG, PAXEL" },
+        is_free_shipping: { type: Type.BOOLEAN, description: "Default true jika tidak ada info berbayar" },
+        notes: { type: Type.STRING, nullable: true },
+        items: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              detected_sku: { type: Type.STRING },
+              qty: { type: Type.NUMBER }
+            },
+            required: ["detected_sku", "qty"]
+          }
+        }
+      },
+      required: ["is_free_shipping", "items"]
+    };
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: raw_text,
       config: {
+        responseMimeType: "application/json",
+        responseSchema: responseSchema,
         systemInstruction: `Kamu adalah asisten parser pesanan khusus untuk toko roti Bolobake. 
 Tugasmu adalah menganalisis teks percakapan dan mengubahnya menjadi format JSON terstruktur untuk pesanan.
+
+PENTING - KONTEKS WAKTU:
+Hari ini adalah bulan ${currentMonth} tahun ${currentYear}. 
+Saat menentukan tanggal pengiriman, SELALU prioritaskan bulan dan tahun saat ini (${currentMonth} ${currentYear}) jika pelanggan tidak menyebutkan bulan/tahun secara spesifik. DILARANG KERAS menyetel bulan atau tahun yang terlalu jauh ke depan/belakang tanpa indikasi yang jelas.
+
 Customer sering menggunakan format B2B seperti:
-- "ORDER B2B" / "NAMA OUTLET" -> jadikan ini nama customer
-- "PESANAN / VARIAN PRODUK" -> daftar produk. Customer sering menyingkat atau membolak-balik nama (misal: "Croissant Butter", "Butter Cro", "Plain Croissant"). Cari dan petakan ke SKU terdekat. Jika customer hanya menulis "Butter Croissant" tanpa keterangan gramasi, asumsikan ukuran standarnya adalah "Butter Croissant 75gr".
-- "TANGGAL PENGIRIMAN" -> Ekstrak tanggal pengiriman ke format "YYYY-MM-DD" (misal: "PENGIRIMAN HARI SENIN 15 JUNI"). WAJIB gunakan tahun sekarang yaitu ${currentYear}. DILARANG menggunakan tahun lalu atau masa depan.
-- "OPSI DELIVERY" -> Analisis kalimat pengiriman dan note untuk menentukan opsi pengiriman:
+- "ORDER B2B" / "NAMA OUTLET" -> jadikan ini nama customer (customer_name)
+- "PESANAN / VARIAN PRODUK" -> daftar produk. Customer sering menyingkat (misal: "Croissant Butter", "Butter Cro", "Plain Croissant"). Cari dan petakan ke SKU terdekat dari daftar SKU RESMI. Jika customer hanya menulis "Butter Croissant" tanpa gramasi, asumsikan "Butter Croissant 75gr".
+- "TANGGAL PENGIRIMAN" -> Ekstrak tanggal pengiriman ke format "YYYY-MM-DD" (delivery_date).
+- "OPSI DELIVERY" -> Analisis kalimat pengiriman dan note:
   * "BUDIMAS TW" -> delivery_option: "BUDIMAS", delivery_route: "Tawangmangu"
   * "BUDIMAS BYL" -> delivery_option: "BUDIMAS", delivery_route: "Boyolali"
   * "BUDIMAS WNG" -> delivery_option: "BUDIMAS", delivery_route: "Wonogiri"
@@ -37,47 +70,47 @@ Customer sering menggunakan format B2B seperti:
   * Tanggal + NOTE "EKSPEDISI KALOG/PAXEL" -> delivery_option: "EKSPEDISI", delivery_route: "KALOG" (atau PAXEL), is_free_shipping: false
   * "DIAMBIL DI CENTRAL/BOLOBAKE" tanpa note ekspedisi -> delivery_option: "SELF PICKUP", is_free_shipping: true. Teks "DIAMBIL DI..." masukkan ke notes.
   * "DIAMBIL DI CENTRAL" + NOTE "EKSPEDISI TRAVEL" -> delivery_option: "EKSPEDISI TRAVEL", is_free_shipping: false.
-- "TANGGAL PRODUKSI" -> Secara default sama dengan tanggal pengiriman. TAPI KHUSUS untuk BUDIMAS:
-  * Budimas Boyolali (pengiriman Rabu): Set "production_date" ke H-1 (Selasa).
-  * Budimas Tawangmangu (pengiriman Senin): Set "production_date" ke H-1 (Minggu).
-  * Budimas Wonogiri (pengiriman Selasa/Kamis): Set "production_date" ke H-2 dari tanggal pengiriman.
 - "NOTE" -> Ekstrak semua catatan tambahan yang diberikan customer, digabung dengan teks self pickup jika ada.
 
 Daftar SKU RESMI dalam sistem kami saat ini: ${skuListString}
-Kamu WAJIB menggunakan NAMA SKU YANG SAMA PERSIS dengan salah satu yang ada di daftar SKU RESMI di atas pada kolom "detected_sku". Jangan mengarang nama baru. Jika customer mengetik "Pain Au Chocolat" pastikan itu ada di daftar, atau sesuaikan ke nama persisnya di daftar. Jika tidak ada yang cocok, gunakan nama terdekat.
-
-Format respons WAJIB berupa JSON murni dengan skema berikut:
-{
-  "customer_name": string atau null,
-  "delivery_date": "YYYY-MM-DD" atau null,
-  "production_date": "YYYY-MM-DD" atau null,
-  "delivery_option": "BUDIMAS" | "BOLOBAKE" | "EKSPEDISI" | "EKSPEDISI TRAVEL" | "SELF PICKUP" atau null,
-  "delivery_route": "Tawangmangu" | "Boyolali" | "Wonogiri" | "KALOG" | "PAXEL" atau null,
-  "is_free_shipping": boolean (default true jika tidak ada info berbayar),
-  "notes": string atau null,
-  "items": [
-    {
-      "detected_sku": string,
-      "qty": number
-    }
-  ]
-}
-Jangan berikan teks penjelasan apa pun di luar JSON tersebut, jangan gunakan markdown code blocks, hanya teks JSON mentah.`,
+Kamu WAJIB menggunakan NAMA SKU YANG SAMA PERSIS dengan salah satu yang ada di daftar SKU RESMI pada kolom "detected_sku". Jangan mengarang nama baru. Jika tidak ada yang sama persis, gunakan nama terdekat dari daftar.`,
         temperature: 0.1,
       }
     });
 
     const textResponse = response.text || '';
-    // Clean up if model mistakenly returned markdown code block
-    const cleanedText = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-
+    
+    let parsedJson;
     try {
-      const parsedJson = JSON.parse(cleanedText);
-      return NextResponse.json({ success: true, data: parsedJson });
+      parsedJson = JSON.parse(textResponse);
     } catch (e) {
-      console.error("Failed to parse Gemini response as JSON:", cleanedText);
+      console.error("Failed to parse Gemini response as JSON:", textResponse);
       return NextResponse.json({ success: false, error: 'AI failed to generate valid JSON' }, { status: 500 });
     }
+
+    // Server-side Date Math Logic untuk Production Date (H-1 / H-2)
+    if (parsedJson.delivery_date) {
+      // Set default production_date sama dengan delivery_date
+      parsedJson.production_date = parsedJson.delivery_date;
+      
+      const deliveryDateObj = new Date(parsedJson.delivery_date);
+      if (!isNaN(deliveryDateObj.getTime()) && parsedJson.delivery_option === 'BUDIMAS') {
+        const prodDate = new Date(deliveryDateObj);
+        if (parsedJson.delivery_route === 'Wonogiri') {
+          // Wonogiri H-2
+          prodDate.setDate(prodDate.getDate() - 2);
+          parsedJson.production_date = prodDate.toISOString().split('T')[0];
+        } else if (parsedJson.delivery_route === 'Boyolali' || parsedJson.delivery_route === 'Tawangmangu') {
+          // Boyolali & Tawangmangu H-1
+          prodDate.setDate(prodDate.getDate() - 1);
+          parsedJson.production_date = prodDate.toISOString().split('T')[0];
+        }
+      }
+    } else {
+      parsedJson.production_date = null;
+    }
+
+    return NextResponse.json({ success: true, data: parsedJson });
 
   } catch (error: any) {
     console.error('Failed to parse order with Gemini:', error);
