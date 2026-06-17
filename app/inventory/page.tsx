@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<any[]>([]);

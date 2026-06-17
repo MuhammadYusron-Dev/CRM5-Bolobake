@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from '@/components/layout/Sidebar';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function ProductionPage() {
   const [queue, setQueue] = useState<any[]>([]);
