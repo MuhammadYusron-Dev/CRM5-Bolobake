@@ -3,6 +3,8 @@ import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
 import { runFullBackgroundSync } from '@/lib/rekap-sync';
 import { getFromCache, setCache, invalidateCache } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 const CACHE_KEY = 'orders_data';
 
 export async function GET() {

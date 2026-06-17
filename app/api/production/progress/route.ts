@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getProductionProgress, upsertProductionProgress, completeProductionBatch } from '@/lib/production';
 import { invalidateCache } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const data = await getProductionProgress();
