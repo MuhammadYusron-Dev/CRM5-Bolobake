@@ -150,7 +150,6 @@ export default function RegisterPage() {
                       alt={slide.title} 
                       className="w-full h-auto object-contain rounded-xl shadow-2xl animate-float border border-white/10" 
                       style={{ 
-                        imageRendering: 'high-quality', 
                         transform: 'translateZ(0)', 
                         willChange: 'transform' 
                       }}

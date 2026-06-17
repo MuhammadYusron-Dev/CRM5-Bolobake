@@ -19,6 +19,18 @@ export interface ColumnDef {
   colorClass: string;
 }
 
+// Helper to determine the batch based on timestamp
+function getBatchLabel(timestamp: string): { label: string, color: string } {
+  if (!timestamp) return { label: 'Batch Unknown', color: 'bg-slate-200 text-slate-700' };
+  const time = new Date(timestamp);
+  const hour = time.getHours();
+  
+  if (hour < 8) return { label: 'Batch Pagi (08:00)', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' };
+  if (hour >= 8 && hour < 10) return { label: 'Tambahan (09:00)', color: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300' };
+  if (hour >= 10 && hour < 15) return { label: 'Update Siang (14:00)', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' };
+  return { label: 'Final Malam (22:00)', color: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300' };
+}
+
 interface KanbanBoardProps {
   initialOrders: Order[];
   columns: ColumnDef[];
@@ -146,73 +158,171 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                 </div>
 
                 {/* Column Body */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-4 custom-scrollbar">
                   {colOrders.length === 0 ? (
                     <div className="h-24 flex items-center justify-center text-muted-foreground text-sm font-medium border-2 border-dashed rounded-xl m-2">
                       Kosong
                     </div>
                   ) : (
-                    colOrders.map((order: Order) => (
-                      <Card 
-                        key={order.id} 
-                        draggable={true}
-                        onDragStart={(e) => {
-                            e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
-                            e.dataTransfer.effectAllowed = 'copy';
-                        }}
-                        className={`shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
-                      >
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="flex justify-between items-start gap-2 mb-2">
-                            <h4 className="font-bold text-sm line-clamp-2">{order.customer}</h4>
-                            <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0">
-                              {order.status || 'Pesanan Dibuat'}
-                            </span>
+                    divisionName === 'Produksi' && (col.id === 'masuk' || col.id === 'antrean') ? (
+                      // GROUPED VIEW FOR PRODUKSI
+                      Object.entries(
+                        colOrders.reduce((acc: Record<string, Record<string, Order[]>>, order: Order) => {
+                          const date = order.productionDate || 'Tanpa Tanggal';
+                          if (!acc[date]) acc[date] = {};
+                          if (!acc[date][order.customer]) acc[date][order.customer] = [];
+                          acc[date][order.customer].push(order);
+                          return acc;
+                        }, {})
+                      )
+                      .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+                      .map(([date, customers]) => (
+                        <div key={date} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-4">
+                          <div className="bg-slate-100 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
+                            <span className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5"><Clock className="w-4 h-4 text-blue-600"/> Produksi: {date}</span>
                           </div>
                           
-                          <div className="bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border">
-                            {(order.items || []).map((item: any, idx: number) => (
-                              <div key={idx} className="flex justify-between gap-2">
-                                <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
-                                  {item.qty}x {item.sku.replace(' (sample)', '')}
-                                  {item.isSample && <span className="text-[10px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">S</span>}
-                                </span>
+                          <div className="p-2 space-y-3">
+                            {Object.entries(customers as Record<string, Order[]>)
+                              .sort(([custA], [custB]) => custA.localeCompare(custB))
+                              .map(([customer, ordersList]) => (
+                              <div key={customer} className="border border-slate-200 dark:border-slate-700/60 rounded-lg bg-slate-50 dark:bg-slate-900/50 p-2 space-y-2">
+                                <div className="flex items-center justify-between px-1">
+                                  <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200">{customer}</h4>
+                                </div>
+                                
+                                {ordersList.map((order: Order) => {
+                                  const batch = getBatchLabel(order.timestamp);
+                                  return (
+                                    <Card 
+                                      key={order.id} 
+                                      draggable={true}
+                                      onDragStart={(e) => {
+                                          e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
+                                          e.dataTransfer.effectAllowed = 'copy';
+                                      }}
+                                      className={`shadow-none border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing bg-white dark:bg-slate-950 ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
+                                    >
+                                      <CardContent className="p-2.5">
+                                        <div className="flex justify-between items-start gap-2 mb-2">
+                                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${batch.color}`}>
+                                            {batch.label}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="bg-slate-50/50 dark:bg-slate-900/30 p-2 rounded text-[11px] space-y-1 mb-2 border border-slate-100 dark:border-slate-800">
+                                          {(order.items || []).map((item: any, idx: number) => (
+                                            <div key={idx} className="flex justify-between gap-2">
+                                              <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
+                                                {item.qty}x {item.sku.replace(' (sample)', '')}
+                                                {item.isSample && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">S</span>}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+
+                                        {order.notes && (
+                                          <div className="mb-2 text-[10px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-1.5 rounded border border-red-200 dark:border-red-800/50 leading-tight">
+                                            <span className="font-bold flex items-center gap-1 mb-0.5"><ChefHat className="w-2.5 h-2.5 shrink-0"/> Catatan:</span>
+                                            <p className="break-words">{order.notes}</p>
+                                          </div>
+                                        )}
+
+                                        {/* Action Button */}
+                                        {col.nextStatus && (
+                                          <Button 
+                                            size="sm" 
+                                            variant="secondary"
+                                            className="w-full h-7 text-[11px] font-bold mt-1 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700"
+                                            onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
+                                            disabled={isUpdating === order.id}
+                                          >
+                                            {col.actionLabel}
+                                          </Button>
+                                        )}
+                                      </CardContent>
+                                    </Card>
+                                  );
+                                })}
                               </div>
                             ))}
                           </div>
+                        </div>
+                      ))
+                    ) : (
+                      // DEFAULT FLAT VIEW FOR OTHERS (e.g. Packing, Sedang Dipanggang)
+                      colOrders.map((order: Order) => {
+                        const batch = getBatchLabel(order.timestamp);
+                        return (
+                          <Card 
+                            key={order.id} 
+                            draggable={true}
+                            onDragStart={(e) => {
+                                e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
+                                e.dataTransfer.effectAllowed = 'copy';
+                            }}
+                            className={`shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
+                          >
+                            <CardContent className="p-3 sm:p-4">
+                              <div className="flex justify-between items-start gap-2 mb-2">
+                                <h4 className="font-bold text-sm line-clamp-2">{order.customer}</h4>
+                                <div className="flex flex-col items-end gap-1">
+                                  <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0">
+                                    {order.status || 'Pesanan Dibuat'}
+                                  </span>
+                                  {divisionName === 'Produksi' && (
+                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${batch.color}`}>
+                                      {batch.label}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border">
+                                {(order.items || []).map((item: any, idx: number) => (
+                                  <div key={idx} className="flex justify-between gap-2">
+                                    <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
+                                      {item.qty}x {item.sku.replace(' (sample)', '')}
+                                      {item.isSample && <span className="text-[10px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">S</span>}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
 
-                          {order.notes && divisionName === 'Produksi' && (
-                            <div className="mb-3 text-[11px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded border border-red-200 dark:border-red-800/50 leading-tight">
-                              <span className="font-bold flex items-center gap-1 mb-0.5"><ChefHat className="w-3 h-3 shrink-0"/> Catatan Produksi:</span>
-                              <p className="break-words">{order.notes}</p>
-                            </div>
-                          )}
+                              {order.notes && divisionName === 'Produksi' && (
+                                <div className="mb-3 text-[11px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded border border-red-200 dark:border-red-800/50 leading-tight">
+                                  <span className="font-bold flex items-center gap-1 mb-0.5"><ChefHat className="w-3 h-3 shrink-0"/> Catatan Produksi:</span>
+                                  <p className="break-words">{order.notes}</p>
+                                </div>
+                              )}
 
-                          {order.deliveryNotes && divisionName === 'Packing' && (
-                            <div className="mb-3 text-[11px] bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-200 dark:border-blue-800/50 leading-tight">
-                              <span className="font-bold flex items-center gap-1 mb-0.5"><PackageCheck className="w-3 h-3 shrink-0"/> Catatan Pengiriman:</span>
-                              <p className="break-words">{order.deliveryNotes}</p>
-                            </div>
-                          )}
+                              {order.deliveryNotes && divisionName === 'Packing' && (
+                                <div className="mb-3 text-[11px] bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-200 dark:border-blue-800/50 leading-tight">
+                                  <span className="font-bold flex items-center gap-1 mb-0.5"><PackageCheck className="w-3 h-3 shrink-0"/> Catatan Pengiriman:</span>
+                                  <p className="break-words">{order.deliveryNotes}</p>
+                                </div>
+                              )}
 
-                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-3 sm:mb-4">
-                            {order.productionDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3 shrink-0"/> Prod: {order.productionDate}</span>}
-                          </div>
+                              <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-3 sm:mb-4">
+                                {order.productionDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3 shrink-0"/> Prod: {order.productionDate}</span>}
+                              </div>
 
-                          {/* Action Button */}
-                          {col.nextStatus && (
-                            <Button 
-                              size="sm" 
-                              className="w-full h-8 text-xs font-bold"
-                              onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
-                              disabled={isUpdating === order.id}
-                            >
-                              {col.actionLabel}
-                            </Button>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))
+                              {/* Action Button */}
+                              {col.nextStatus && (
+                                <Button 
+                                  size="sm" 
+                                  className="w-full h-8 text-xs font-bold"
+                                  onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
+                                  disabled={isUpdating === order.id}
+                                >
+                                  {col.actionLabel}
+                                </Button>
+                              )}
+                            </CardContent>
+                          </Card>
+                        );
+                      })
+                    )
                   )}
                 </div>
               </div>

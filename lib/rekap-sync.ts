@@ -30,7 +30,7 @@ export async function syncRekapSheet(syncData?: SyncData) {
     
     const skuData: Record<string, { category: string, satuan: string }> = {};
     const catalogRows = catalogRes.data.values || [];
-    catalogRows.forEach(row => {
+    catalogRows.forEach((row: any[]) => {
       if (row[1]) {
         skuData[row[1].trim()] = {
           category: row[2] ? row[2].trim() : '',
@@ -48,7 +48,7 @@ export async function syncRekapSheet(syncData?: SyncData) {
     const orderRows = ordersRes.data.values || [];
     
     // Parse orders into structured data
-    const orders = orderRows.map((row, index) => {
+    const orders = orderRows.map((row: any[], index: number) => {
       let items: any[] = [];
       const colC = row[2] || '';
       const colD = row[3] || '';
@@ -101,7 +101,7 @@ export async function syncRekapSheet(syncData?: SyncData) {
     });
 
     // Sort orders by production date, then original input order
-    orders.sort((a, b) => {
+    orders.sort((a: any, b: any) => {
       if (a.productionDate < b.productionDate) return -1;
       if (a.productionDate > b.productionDate) return 1;
       return a.originalIndex - b.originalIndex;
@@ -458,7 +458,7 @@ export async function syncCapacity(targetDate: string, syncData?: SyncData) {
     const orderRows = ordersRes.data.values || [];
     
     let totalBooked = 0;
-    orderRows.forEach(row => {
+    orderRows.forEach((row: any[]) => {
       const status = row[10] || '';
       if (status.toLowerCase() !== 'cancelled') {
         const rowDate = row[11] || ''; // Tanggal Produksi
@@ -475,7 +475,7 @@ export async function syncCapacity(targetDate: string, syncData?: SyncData) {
       range: 'production_capacities!A2:C',
     });
     const capRows = capRes.data.values || [];
-    const rowIndex = capRows.findIndex(row => row[0] === targetDate);
+    const rowIndex = capRows.findIndex((row: any[]) => row[0] === targetDate);
 
     if (rowIndex !== -1) {
       const sheetRow = rowIndex + 2;
