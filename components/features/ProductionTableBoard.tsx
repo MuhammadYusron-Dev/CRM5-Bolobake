@@ -23,6 +23,8 @@ function isCakeOrOther(sku: string) {
   return s.includes('cake') || s.includes('brownie') || s.includes('cookie') || s.includes('dessert') || s.includes('tiramisu') || s.includes('macaron');
 }
 
+const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+
 export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[] }) {
   const { data: orders = initialOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { 
     fallbackData: initialOrders,
@@ -126,16 +128,40 @@ export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[]
                                   <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color}`}>
                                     {batch.label}
                                   </span>
+                                  {order.deliveryDate && (
+                                    <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 mt-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                                      Tgl Kirim: {formatDate(order.deliveryDate)}
+                                    </span>
+                                  )}
                                 </div>
                               </td>
                               <td className="px-4 py-3 align-top whitespace-normal text-xs text-slate-600 dark:text-slate-300">
-                                {order.notes ? (
-                                  <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded border border-red-100 dark:border-red-900/30">
-                                    {order.notes}
+                                <div className="flex flex-col gap-2">
+                                  {order.notes && (
+                                    <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded border border-red-100 dark:border-red-900/30">
+                                      <span className="font-bold block mb-0.5 text-[10px] uppercase">Catatan Dapur:</span>
+                                      {order.notes}
+                                    </div>
+                                  )}
+                                  
+                                  {order.deliveryNotes && (
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-100 dark:border-blue-900/30">
+                                      <span className="font-bold block mb-0.5 text-[10px] uppercase">Pengiriman:</span>
+                                      {order.deliveryNotes}
+                                    </div>
+                                  )}
+
+                                  <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700 space-y-1 mt-1 text-[10px]">
+                                    <div className="flex justify-between font-bold">
+                                      <span>Logistik:</span>
+                                      <span>{order.isFreeShipping ? 'Gratis Ongkir' : `Rp ${formatRp(order.shippingCost || 0).replace('Rp', '').trim()}`}</span>
+                                    </div>
+                                    <div className="flex justify-between font-bold text-primary border-t border-slate-200 dark:border-slate-700 pt-1">
+                                      <span>Grand Total:</span>
+                                      <span>{formatRp(order.grandTotal || 0)}</span>
+                                    </div>
                                   </div>
-                                ) : (
-                                  <span className="text-slate-400 italic">-</span>
-                                )}
+                                </div>
                               </td>
                               <td className="px-4 py-3 align-top">
                                 <div className="flex flex-col gap-3">
@@ -150,6 +176,7 @@ export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[]
                                             <span className="whitespace-normal flex-1">
                                               {item.sku.replace(' (sample)', '')}
                                               {item.isSample && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">Sample</span>}
+                                              {item.isSplitInvoice && <span className="text-[9px] border border-orange-500 text-orange-600 bg-orange-50 px-1 ml-1 rounded inline-block font-bold">Pisah Nota</span>}
                                             </span>
                                             <span className="font-bold whitespace-nowrap">{item.qty} pcs</span>
                                           </li>
@@ -169,6 +196,7 @@ export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[]
                                             <span className="whitespace-normal flex-1">
                                               {item.sku.replace(' (sample)', '')}
                                               {item.isSample && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">Sample</span>}
+                                              {item.isSplitInvoice && <span className="text-[9px] border border-orange-500 text-orange-600 bg-orange-50 px-1 ml-1 rounded inline-block font-bold">Pisah Nota</span>}
                                             </span>
                                             <span className="font-bold whitespace-nowrap">{item.qty} pcs</span>
                                           </li>
