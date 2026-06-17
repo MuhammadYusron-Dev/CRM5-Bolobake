@@ -409,14 +409,39 @@ export async function DELETE(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    if (!body.rowNumber || !body.status) {
-      return NextResponse.json({ success: false, error: 'rowNumber and status are required' }, { status: 400 });
+    if (!body.status) {
+      return NextResponse.json({ success: false, error: 'status is required' }, { status: 400 });
     }
 
-    const rowNumber = body.rowNumber;
     const newStatus = body.status;
     const now = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
     
+    let rowNumber = body.rowNumber;
+
+    if (!rowNumber && body.id) {
+      // Fetch all to find the rowNumber by id (id is mapped from timestamp/row)
+      // The id in frontend is new Date(row[0]).getTime() or similar.
+      // Actually, if we just need to find the row by Timestamp (column A) or ID?
+      // Since `id` isn't saved directly in sheets, we might not be able to find it easily 
+      // without fetching everything.
+      const getRes = await sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Laporan Transaksi Harian!A2:A',
+      });
+      const rows = getRes.data.values || [];
+      const rowIndex = rows.findIndex((r, idx) => {
+        const rowId = new Date(r[0]).getTime() || '';
+        return String(rowId) === String(body.id) || String(r[0]) === String(body.id);
+      });
+      if (rowIndex !== -1) {
+        rowNumber = rowIndex + 2;
+      }
+    }
+
+    if (!rowNumber) {
+       return NextResponse.json({ success: false, error: 'rowNumber or id is required to find the order' }, { status: 400 });
+    }
+
     // We only update columns K (status) to R (timestamps)
     // K=10, L=11, M=12, N=13, O=14, P=15, Q=16, R=17
     

@@ -197,7 +197,7 @@ eventBus.on('ORDER_CREATED', async (order) => {
 
     try {
       // Atomsically adjust stock (reserve)
-      const { availableStock } = await adjustStock(
+      const { availableStock, minStock } = await adjustStock(
         sku, 
         0, 
         qty, 
@@ -211,8 +211,8 @@ eventBus.on('ORDER_CREATED', async (order) => {
       // Wait, availableStock is calculated AFTER reservation. So if availableStock < 0, we have a deficit.
       // E.g., old total 10, old reserved 0, available 10. qty 15.
       // new total 10, new reserved 15, available -5. Deficit = 5.
-      if (availableStock < 0) {
-        const deficit = Math.abs(availableStock);
+      if (availableStock < minStock) {
+        const deficit = minStock - availableStock;
         console.log(`[Inventory] Insufficient stock for ${sku}. Deficit: ${deficit}`);
         eventBus.emit('STOCK_INSUFFICIENT', {
           sku,

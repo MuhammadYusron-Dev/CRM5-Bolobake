@@ -125,7 +125,20 @@ export default function ProductionPage() {
                       <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
                         <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{item.targetDate}</td>
                         <td className="px-6 py-4 font-bold">{item.sku}</td>
-                        <td className="px-6 py-4 text-xs text-gray-500">{item.sourceOrderId || '-'}</td>
+                        <td className="px-6 py-4 text-xs text-gray-500">
+                          {(() => {
+                            if (!item.sourceOrderId) return '-';
+                            const ids = item.sourceOrderId.split(',').map((id: string) => id.trim()).filter(Boolean);
+                            if (ids.length <= 1) return item.sourceOrderId;
+                            return (
+                              <div title={item.sourceOrderId} className="cursor-help inline-block">
+                                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+                                  {ids.length} Pesanan Tergabung
+                                </span>
+                              </div>
+                            );
+                          })()}
+                        </td>
                         <td className="px-6 py-4 text-red-600 dark:text-red-400 font-bold">{item.deficit}</td>
                         <td className="px-6 py-4">
                           <input 
