@@ -5,6 +5,7 @@ import { Order, OrderStatus } from '@/lib/types';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { Clock, RotateCcw } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 
 function getBatchLabel(timestamp: string): { label: string, color: string } {
   if (!timestamp) return { label: 'Batch Unknown', color: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300' };
@@ -93,7 +94,7 @@ export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[]
                   <div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 border-b border-slate-200 dark:border-slate-700">
                     <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                       <Clock className="w-4 h-4 text-blue-600" />
-                      Produksi: {date}
+                      Produksi: {formatDate(date)}
                     </h3>
                   </div>
                   

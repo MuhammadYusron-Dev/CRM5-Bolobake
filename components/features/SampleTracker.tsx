@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
+import { formatDate } from '@/lib/utils';
 
 interface SampleTrackerProps {
   initialOrders: Order[];
@@ -175,7 +176,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
     sampleData.sampleItems.forEach(item => {
       const status = item.isConverted ? "Berhasil (Beli)" : "Belum Konversi";
       const convertDays = item.isConverted ? item.convertDays : "";
-      csvContent += `${item.date},"${item.customer}","${item.sku}",${item.qty},${item.basePrice},${item.totalCost},"${status}",${convertDays},"${item.status}","${item.feedback}"\n`;
+      csvContent += `${formatDate(item.date)},"${item.customer}","${item.sku}",${item.qty},${item.basePrice},${item.totalCost},"${status}",${convertDays},"${item.status}","${item.feedback}"\n`;
     });
     
     const encodedUri = encodeURI(csvContent);
@@ -255,7 +256,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
           
           <div className="hidden print:block mb-8 border-b-2 border-black pb-4 text-black">
             <h1 className="text-2xl font-bold uppercase tracking-widest text-center">Laporan CRM Sampel Produk</h1>
-            <p className="text-center text-sm mt-1">Periode: {filterStartDate || 'Awal'} s/d {filterEndDate || 'Akhir'}</p>
+            <p className="text-center text-sm mt-1">Periode: {formatDate(filterStartDate) || 'Awal'} s/d {formatDate(filterEndDate) || 'Akhir'}</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between print:hidden">
@@ -437,7 +438,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
                       sampleData.sampleItems.map((item, idx) => (
                         <tr key={idx} className="hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3 font-medium text-muted-foreground print:text-black whitespace-nowrap">
-                            {item.date}
+                            {formatDate(item.date)}
                           </td>
                           <td className="px-4 py-3">
                             <div className="font-bold text-foreground print:text-black">{item.customer}</div>

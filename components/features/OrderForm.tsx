@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Users, Calendar, Truck, Package, Trash2, Plus, Edit, X, FileText, TrendingUp, Sparkles, AlertTriangle, Send, CheckCircle2 } from 'lucide-react';
 import { Order, OrderItem, Product, Customer } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { formatDate } from '@/lib/utils';
 
 interface OrderFormProps {
   katalog: Product[];
@@ -1033,11 +1034,11 @@ export function OrderForm({
               <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 pt-2.5 border-t border-border/50">
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Tgl Produksi</p>
-                  <p className="font-medium text-xs">{productionDate || '-'}</p>
+                  <p className="font-medium text-xs">{formatDate(productionDate) || '-'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Tgl Pengiriman</p>
-                  <p className="font-medium text-xs">{deliveryDate || '-'}</p>
+                  <p className="font-medium text-xs">{formatDate(deliveryDate) || '-'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Opsi Delivery</p>

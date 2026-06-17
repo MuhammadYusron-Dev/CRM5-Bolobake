@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Order, OrderStatus } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChefHat, PackageCheck, Clock, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
+import { ChefHat, PackageCheck, Clock, CheckCircle2, RotateCcw, AlertCircle, Edit2, Copy, Trash2, Printer, Plus, AlertTriangle, ArrowRight, CalendarDays, MoreVertical, Store, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import { ProductionSchedule } from '@/components/features/ProductionSchedule';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
@@ -304,7 +305,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                               )}
 
                               <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-3 sm:mb-4">
-                                {order.productionDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3 shrink-0"/> Prod: {order.productionDate}</span>}
+                                {order.productionDate && <span className="flex items-center gap-1"><Clock className="w-3 h-3 shrink-0"/> Prod: {formatDate(order.productionDate)}</span>}
                               </div>
 
                               {/* Action Button */}

@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 import { BomCalculator } from './BomCalculator';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
+import { formatDate } from '@/lib/utils';
 
 export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }) {
   const { data: orders = initialOrders } = useSWR<Order[]>('/api/orders', fetcher, { fallbackData: initialOrders });
@@ -375,11 +376,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-2 print:flex-wrap print:grid print:grid-cols-2 print:gap-8 print:overflow-visible">
             {scheduleData.map(({ dateKey, items }) => {
-              let displayDate = dateKey;
-              try {
-                const [y, m, d] = dateKey.split('-');
-                displayDate = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1, parseInt(d)));
-              } catch(e) {}
+              let displayDate = formatDate(dateKey);
 
               // Apply Filters
               const filteredItems = items.filter(([sku, data]) => {
@@ -687,7 +684,7 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
 
                 return (
                   <div key={dateKey} className="border rounded-lg p-4 dark:border-slate-800 print:border-black/20 print:shadow-none print:bg-white bg-slate-50 dark:bg-slate-900/50">
-                    <h3 className="font-bold text-sm mb-3 text-primary">{dateKey}</h3>
+                    <h3 className="font-bold text-sm mb-3 text-primary">{formatDate(dateKey)}</h3>
                     <table className="w-full text-left">
                       <thead>
                         <tr className="border-b text-xs text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700 print:border-black/40 print:text-black">

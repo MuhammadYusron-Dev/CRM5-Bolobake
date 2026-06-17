@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DateRangeFilter } from './DateRangeFilter';
+import { formatDate } from '@/lib/utils';
 
 interface HistoryTableProps {
   orderHistory: Order[];
@@ -231,20 +232,14 @@ export function HistoryTable({
                           {order.productionDate && (
                             <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5"/> Prod: {
                               (() => {
-                                try {
-                                  const [y, m, d] = order.productionDate.split('-');
-                                  return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1, parseInt(d)));
-                                } catch(e) { return order.productionDate; }
+                                return formatDate(order.productionDate);
                               })()
                             }</span>
                           )}
                           {order.deliveryDate && (
                             <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5"/> Kirim: {
                               (() => {
-                                try {
-                                  const [y, m, d] = order.deliveryDate.split('-');
-                                  return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1, parseInt(d)));
-                                } catch(e) { return order.deliveryDate; }
+                                return formatDate(order.deliveryDate);
                               })()
                             }</span>
                           )}
@@ -406,7 +401,7 @@ export function HistoryTable({
                 <div className="flex justify-between text-sm mb-4 text-black print:text-[10px] print:mb-2">
                   <div>
                     <p><span className="font-semibold w-16 inline-block">Pelanggan</span>: {printingOrder.customer}</p>
-                    <p><span className="font-semibold w-16 inline-block">Tanggal</span>: {printingOrder.deliveryDate || printingOrder.productionDate}</p>
+                    <p><span className="font-semibold w-16 inline-block">Tanggal</span>: {formatDate(printingOrder.deliveryDate || printingOrder.productionDate)}</p>
                   </div>
                   <div className="text-right">
                     <p><span className="font-semibold">Order ID</span>: #{printingOrder.id.toString().slice(-6)}</p>
@@ -473,7 +468,7 @@ export function HistoryTable({
                   <div className="flex justify-between text-sm mb-4 text-black print:text-[10px] print:mb-2">
                     <div>
                       <p><span className="font-semibold w-16 inline-block">Pelanggan</span>: {printingOrder.customer} (Pisah)</p>
-                      <p><span className="font-semibold w-16 inline-block">Tanggal</span>: {printingOrder.deliveryDate || printingOrder.productionDate}</p>
+                      <p><span className="font-semibold w-16 inline-block">Tanggal</span>: {formatDate(printingOrder.deliveryDate || printingOrder.productionDate)}</p>
                     </div>
                     <div className="text-right">
                       <p><span className="font-semibold">Order ID</span>: #{printingOrder.id.toString().slice(-6)}-P</p>
