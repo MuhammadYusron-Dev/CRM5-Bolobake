@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getInventory, updateInventoryRow } from '@/lib/inventory';
+import { getInventory, adjustStock } from '@/lib/inventory';
 
 export async function GET() {
   try {
@@ -19,14 +19,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'SKU and addedStock are required' }, { status: 400 });
     }
 
-    const inventory = await getInventory();
-    const item = inventory.find(i => i.sku === sku);
-    
-    if (item) {
-      await updateInventoryRow(sku, item.totalStock + addedStock, item.reservedStock);
-    } else {
-      await updateInventoryRow(sku, addedStock, 0);
-    }
+    await adjustStock(
+      sku, 
+      addedStock, 
+      0, 
+      'ADJUSTMENT', 
+      'MANUAL_INPUT', 
+      `ADJ-${Date.now()}`, 
+      'Manual stock adjustment by admin'
+    );
 
     return NextResponse.json({ success: true, message: 'Stock added successfully' });
   } catch (error: any) {

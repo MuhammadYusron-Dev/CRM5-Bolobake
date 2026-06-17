@@ -1,6 +1,6 @@
 import { sheets, SPREADSHEET_ID, ensureInventorySheets } from '@/lib/google-sheets';
 import { eventBus } from '@/lib/events';
-import { updateInventoryRow, getInventory } from '@/lib/inventory';
+import { adjustStock } from '@/lib/inventory';
 
 export interface ProductionQueueItem {
   id: string;
@@ -9,6 +9,7 @@ export interface ProductionQueueItem {
   deficit: number;
   status: string;
   timestamp: string;
+  sourceOrderId?: string;
 }
 
 export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
@@ -16,7 +17,7 @@ export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'ProductionQueue!A2:F',
+      range: 'ProductionQueue!A2:I',
     });
     const rows = response.data.values || [];
     return rows.map(row => ({
@@ -26,6 +27,7 @@ export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
       deficit: parseInt(row[3] || '0', 10),
       status: row[4] || 'Menunggu',
       timestamp: row[5] || '',
+      sourceOrderId: row[6] || '',
     })).filter(item => item.id !== '');
   } catch (error) {
     console.error('Error fetching production queue:', error);
@@ -33,17 +35,17 @@ export async function getProductionQueue(): Promise<ProductionQueueItem[]> {
   }
 }
 
-export async function addProductionQueue(targetDate: string, sku: string, deficit: number) {
+export async function addProductionQueue(targetDate: string, sku: string, deficit: number, sourceOrderId: string = '') {
   await ensureInventorySheets();
   try {
     const id = `PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const timestamp = new Date().toISOString();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'ProductionQueue!A:F',
+      range: 'ProductionQueue!A:G',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
-        values: [[id, targetDate, sku, deficit, 'Menunggu', timestamp]]
+        values: [[id, targetDate, sku, deficit, 'Menunggu', timestamp, sourceOrderId]]
       }
     });
   } catch (error) {
@@ -56,7 +58,7 @@ export async function completeProduction(queueId: string) {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'ProductionQueue!A:F',
+      range: 'ProductionQueue!A:G',
     });
     const rows = response.data.values || [];
     const rowIndex = rows.findIndex(row => row[0] === queueId);
@@ -78,16 +80,16 @@ export async function completeProduction(queueId: string) {
           }
         });
 
-        // Add to Total Stock in Inventory
-        const inventory = await getInventory();
-        const invItem = inventory.find(i => i.sku === sku);
-        if (invItem) {
-          // Increase total stock by the produced amount
-          await updateInventoryRow(sku, invItem.totalStock + deficit, invItem.reservedStock);
-        } else {
-          // If not in inventory (should rarely happen), create it
-          await updateInventoryRow(sku, deficit, 0);
-        }
+        // Add to Total Stock in Inventory and log movement
+        await adjustStock(
+          sku, 
+          deficit, 
+          0, 
+          'PRODUCTION', 
+          'PRODUCTION_QUEUE', 
+          queueId, 
+          'Production completed'
+        );
       }
     }
   } catch (error) {
@@ -98,5 +100,6 @@ export async function completeProduction(queueId: string) {
 // Handle Stock Insufficient Event
 eventBus.on('STOCK_INSUFFICIENT', async (payload) => {
   console.log(`[Production] Generating production queue for ${payload.sku}. Deficit: ${payload.deficit}`);
-  await addProductionQueue(payload.productionDate, payload.sku, payload.deficit);
+  await addProductionQueue(payload.productionDate, payload.sku, payload.deficit, payload.orderId);
 });
+

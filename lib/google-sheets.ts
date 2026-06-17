@@ -89,6 +89,7 @@ export async function ensureInventorySheets() {
     const sheetsList = spreadsheet.data.sheets || [];
     const hasInventory = sheetsList.some(s => s.properties?.title === 'Inventory');
     const hasProductionQueue = sheetsList.some(s => s.properties?.title === 'ProductionQueue');
+    const hasInventoryMovements = sheetsList.some(s => s.properties?.title === 'InventoryMovements');
     
     const requests: any[] = [];
     if (!hasInventory) {
@@ -96,6 +97,9 @@ export async function ensureInventorySheets() {
     }
     if (!hasProductionQueue) {
       requests.push({ addSheet: { properties: { title: 'ProductionQueue' } } });
+    }
+    if (!hasInventoryMovements) {
+      requests.push({ addSheet: { properties: { title: 'InventoryMovements' } } });
     }
 
     if (requests.length > 0) {
@@ -118,6 +122,14 @@ export async function ensureInventorySheets() {
           range: 'ProductionQueue!A1:F1',
           valueInputOption: 'USER_ENTERED',
           requestBody: { values: [['ID', 'Tanggal Target', 'SKU', 'Jumlah Kurang', 'Status', 'Timestamp']] }
+        });
+      }
+      if (!hasInventoryMovements) {
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: 'InventoryMovements!A1:I1',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [['ID', 'Timestamp', 'SKU', 'Movement Type', 'Quantity', 'Reference Type', 'Reference ID', 'User', 'Notes']] }
         });
       }
     }
