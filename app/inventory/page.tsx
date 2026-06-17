@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { Package, AlertTriangle, Bookmark, History, PlusCircle } from 'lucide-react';
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<any[]>([]);
@@ -67,16 +68,10 @@ export default function InventoryPage() {
     }
   };
 
-  const getStatusColor = (available: number, minStock: number) => {
-    if (available <= minStock * 0.3) return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
-    if (available <= minStock) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
-    return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-  };
-
-  const getStatusLabel = (available: number, minStock: number) => {
-    if (available <= minStock * 0.3) return 'Critical';
-    if (available <= minStock) return 'Low Stock';
-    return 'Safe';
+  const getStatusIndicator = (available: number, minStock: number) => {
+    if (available <= minStock * 0.3) return { color: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/50', dot: 'bg-rose-500', label: 'Critical' };
+    if (available <= minStock) return { color: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50', dot: 'bg-amber-500', label: 'Low Stock' };
+    return { color: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800/50', dot: 'bg-emerald-500', label: 'Safe' };
   };
 
   const totalSKU = inventory.length;
@@ -104,72 +99,103 @@ export default function InventoryPage() {
         <div className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Total SKU Aktif</span>
-              <span className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{totalSKU}</span>
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100/50 dark:from-blue-900/20 dark:to-indigo-900/10 rounded-2xl shadow-sm border border-blue-100/50 dark:border-blue-800/30 p-6 flex flex-col relative overflow-hidden group transition-all duration-300 hover:shadow-md">
+              <div className="absolute right-0 top-0 w-24 h-24 bg-blue-500/5 dark:bg-blue-400/5 rounded-full blur-xl group-hover:bg-blue-500/10 transition-colors"></div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl">
+                  <Package className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-800/70 dark:text-blue-300/70">Total SKU Aktif</span>
+              </div>
+              <span className="text-4xl font-black text-blue-950 dark:text-white tracking-tight">{totalSKU}</span>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Low Stock / Critical</span>
-              <span className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">{lowStockCount}</span>
+            
+            <div className="bg-gradient-to-br from-amber-50 to-orange-100/50 dark:from-amber-900/20 dark:to-orange-900/10 rounded-2xl shadow-sm border border-amber-100/50 dark:border-amber-800/30 p-6 flex flex-col relative overflow-hidden group transition-all duration-300 hover:shadow-md">
+              <div className="absolute right-0 top-0 w-24 h-24 bg-amber-500/5 dark:bg-amber-400/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-colors"></div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-xl">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-800/70 dark:text-amber-300/70">Low Stock / Critical</span>
+              </div>
+              <span className="text-4xl font-black text-amber-950 dark:text-white tracking-tight">{lowStockCount}</span>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col">
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Direservasi</span>
-              <span className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">{reservedTotal}</span>
+
+            <div className="bg-gradient-to-br from-purple-50 to-pink-100/50 dark:from-purple-900/20 dark:to-pink-900/10 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-800/30 p-6 flex flex-col relative overflow-hidden group transition-all duration-300 hover:shadow-md">
+              <div className="absolute right-0 top-0 w-24 h-24 bg-purple-500/5 dark:bg-purple-400/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-colors"></div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-xl">
+                  <Bookmark className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-purple-800/70 dark:text-purple-300/70">Total Direservasi</span>
+              </div>
+              <span className="text-4xl font-black text-purple-950 dark:text-white tracking-tight">{reservedTotal}</span>
             </div>
           </div>
 
           {/* Main Table */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Daftar Stok Produk</h2>
+            <div className="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Package className="w-5 h-5 text-indigo-500" />
+                Daftar Stok Produk
+              </h2>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
               {loading ? (
                 <div className="p-8 text-center text-gray-500 dark:text-gray-400">Memuat data inventory...</div>
               ) : (
                 <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-                  <thead className="bg-gray-50/50 dark:bg-gray-900/50 text-xs uppercase font-medium text-gray-500 dark:text-gray-400">
+                  <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
                     <tr>
                       <th className="px-6 py-4">SKU / Produk</th>
                       <th className="px-6 py-4">Total Stok</th>
                       <th className="px-6 py-4">Direservasi</th>
-                      <th className="px-6 py-4">Tersedia</th>
+                      <th className="px-6 py-4 text-blue-600 dark:text-blue-400">Tersedia</th>
                       <th className="px-6 py-4">Min Stok</th>
                       <th className="px-6 py-4">Status</th>
                       <th className="px-6 py-4 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {inventory.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-gray-900 dark:text-white cursor-pointer hover:underline" onClick={() => setSelectedSku(item.sku)}>
-                          {item.sku}
-                        </td>
-                        <td className="px-6 py-4">{item.totalStock}</td>
-                        <td className="px-6 py-4">{item.reservedStock}</td>
-                        <td className="px-6 py-4 font-bold">{item.availableStock}</td>
-                        <td className="px-6 py-4 text-gray-500">{item.minStock}</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(item.availableStock, item.minStock)}`}>
-                            {getStatusLabel(item.availableStock, item.minStock)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right space-x-2">
-                          <button
-                            onClick={() => setSelectedSku(item.sku)}
-                            className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium transition-colors"
-                          >
-                            Audit
-                          </button>
-                          <button
-                            onClick={() => setAddStockModal({ isOpen: true, sku: item.sku, addedStock: 0 })}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium transition-colors"
-                          >
-                            + Tambah
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {inventory.map((item, idx) => {
+                      const status = getStatusIndicator(item.availableStock, item.minStock);
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-all duration-200 group">
+                          <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 cursor-pointer group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" onClick={() => setSelectedSku(item.sku)}>
+                            {item.sku}
+                          </td>
+                          <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">{item.totalStock}</td>
+                          <td className="px-6 py-4 text-slate-600 dark:text-slate-300 font-medium">{item.reservedStock}</td>
+                          <td className="px-6 py-4 font-bold text-lg text-slate-800 dark:text-slate-200">{item.availableStock}</td>
+                          <td className="px-6 py-4 text-slate-400 dark:text-slate-500 font-medium">{item.minStock}</td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide rounded-full border ${status.color}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`}></span>
+                              {status.label}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => setSelectedSku(item.sku)}
+                                className="p-1.5 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-900/30 rounded-lg transition-colors tooltip-trigger"
+                                title="Audit Trail"
+                              >
+                                <History className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setAddStockModal({ isOpen: true, sku: item.sku, addedStock: 0 })}
+                                className="p-1.5 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition-colors tooltip-trigger"
+                                title="Tambah Stok"
+                              >
+                                <PlusCircle className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                     {inventory.length === 0 && (
                       <tr>
                         <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
