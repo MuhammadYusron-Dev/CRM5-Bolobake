@@ -68,6 +68,21 @@ export default function InventoryPage() {
     }
   };
 
+  const getMovementColor = (type: string) => {
+    switch (type) {
+      case 'PRODUCTION':
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+      case 'RESERVATION':
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
+      case 'FULFILLMENT':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
+      case 'ADJUSTMENT':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300';
+      default:
+        return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
+    }
+  };
+
   const getStatusIndicator = (available: number, minStock: number) => {
     if (available <= minStock * 0.3) return { color: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800/50', dot: 'bg-rose-500', label: 'Critical' };
     if (available <= minStock) return { color: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50', dot: 'bg-amber-500', label: 'Low Stock' };
@@ -265,7 +280,7 @@ export default function InventoryPage() {
                 movements.filter(m => m.sku === selectedSku).map((mov, idx) => (
                   <div key={idx} className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
                     <div className="flex justify-between items-start mb-2">
-                      <span className={`text-xs font-bold px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`}>
+                      <span className={`text-xs font-bold px-2 py-1 rounded ${getMovementColor(mov.movementType)}`}>
                         {mov.movementType}
                       </span>
                       <span className="text-xs text-gray-500">{new Date(mov.timestamp).toLocaleString()}</span>
