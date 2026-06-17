@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getProductionProgress, upsertProductionProgress, completeProductionBatch } from '@/lib/production';
+import { invalidateCache } from '@/lib/cache';
 
 export async function GET() {
   try {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
 
     if (action === 'completeBatch') {
       await completeProductionBatch(item.sku, item.dateKey, item.doneQty, sourceOrderIds || []);
+      invalidateCache('orders_data');
       return NextResponse.json({ success: true, message: 'Batch completed successfully' });
     }
 
