@@ -629,7 +629,7 @@ export function OrderManager({
   const menuIconColor = 'text-foreground hover:bg-accent';
 
   return (
-    <div className="grid grid-cols-[auto_1fr] h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
+    <div className="grid grid-cols-[auto_1fr] h-[100dvh] bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
       <Sidebar 
         activeMenu={activeMenu} 
         setActiveMenu={setActiveMenu} 
