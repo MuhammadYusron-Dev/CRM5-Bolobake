@@ -158,11 +158,12 @@ export function ActionControl({
   const isSuperAdmin = role === 'SUPER_ADMIN';
   
   // Matrix rules
-  const canHandover = isSuperAdmin || (stage === role && (state === 'COMPLETED' || state === 'QC_PASSED' || (stage === 'ADMIN' && state !== 'WAITING')));
-  const canAccept = isSuperAdmin || (stage === role && state === 'WAITING');
-  const canComplete = isSuperAdmin || (stage === role && (state === 'ACCEPTED' || state === 'IN_PROGRESS' || state === 'REWORK_REQUIRED'));
-  const canReject = isSuperAdmin || (stage === role && state !== 'COMPLETED' && stage !== 'ADMIN');
-  const canQc = isSuperAdmin || (stage === role && state === 'QC_PENDING');
+  const hasRoleAccess = isSuperAdmin || stage === role;
+  const canHandover = hasRoleAccess && (state === 'COMPLETED' || state === 'QC_PASSED' || (stage === 'ADMIN' && state !== 'WAITING'));
+  const canAccept = hasRoleAccess && state === 'WAITING';
+  const canComplete = hasRoleAccess && (state === 'ACCEPTED' || state === 'IN_PROGRESS' || state === 'REWORK_REQUIRED');
+  const canReject = hasRoleAccess && state !== 'COMPLETED' && stage !== 'ADMIN';
+  const canQc = hasRoleAccess && state === 'QC_PENDING';
 
   return (
     <>
@@ -188,12 +189,6 @@ export function ActionControl({
         {canHandover && (
           <Button size="sm" variant="outline" onClick={() => setModalState({ isOpen: true, action: 'HANDOVER' })} className="h-7 text-xs border-yellow-500 text-yellow-700 hover:bg-yellow-50">
             <ArrowRight className="w-3 h-3 mr-1.5" /> Handover
-          </Button>
-        )}
-
-        {canComplete && (
-          <Button size="sm" onClick={() => setModalState({ isOpen: true, action: 'COMPLETE' })} className="h-7 text-xs bg-green-600 hover:bg-green-700">
-            <CheckCircle2 className="w-3 h-3 mr-1.5" /> Selesaikan
           </Button>
         )}
 
