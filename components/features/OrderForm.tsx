@@ -161,9 +161,26 @@ export function OrderForm({
       if (data.success && data.data) {
         const parsed = data.data;
         if (parsed.customer_name) handleCustomerChange(parsed.customer_name);
-        if (parsed.delivery_date) {
-           setDeliveryDate(parsed.delivery_date);
-           setProductionDate(parsed.production_date || parsed.delivery_date); // Default logic to delivery_date if production_date is not set
+        
+        let finalDeliveryDate = parsed.delivery_date;
+        let finalProductionDate = parsed.production_date || parsed.delivery_date;
+        
+        // Auto-detect urgent same-day delivery
+        const textUpper = aiText.toUpperCase();
+        if (textUpper.includes('PENGIRIMAN HARI INI') || textUpper.includes('DIKIRIM HARI INI')) {
+           const today = new Date();
+           const yyyy = today.getFullYear();
+           const mm = String(today.getMonth() + 1).padStart(2, '0');
+           const dd = String(today.getDate()).padStart(2, '0');
+           const todayStr = `${yyyy}-${mm}-${dd}`;
+           
+           finalDeliveryDate = todayStr;
+           finalProductionDate = todayStr;
+        }
+
+        if (finalDeliveryDate) {
+           setDeliveryDate(finalDeliveryDate);
+           setProductionDate(finalProductionDate); // Default logic to delivery_date if production_date is not set
         }
         if (parsed.delivery_option) {
            setDeliveryOption(parsed.delivery_option);
