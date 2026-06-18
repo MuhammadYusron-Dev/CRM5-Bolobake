@@ -102,10 +102,12 @@ export async function POST(request: Request) {
       currentState = parts.slice(1).join('_') as OrderState;
     } else if (currentStatusStr) {
       // Legacy fallback
-      if (currentStatusStr.toLowerCase().includes('produksi')) { currentStage = 'PRODUCTION'; currentState = 'ACCEPTED'; }
-      else if (currentStatusStr.toLowerCase().includes('packing')) { currentStage = 'PACKING'; currentState = 'ACCEPTED'; }
-      else if (currentStatusStr.toLowerCase().includes('delivery')) { currentStage = 'DELIVERY'; currentState = 'ACCEPTED'; }
-      else if (currentStatusStr.toLowerCase().includes('diterima')) { currentStage = 'COMPLETED'; currentState = 'COMPLETED'; }
+      const low = currentStatusStr.toLowerCase();
+      if (low.includes('produksi')) { currentStage = 'PRODUCTION'; currentState = 'ACCEPTED'; }
+      else if (low.includes('packing')) { currentStage = 'PACKING'; currentState = 'ACCEPTED'; }
+      else if (low.includes('delivery')) { currentStage = 'DELIVERY'; currentState = 'ACCEPTED'; }
+      else if (low.includes('diterima')) { currentStage = 'COMPLETED'; currentState = 'COMPLETED'; }
+      else if (low.includes('dikonfirmasi')) { currentStage = 'PRODUCTION'; currentState = 'WAITING'; }
     }
 
     let lifecycleData: LifecycleEvent[] = [];
