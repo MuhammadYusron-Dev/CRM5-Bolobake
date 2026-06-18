@@ -175,9 +175,9 @@ export function ActionControl({
   
   // Matrix rules
   const hasRoleAccess = isSuperAdmin || stage === role;
-  const canHandover = hasRoleAccess && (state === 'COMPLETED' || state === 'QC_PASSED' || (stage === 'ADMIN' && state !== 'WAITING'));
-  const canAccept = hasRoleAccess && state === 'WAITING';
-  const canComplete = hasRoleAccess && (state === 'ACCEPTED' || state === 'IN_PROGRESS' || state === 'REWORK_REQUIRED');
+  const canHandover = hasRoleAccess && (state === 'COMPLETED' || state === 'QC_PASSED' || stage === 'ADMIN');
+  const canAccept = hasRoleAccess && state === 'WAITING' && stage !== 'ADMIN';
+  const canComplete = hasRoleAccess && (state === 'ACCEPTED' || state === 'IN_PROGRESS' || state === 'REWORK_REQUIRED') && stage !== 'ADMIN';
   const canReject = hasRoleAccess && state !== 'COMPLETED' && stage !== 'ADMIN';
   const canQc = hasRoleAccess && state === 'QC_PENDING';
 
@@ -201,7 +201,7 @@ export function ActionControl({
 
   const getHandoverText = () => {
     switch (stage) {
-      case 'ADMIN': return 'Lanjut ke Produksi';
+      case 'ADMIN': return 'Konfirmasi & Kirim ke Divisi';
       case 'PRODUCTION': return 'Lanjut ke Packing';
       case 'PACKING': return 'Lanjut ke Pengiriman';
       default: return 'Handover';
@@ -376,6 +376,7 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
   const getTitle = () => {
     switch (action) {
       case 'HANDOVER': 
+        if (order.currentStage === 'ADMIN') return 'Konfirmasi Pesanan Sesuai & Kirim';
         if (order.currentStage === 'PRODUCTION') return 'Lanjut ke Divisi Packing?';
         if (order.currentStage === 'PACKING') return 'Lanjut ke Divisi Pengiriman?';
         return `Handover dari ${order.currentStage}`;
