@@ -23,7 +23,16 @@ export function HorizontalDateFilter({
   
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartDate, setDragStartDate] = useState<string | null>(null);
-  const [hoverDate, setHoverDate] = useState<string | null>(null);
+  const [localStart, setLocalStart] = useState<string>(startDate);
+  const [localEnd, setLocalEnd] = useState<string>(endDate);
+
+  // Sync local state when external state changes, unless we are currently dragging
+  useEffect(() => {
+    if (!isDragging) {
+      setLocalStart(startDate);
+      setLocalEnd(endDate);
+    }
+  }, [startDate, endDate, isDragging]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -76,28 +85,32 @@ export function HorizontalDateFilter({
   const handleMouseDown = (dateStr: string) => {
     setIsDragging(true);
     setDragStartDate(dateStr);
-    // Instantly set selection to just this day when starting
-    onRangeChange(dateStr, dateStr);
+    setLocalStart(dateStr);
+    setLocalEnd(dateStr);
   };
 
   const handleMouseEnter = (dateStr: string) => {
     if (isDragging && dragStartDate) {
-      // Create ordered range
       const d1 = new Date(dragStartDate);
       const d2 = new Date(dateStr);
       if (d1.getTime() <= d2.getTime()) {
-        onRangeChange(dragStartDate, dateStr);
+        setLocalStart(dragStartDate);
+        setLocalEnd(dateStr);
       } else {
-        onRangeChange(dateStr, dragStartDate);
+        setLocalStart(dateStr);
+        setLocalEnd(dragStartDate);
       }
     }
-    setHoverDate(dateStr);
   };
 
   const handleMouseUp = () => {
     if (isDragging) {
       setIsDragging(false);
       setDragStartDate(null);
+      // Finalize selection to parent
+      if (localStart && localEnd) {
+        onRangeChange(localStart, localEnd);
+      }
     }
   };
 
@@ -107,11 +120,24 @@ export function HorizontalDateFilter({
       if (isDragging) {
         setIsDragging(false);
         setDragStartDate(null);
+        if (localStart && localEnd) {
+          onRangeChange(localStart, localEnd);
+        }
       }
     };
     window.addEventListener('mouseup', handleGlobalMouseUp);
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, [isDragging]);
+  }, [isDragging, localStart, localEnd, onRangeChange]);
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollRef.current) {
+      // Prevent default vertical scroll if scrolling horizontally with mouse wheel
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        scrollRef.current.scrollLeft += e.deltaY;
+      }
+    }
+  };
 
   const monthNames = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -142,11 +168,12 @@ export function HorizontalDateFilter({
         ref={scrollRef}
         className="flex overflow-x-auto pb-2 sm:pb-0 gap-1 no-scrollbar select-none cursor-grab active:cursor-grabbing"
         onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
       >
         {days.map(day => {
           const dateStr = formatYMD(viewYear, viewMonth, day);
           const hasOrders = orderDates.has(dateStr);
-          const isSelected = isDateInRange(dateStr, startDate, endDate);
+          const isSelected = isDateInRange(dateStr, localStart, localEnd);
           const isToday = dateStr === todayYMD;
 
           return (
@@ -156,8 +183,8 @@ export function HorizontalDateFilter({
               onMouseEnter={() => handleMouseEnter(dateStr)}
               onMouseUp={handleMouseUp}
               className={`
-                relative flex flex-col items-center justify-center min-w-[42px] h-[48px] rounded-lg transition-all
-                ${isSelected ? 'bg-primary text-primary-foreground shadow-md scale-105 z-10' : 'bg-background hover:bg-muted border border-border/50 text-foreground'}
+                relative flex flex-col items-center justify-center min-w-[32px] h-[40px] rounded-md transition-all
+                ${isSelected ? 'bg-primary text-primary-foreground shadow-sm scale-105 z-10' : 'bg-background hover:bg-muted border border-border/50 text-foreground'}
                 ${isToday && !isSelected ? 'border-primary/50' : ''}
               `}
             >
