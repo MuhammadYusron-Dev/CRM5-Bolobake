@@ -166,7 +166,7 @@ export function HorizontalDateFilter({
       {/* Horizontal Dates Container */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto pb-2 sm:pb-0 gap-1 no-scrollbar select-none cursor-grab active:cursor-grabbing"
+        className="flex overflow-x-auto pb-2 gap-1 custom-scrollbar select-none cursor-grab active:cursor-grabbing"
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
       >
