@@ -128,14 +128,15 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       <aside 
         className={`fixed md:static inset-y-0 left-0 z-50 bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 text-white flex flex-col transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        } ${isCollapsed ? 'md:w-20' : 'w-72'}`}
+        }`}
+        style={{ width: isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
       >
         <div className="p-4 flex items-center h-16 shrink-0 mt-2">
           <div className="flex items-center overflow-hidden w-full px-2">
             <ChefHat className={`w-8 h-8 text-white flex-shrink-0 drop-shadow-sm transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
             <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
-              <span className="font-serif text-2xl font-bold leading-tight">Bolobake</span>
-              <span className="text-[9px] text-white/60 tracking-widest font-bold uppercase mt-0.5">Powered by Yusron</span>
+              <span className="font-serif font-bold leading-tight" style={{ fontSize: 'var(--text-2xl)' }}>Bolobake</span>
+              <span className="text-white/60 tracking-widest font-bold uppercase mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>Powered by Yusron</span>
             </div>
           </div>
           <button className="md:hidden p-1 rounded-md hover:bg-white/20" onClick={() => setIsMobileOpen(false)}>
@@ -147,7 +148,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           {menuGroups.map((group, gIdx) => (
             <div key={gIdx} className="flex flex-col gap-1">
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0' : 'max-h-8 opacity-100'}`}>
-                <span className="text-[10px] uppercase font-bold text-white/70 tracking-widest px-6 block whitespace-nowrap">
+                <span className="uppercase font-bold text-white/70 tracking-widest px-6 block whitespace-nowrap" style={{ fontSize: 'var(--text-3xs)' }}>
                   {group.title}
                 </span>
               </div>
@@ -166,7 +167,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                     } ${isCollapsed ? 'justify-center px-0' : 'px-5'}`}
                   >
                     <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:scale-110'}`} />
-                    <span className={`text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[200px] opacity-100 ml-3'}`}>
+                    <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[200px] opacity-100 ml-3'}`} style={{ fontSize: 'var(--text-sm)' }}>
                       {item.label}
                     </span>
                   </button>
@@ -195,10 +196,10 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                 )}
               </div>
               <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'opacity-100 ml-3'}`}>
-                <span className="text-sm font-bold truncate leading-tight block">{user?.fullName || user?.username || 'Admin'}</span>
-                <span className="text-[10px] text-white/90 truncate leading-tight block mt-0.5">{user?.email || user?.username}</span>
+                <span className="font-bold truncate leading-tight block" style={{ fontSize: 'var(--text-sm)' }}>{user?.fullName || user?.username || 'Admin'}</span>
+                <span className="text-white/90 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>{user?.email || user?.username}</span>
                 <div className="flex items-center mt-1.5">
-                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm shrink-0">{user?.role || 'ADMIN'}</span>
+                  <span className="bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm shrink-0" style={{ fontSize: 'var(--text-3xs)' }}>{user?.role || 'ADMIN'}</span>
                 </div>
               </div>
             </button>

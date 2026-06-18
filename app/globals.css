@@ -27,6 +27,42 @@
 @layer base {
   :root {
     color-scheme: light;
+
+    /* ============================
+       ENTERPRISE DESIGN TOKENS
+       ============================ */
+
+    /* Fluid Typography */
+    --text-3xs: clamp(8px, 0.5vw, 9px);
+    --text-2xs: clamp(9px, 0.55vw, 10px);
+    --text-xs: clamp(10px, 0.65vw, 12px);
+    --text-sm: clamp(12px, 0.75vw, 14px);
+    --text-base: clamp(13px, 0.85vw, 16px);
+    --text-lg: clamp(15px, 1vw, 18px);
+    --text-xl: clamp(17px, 1.2vw, 20px);
+    --text-2xl: clamp(20px, 1.4vw, 24px);
+    --text-3xl: clamp(24px, 1.8vw, 32px);
+
+    /* Fluid Spacing */
+    --space-xs: clamp(4px, 0.3vw, 8px);
+    --space-sm: clamp(6px, 0.5vw, 12px);
+    --space-md: clamp(10px, 0.8vw, 16px);
+    --space-lg: clamp(14px, 1vw, 24px);
+    --space-xl: clamp(20px, 1.5vw, 32px);
+    --space-2xl: clamp(28px, 2vw, 48px);
+
+    /* Radius Tokens */
+    --radius-sm: clamp(4px, 0.3vw, 6px);
+    --radius-md: clamp(6px, 0.5vw, 10px);
+    --radius-lg: clamp(10px, 0.8vw, 16px);
+    --radius-xl: clamp(14px, 1vw, 24px);
+
+    /* Layout Tokens */
+    --sidebar-width: clamp(220px, 16vw, 280px);
+    --sidebar-collapsed: clamp(56px, 4.5vw, 72px);
+    --header-height: clamp(48px, 4vw, 64px);
+    --content-padding: clamp(12px, 1.2vw, 32px);
+    --card-padding: clamp(12px, 1vw, 24px);
   }
   .dark {
     color-scheme: dark;
@@ -34,6 +70,18 @@
 }
 
 @custom-variant dark (&:is(.dark *));
+
+/* ============================
+   GLOBAL SAFETY RULES
+   ============================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent flex/grid children from overflowing */
+.flex > *, .grid > *, [class*="flex"] > *, [class*="grid"] > * {
+  min-width: 0;
+}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
@@ -45,6 +93,44 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  font-size: var(--text-base);
+  overflow-x: hidden;
+}
+
+/* ============================
+   ENTERPRISE COMPONENT CLASSES
+   ============================ */
+
+/* Card System */
+.enterprise-card {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Table Wrapper */
+.enterprise-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+/* Container Query Containers */
+.cq-container {
+  container-type: inline-size;
+}
+
+/* Container Query Breakpoints */
+@container (max-width: 500px) {
+  .cq-stack { flex-direction: column !important; }
+  .cq-hide-sm { display: none !important; }
+  .cq-full-width { width: 100% !important; }
+}
+
+@container (max-width: 700px) {
+  .cq-single-col { grid-template-columns: 1fr !important; }
+  .cq-hide-md { display: none !important; }
 }
 
 @layer utilities {

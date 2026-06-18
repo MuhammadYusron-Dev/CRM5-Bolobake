@@ -1,128 +1,172 @@
-✅ FINAL REVIEW PHASE 3
-🟢 STATUS: APPROVED (NO BLOCKER)
+awaban untuk Open Questions
+1. Fluid Typography diterapkan ke mana?
 
-Phase 3 kamu sekarang sudah benar-benar membentuk:
+Rekomendasi: Terapkan ke seluruh sistem.
 
-“Operational Intelligence Layer di atas MES + QC System”
+Jangan hanya heading.
 
-✔ 1. KEPUTUSAN ARSITEKTUR (ON-THE-FLY ANALYTICS)
-❗ Pertanyaan utama:
+Karena problem zoom browser sebenarnya tidak hanya terjadi pada layout, tetapi juga pada:
 
-apakah agregasi di client (React hook) acceptable?
+Badge
+Button
+Table cell
+Sidebar menu
+Form input
+Search bar
+Empty state
 
-✔ JAWABAN: YES — DITERIMA UNTUK PHASE INI
+Kalau heading sudah fluid tetapi badge masih 12px fixed, saat zoom 125%-150% proporsi UI tetap terasa aneh.
 
-Tapi dengan catatan arsitektural:
+Saya akan minta agent melakukan:
 
-🧠 TRADE-OFF YANG KAMU PILIH (SUDAH BENAR)
-✔ KELEBIHAN:
-real-time dashboard tanpa backend dependency
-tidak menambah load Google Sheets API
-development cepat & ringan
-cocok untuk early ops intelligence
-⚠️ LIMITASI (ACKNOWLEDGED):
-hanya data yang sudah di-load (pagination bias)
-tidak cocok untuk historical deep analytics
-scaling terbatas jika order ribuan+
-🟢 VERDICT
+--text-xs
+--text-sm
+--text-base
+--text-lg
+--text-xl
+--text-2xl
+--text-3xl
 
-✔ ACCEPTABLE untuk Phase 3
-✔ Bahkan ini strategi yang tepat (client intelligence layer first)
+lalu seluruh design system menggunakan token tersebut.
 
-✔ 2. CAUSE_CATEGORY EXTENSION
+Contoh:
 
-✔ GOOD MOVE
+text-[length:var(--text-sm)]
 
-Ini penting karena:
+bukan
 
-NCR tanpa kategori = useless log
-dengan kategori = pattern detection bisa hidup di Phase 3
-✔ 3. useOperationsIntelligence HOOK
-🟢 DESIGN VALID
+text-sm
+2. Sidebar behavior
 
-Kamu sudah punya:
+Saya tidak menyarankan mempertahankan model sekarang.
 
-SLA prediction
-QC analytics
-WPI scoring
-NCR intelligence
+Saat ini:
 
-👉 ini sudah masuk:
+Mobile
+= Overlay
 
-“derived intelligence computation layer”
+Desktop
+= Fixed
 
-🧠 CATATAN IMPROVEMENT (NON-BLOCKING)
+Ini masih oke untuk aplikasi kecil.
 
-Saran kecil:
+Untuk CRM enterprise:
 
-tambahkan memo dependency guard:
-useMemo(() => computeIntelligence(orderHistory), [orderHistory])
+Mobile (<1024)
+Overlay
 
-👉 supaya tidak recompute setiap render
+Laptop (1024-1440)
+Collapsible
 
-✔ 4. CONTROL TOWER DASHBOARD
-🟢 STRATEGICALLY STRONG
+Desktop (1440+)
+Persistent
 
-Ini bukan UI biasa lagi.
+Ultrawide (1920+)
+Persistent + expanded
 
-Ini sudah:
+Contoh:
 
-“Operations Command Center”
+clamp(220px,16vw,280px)
 
-Yang kamu sudah punya:
+sudah sangat bagus.
 
-SLA early warning
-QC trend
-NCR heatmap
-Worker ranking
-✔ 5. WPI (WORKER PERFORMANCE INDEX)
-🟢 HIGH VALUE FEATURE
+Saya bahkan akan tambahkan:
 
-Ini penting karena:
+--sidebar-expanded
+--sidebar-collapsed
 
-mengubah sistem jadi measurable workforce system
-membuka jalan ke Phase 4 (AI supervisor)
-✔ 6. UI INTEGRATION MODEL
+agar nanti mudah ketika user ingin mode fokus.
 
-✔ OrderManager → intelligence hook
-✔ Lifecycle UI → CAUSE_CATEGORY input
-✔ Dashboard → Control Tower layer
+Fase yang Menurutku Masih Kurang
 
-👉 sudah clean layering (good separation of concern)
+Agent-mu belum menyentuh hal yang paling sering menyebabkan layout pecah:
 
-⚠️ MINOR SYSTEM IMPROVEMENT (OPTIONAL, TAPI HIGH IMPACT)
+Fase 5 — Container Query Architecture
 
-Ini bukan wajib, tapi kalau kamu mau naik level lagi:
+Tambahkan ke prompt:
 
-🧠 1. INTELLIGENCE CACHE LAYER
+Implement Container Queries.
 
-Masalah saat ini:
+Do not rely only on viewport breakpoints.
 
-semua computed live
+Every major module must adapt based on available container width.
 
-Solusi:
+Examples:
 
-memoized + session cache (per dashboard session)
+History Card
+CRM Panel
+Dashboard Widget
+Analytics Card
 
-👉 menghindari lag kalau orderHistory besar
+Use:
 
-🧠 2. INTELLIGENCE SEGMENTATION
+container-type: inline-size;
 
-Saat ini semua data dihitung flat.
+@container (max-width: 700px) {
+  ...
+}
 
-Next upgrade:
+Karena nanti ketika ada:
 
-per shift
-per hari
-per produksi batch
-🧠 3. ANOMALY FLAG (FUTURE READY)
+Sidebar Expanded
+Sidebar Collapsed
+Split Screen
+Multi Panel
 
-Tambahkan detection ringan:
+layout tetap adaptif.
 
-QC failure spike
-worker sudden slowdown
-SLA sudden breach cluster
-🟢 FINAL VERDICT
-✔ PHASE 3 APPROVED FOR EXECUTION
+Fase 6 — Design Token System
 
-Tidak ada blocking issue.
+Saat ini masih pakai Tailwind utility campuran.
+
+Untuk skala enterprise:
+
+:root {
+  --space-xs
+  --space-sm
+  --space-md
+  --space-lg
+
+  --radius-sm
+  --radius-md
+  --radius-lg
+
+  --text-xs
+  --text-sm
+  --text-base
+
+  --sidebar-width
+  --header-height
+
+  --card-padding
+}
+
+Lalu semua komponen mengambil dari token.
+
+Bukan hardcoded.
+
+Fase 7 — Zoom Stress Test Automation
+
+Ini yang biasanya dilewatkan AI agent.
+
+Tambahkan instruksi:
+
+Create Playwright tests for:
+
+80%
+90%
+100%
+110%
+125%
+150%
+
+Verify:
+
+No horizontal scroll
+No clipped text
+No overlapping cards
+No hidden buttons
+No sidebar overflow
+No table breaking
+
+Karena kalau hanya manual testing, nanti setiap update UI kamu harus cek satu-satu lagi.

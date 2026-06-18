@@ -164,7 +164,7 @@ export function HistoryTable({
     <div className="space-y-4 animate-in fade-in">
       <div className="space-y-4 mb-2">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-serif flex items-center gap-2">
+          <h3 className="font-serif flex items-center gap-2" style={{ fontSize: 'var(--text-lg)' }}>
             <History className="w-5 h-5 text-primary" />
             Riwayat Pesanan
           </h3>
@@ -207,7 +207,8 @@ export function HistoryTable({
               if (highlightedOutlet) setHighlightedOutlet('');
             }}
             placeholder="Cari nama outlet, produk, atau catatan..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground font-medium"
+            className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground font-medium"
+            style={{ fontSize: 'var(--text-sm)' }}
           />
           {searchHistoryInput && (
             <Button 
@@ -265,12 +266,12 @@ export function HistoryTable({
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <StatusBadge stage={order.currentStage} state={order.currentState} health={order.healthStatus} />
                         {!isNaN(new Date(order.timestamp).getTime()) && (
-                          <span className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">{new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span className="text-muted-foreground whitespace-pre-line leading-relaxed" style={{ fontSize: 'var(--text-xs)' }}>{new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                         )}
                       </div>
                       <h4 className="font-bold">{order.customer}</h4>
                       {(order.productionDate || order.deliveryDate) && (
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center gap-3 text-muted-foreground mt-1" style={{ fontSize: 'var(--text-xs)' }}>
                           {order.productionDate && (
                             <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5"/> Prod: {
                               (() => {
@@ -326,7 +327,7 @@ export function HistoryTable({
                     </div>
                   </div>
                   
-                  <div className="bg-muted p-3 rounded-lg text-sm space-y-1 mb-3 border border-border">
+                  <div className="bg-muted rounded-lg space-y-1 mb-3 border border-border" style={{ padding: 'var(--card-padding)', fontSize: 'var(--text-sm)' }}>
                     {(order.items || []).map((item, idx) => (
                       <div key={idx} className="flex justify-between">
                         <span>
@@ -346,21 +347,21 @@ export function HistoryTable({
                     )}
                   </div>
                   {order.notes && (
-                    <div className="text-[11px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded mb-3 border border-red-200 dark:border-red-800/50">
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded mb-3 border border-red-200 dark:border-red-800/50" style={{ fontSize: 'var(--text-2xs)' }}>
                       <span className="font-bold block mb-0.5">Catatan Produksi:</span>
                       {order.notes}
                     </div>
                   )}
                   {order.deliveryNotes && (
-                    <div className="text-[11px] bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded mb-3 border border-blue-200 dark:border-blue-800/50">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded mb-3 border border-blue-200 dark:border-blue-800/50" style={{ fontSize: 'var(--text-2xs)' }}>
                       <span className="font-bold block mb-0.5">Catatan Pengiriman:</span>
                       {order.deliveryNotes}
                     </div>
                   )}
                   
                   <div className="flex justify-between items-center font-bold pt-1">
-                    <span className="text-sm">Total Tagihan</span>
-                    <span className="text-primary text-lg">{formatRp(order.grandTotal)}</span>
+                    <span style={{ fontSize: 'var(--text-sm)' }}>Total Tagihan</span>
+                    <span className="text-primary" style={{ fontSize: 'var(--text-lg)' }}>{formatRp(order.grandTotal)}</span>
                   </div>
 
                   <ActionControl 

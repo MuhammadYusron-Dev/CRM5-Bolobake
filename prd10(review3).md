@@ -1,161 +1,229 @@
-Yang Masih Saya Tambahkan Sebelum Coding
+TASK:
+Redesign the entire application layout architecture into an Enterprise Adaptive UI System.
 
-Ini bukan blocker besar.
+CURRENT PROBLEM:
+The application looks good at certain browser zoom levels (80%) but breaks or becomes misaligned when browser zoom changes (100%, 110%, 125%, etc.).
 
-Tapi saya akan meminta Antigravity menambahkan 3 hal terakhir.
+GOAL:
+Create a fully responsive enterprise-grade layout that remains visually consistent across:
 
-1. Event Versioning
+- Browser zoom 80% → 150%
+- Screen width 1366px → 3840px
+- Laptop screens
+- Ultrawide monitors
+- Different browser scaling settings
 
-Saat ini event:
+====================================
+GLOBAL LAYOUT ARCHITECTURE
+====================================
 
-{
-  "event":"HANDOVER"
-}
+Refactor all layouts using CSS Grid and Flexbox.
 
-Saya sarankan:
+Main shell:
 
-{
-  "version":"1.0",
-  "event":"HANDOVER"
-}
+grid-template-columns:
+  auto 1fr
 
-Kenapa?
+Sidebar:
+  width: clamp(240px, 16vw, 280px)
 
-Karena nanti lifecycle schema hampir pasti berubah.
+Content Area:
+  width: 100%
+  min-width: 0
+  overflow-x: hidden
 
-Contoh:
+Page Container:
 
-Phase 2 menambah:
+max-width: 100%
+padding:
+  clamp(12px, 1vw, 24px)
 
-{
-  "qcResult":"PASS"
-}
+Never use:
 
-Phase 3 menambah:
+width: 1200px
+width: 1400px
+left: xxx px
+right: xxx px
 
-{
-  "slaScore":90
-}
+====================================
+RESPONSIVE BREAKPOINTS
+====================================
 
-Versioning akan membuat migrasi lebih aman.
+xs: 0-640px
+sm: 641-768px
+md: 769-1024px
+lg: 1025-1440px
+xl: 1441-1920px
+2xl: 1921+
 
-2. Event ID
+All modules must adapt automatically.
 
-Saya melihat event belum memiliki ID.
+====================================
+FLUID TYPOGRAPHY
+====================================
 
-Saya akan menambahkan:
+Replace all fixed typography.
 
-{
-  "eventId":"evt_001",
-  "event":"HANDOVER"
-}
+Example:
 
-Kenapa penting?
+font-size:
+clamp(12px, 0.8vw, 14px)
 
-Karena nanti:
+Heading:
 
-edit notes
-tambah attachment
-audit investigation
+clamp(20px, 1.5vw, 32px)
 
-akan membutuhkan referensi event tertentu.
+Subheading:
 
-3. Order Health Status
+clamp(16px, 1vw, 24px)
 
-Ini yang menurut saya sangat berguna.
+====================================
+FLUID SPACING SYSTEM
+====================================
 
-Tambahkan field turunan (derived).
+Replace fixed spacing:
 
-Tidak perlu disimpan di database.
+8px
+12px
+16px
+24px
+32px
 
-Hitung otomatis.
+With:
 
-Contoh:
+spacing-xs:
+clamp(4px, 0.3vw, 8px)
 
-HEALTHY
-AT_RISK
-BLOCKED
-OVERDUE
+spacing-sm:
+clamp(8px, 0.5vw, 12px)
 
-Contoh:
+spacing-md:
+clamp(12px, 0.8vw, 16px)
 
-WAITING_PRODUCTION_ACCEPT
+spacing-lg:
+clamp(16px, 1vw, 24px)
 
-selama 20 menit
+spacing-xl:
+clamp(24px, 1.5vw, 32px)
 
-Status:
+====================================
+ORDER HISTORY PAGE
+====================================
 
-HEALTHY
+Current issue:
+Timeline dates overflow horizontally.
 
-Kalau:
+Refactor:
 
-WAITING_PRODUCTION_ACCEPT
+Desktop:
+Date selector =
+horizontal scrollable flex row
 
-selama 6 jam
+Tablet:
+wrap automatically
 
-Status:
+Mobile:
+convert to carousel
 
-AT_RISK
+Search bar:
+always full width
 
-Kalau:
+Order columns:
 
-REVIEW_REQUIRED
+Desktop:
+2 columns
 
-Status:
+Tablet:
+1 column
 
-BLOCKED
+Mobile:
+1 column
 
-Dashboard owner akan jauh lebih berguna.
+Order cards:
+height auto
 
-Karena owner tidak peduli:
+No fixed height
 
-Stage = Production
+====================================
+CARD SYSTEM
+====================================
 
-Owner peduli:
+Every card must use:
 
-Order sehat atau bermasalah?
-Yang Saya Akan Koreksi Sedikit
+width: 100%
 
-Bagian ini:
+min-width: 0
 
-Kolom K menjadi JSON
+display: flex
 
-Saya kurang setuju.
+flex-direction: column
 
-Saat ini Antigravity ingin:
+Cards must never create page horizontal scroll.
 
-{
-  "stage":"PRODUCTION",
-  "state":"WAITING"
-}
+====================================
+TABLES
+====================================
 
-disimpan langsung di Kolom K.
+For CRM tables:
 
-Untuk Google Sheets saya justru menyarankan:
+overflow-x-auto
 
-Kolom K
+sticky headers
 
-tetap:
+responsive columns
 
-PRODUCTION_WAITING
+hide secondary columns on smaller screens
 
-atau
+====================================
+ZOOM RESILIENCE
+====================================
 
-PRODUCTION
+Verify layout at:
 
-Lalu parsing dilakukan di backend.
+80%
+90%
+100%
+110%
+125%
+150%
 
-Kenapa?
+No overlap allowed.
 
-Karena:
+No horizontal page scrolling allowed.
 
-filter sheet lebih mudah
-formula lebih mudah
-debugging manual lebih mudah
-reporting lebih mudah
+No clipped content allowed.
 
-JSON di dalam sel status sering menyulitkan operasional.
+No hidden buttons allowed.
 
-Lifecycle JSON tetap di Kolom V.
+====================================
+ENTERPRISE UX RULES
+====================================
 
-Tetapi Current Status sebaiknya tetap string sederhana.
+Inspired by:
+
+Salesforce Lightning
+Hubspot CRM
+Monday.com
+SAP Fiori
+Odoo Enterprise
+
+Requirements:
+
+Fluid layout
+Grid-based architecture
+Adaptive cards
+Adaptive typography
+Container queries
+No fixed pixel widths
+No viewport overflow
+
+====================================
+OUTPUT
+====================================
+
+1. Audit current layout issues
+2. Refactor layout architecture
+3. Update all affected pages
+4. Create reusable responsive design system
+5. Generate report of all improvements
+6. Ensure zoom-resilient enterprise UI

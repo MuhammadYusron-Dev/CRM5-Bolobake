@@ -540,7 +540,7 @@ export function OrderManager({
     switch (activeMenu) {
       case 'dashboard':
         return (
-          <div className="w-full mx-auto space-y-4">
+          <div className="w-full mx-auto space-y-4 cq-container">
             <div className="relative z-50 flex items-center justify-between mb-4 bg-card/50 p-4 rounded-2xl border border-border/50 shadow-sm backdrop-blur-sm">
               <div className="flex items-center gap-2.5 text-sm font-semibold">
                 <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-lg border border-primary/20 shadow-sm">
@@ -563,7 +563,7 @@ export function OrderManager({
         );
       case 'history':
         return (
-          <div className="w-full mx-auto">
+          <div className="w-full mx-auto cq-container">
               <HistoryTable 
                 orderHistory={orderHistory}
                 editingOrderId={editingOrder?.id || null}
@@ -629,7 +629,7 @@ export function OrderManager({
   const menuIconColor = 'text-foreground hover:bg-accent';
 
   return (
-    <div className="flex h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
+    <div className="grid grid-cols-[auto_1fr] h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
       <Sidebar 
         activeMenu={activeMenu} 
         setActiveMenu={setActiveMenu} 
@@ -650,8 +650,8 @@ export function OrderManager({
         </div>
       </div>
 
-      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-transparent relative z-10">
-        <header className="relative h-16 flex items-center justify-between px-4 sm:px-8 shrink-0 z-10 shadow-sm md:shadow-none bg-card border-b border-border">
+      <main className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden bg-transparent relative z-10">
+        <header className="relative flex items-center justify-between shrink-0 z-10 shadow-sm md:shadow-none bg-card border-b border-border" style={{ minHeight: 'var(--header-height)', padding: '0 var(--content-padding)' }}>
 
           {/* Left Content */}
           <div className="relative z-10 flex items-center gap-3">
@@ -662,7 +662,7 @@ export function OrderManager({
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex flex-col">
-              <h1 className={`text-lg sm:text-xl font-medium transition-colors duration-1000 ${headerTextColor}`}>
+              <h1 className={`font-medium transition-colors duration-1000 ${headerTextColor}`} style={{ fontSize: 'var(--text-xl)' }}>
                 {activeMenu === 'dashboard' ? 'Dashboard' : 
                  activeMenu === 'history' ? 'Riwayat Pesanan' : 
                  activeMenu === 'catalog' ? 'Katalog Manager' :
@@ -673,7 +673,7 @@ export function OrderManager({
                  'Buat Pesanan Baru'}
               </h1>
               {activeMenu === 'dashboard' && currentDateString && (
-                <span className={`text-xs mt-0 transition-colors duration-1000 ${subTextColor}`}>{currentDateString}</span>
+                <span className={`mt-0 transition-colors duration-1000 ${subTextColor}`} style={{ fontSize: 'var(--text-xs)' }}>{currentDateString}</span>
               )}
             </div>
           </div>
@@ -689,7 +689,7 @@ export function OrderManager({
           
           {/* Right Content */}
           <div className="relative z-10 flex items-center gap-3">
-            <div className="hidden sm:flex px-3 py-1.5 rounded-full text-[11px] font-medium items-center gap-1.5 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+            <div className="hidden sm:flex px-3 py-1.5 rounded-full font-medium items-center gap-1.5 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" style={{ fontSize: 'var(--text-2xs)' }}>
               <span className="relative flex h-2 w-2 mr-0.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -700,7 +700,7 @@ export function OrderManager({
           </div>
         </header>
 
-        <div className={`flex-1 overflow-y-auto relative z-0 ${['dashboard', 'history', 'new_order', 'sales', 'samples', 'catalog'].includes(activeMenu) ? 'p-4 sm:p-6 lg:p-8' : ''}`}>
+        <div className={`flex-1 overflow-y-auto overflow-x-hidden relative z-0`} style={{ padding: ['dashboard', 'history', 'new_order', 'sales', 'samples', 'catalog'].includes(activeMenu) ? 'var(--content-padding)' : undefined }}>
           {renderContent()}
         </div>
       </main>

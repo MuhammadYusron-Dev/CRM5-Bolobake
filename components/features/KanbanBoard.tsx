@@ -91,7 +91,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
             const colOrders = orders.filter(col.filterFn).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
             
             return (
-              <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
+              <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm" style={{ minWidth: 'clamp(260px, 22vw, 320px)' }}>
                 {/* Column Header */}
                 <div className={`p-4 rounded-t-2xl border-b flex flex-col gap-1.5 ${col.colorClass}`}>
                   <div className="flex items-center justify-between">
