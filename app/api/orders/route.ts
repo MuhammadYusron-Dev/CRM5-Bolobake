@@ -18,7 +18,7 @@ export async function GET() {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A2:U',
+      range: 'Laporan Transaksi Harian!A2:V',
     });
 
     const rows = response.data.values || [];
@@ -375,7 +375,7 @@ export async function POST(request: Request) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A:U',
+      range: 'Laporan Transaksi Harian!A:V',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
@@ -424,7 +424,7 @@ export async function DELETE(request: Request) {
     if (clearAll === 'true') {
       await sheets.spreadsheets.values.clear({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'Laporan Transaksi Harian!A2:R',
+        range: 'Laporan Transaksi Harian!A2:V',
       });
       invalidateCache(CACHE_KEY);
       await runFullBackgroundSync();

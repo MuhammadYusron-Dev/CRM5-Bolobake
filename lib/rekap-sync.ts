@@ -620,7 +620,7 @@ export async function runFullBackgroundSync(targetDate?: string) {
           requests: [
             {
               sortRange: {
-                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 18 },
+                range: { sheetId: sheet.properties.sheetId, startRowIndex: 1, startColumnIndex: 0, endColumnIndex: 22 },
                 sortSpecs: [{ dimensionIndex: 11, sortOrder: 'ASCENDING' }],
               },
             },
