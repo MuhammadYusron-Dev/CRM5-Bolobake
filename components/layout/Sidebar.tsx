@@ -198,7 +198,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                 <span className="text-sm font-bold truncate leading-tight block">{user?.fullName || user?.username || 'Admin'}</span>
                 <span className="text-[10px] text-white/90 truncate leading-tight block mt-0.5">{user?.email || user?.username}</span>
                 <div className="flex items-center mt-1.5">
-                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm shrink-0">Owner</span>
+                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm shrink-0">{user?.role || 'ADMIN'}</span>
                 </div>
               </div>
             </button>
