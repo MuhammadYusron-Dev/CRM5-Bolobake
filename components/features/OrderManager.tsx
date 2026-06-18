@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Order, Product, Customer, OrderStatus } from '@/lib/types';
+import { writeAuditLog, generateDiffDescription, generateItemsDiff } from '@/lib/audit';
 import { OrderForm } from './OrderForm';
 import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
@@ -247,12 +248,33 @@ export function OrderManager({
       });
       if (!response.ok) throw new Error('Failed to save to Sheets');
       
-      // Log Action
-      fetch('/api/logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: 'ADMIN', user_name: 'Admin', action_type: isEdit ? 'EDIT_ORDER' : 'CREATE_ORDER', details: JSON.stringify(order) })
-      }).catch(e => console.error("Failed to log:", e));
+      // Structured Audit Log v2
+      if (isEdit) {
+        const oldOrder = orderHistory.find(o => o.id === order.id);
+        const fieldDiff = oldOrder ? generateDiffDescription(oldOrder as any, order as any) : '';
+        const itemsDiff = oldOrder ? generateItemsDiff(oldOrder.items || [], order.items || []) : '';
+        const fullDiff = [fieldDiff, itemsDiff].filter(Boolean).join('. ');
+        const itemsSummary = order.items.map(i => `${i.qty}x ${i.sku}`).join(', ');
+        writeAuditLog({
+          module: 'ORDER',
+          action: 'UPDATE',
+          entityType: 'ORDER',
+          entityId: String(order.id),
+          description: `Mengedit pesanan ${order.customer}. ${fullDiff || itemsSummary}`,
+          beforeData: oldOrder ? { customer: oldOrder.customer, grandTotal: oldOrder.grandTotal, totalPcs: oldOrder.totalPcs, items: oldOrder.items, productionDate: oldOrder.productionDate, deliveryDate: oldOrder.deliveryDate, status: oldOrder.status } : null,
+          afterData: { customer: order.customer, grandTotal: order.grandTotal, totalPcs: order.totalPcs, items: order.items, productionDate: order.productionDate, deliveryDate: order.deliveryDate, status: order.status },
+        });
+      } else {
+        const itemsSummary = order.items.map(i => `${i.qty}x ${i.sku}`).join(', ');
+        writeAuditLog({
+          module: 'ORDER',
+          action: 'CREATE',
+          entityType: 'ORDER',
+          entityId: String(order.id),
+          description: `Membuat pesanan baru untuk ${order.customer}. ${order.totalPcs} Pcs — ${itemsSummary} (Total: Rp ${(order.grandTotal || 0).toLocaleString('id-ID')})`,
+          afterData: { customer: order.customer, grandTotal: order.grandTotal, totalPcs: order.totalPcs, items: order.items, productionDate: order.productionDate, deliveryDate: order.deliveryDate },
+        });
+      }
 
     } catch (err) {
       console.error(err);
@@ -318,6 +340,17 @@ export function OrderManager({
           });
           if (!response.ok) throw new Error('Failed to delete from Sheets');
           
+          // Audit log with full snapshot
+          const itemsSummary = (order.items || []).map((i: any) => `${i.qty}x ${i.sku}`).join(', ');
+          writeAuditLog({
+            module: 'ORDER',
+            action: 'DELETE',
+            entityType: 'ORDER',
+            entityId: String(order.id),
+            description: `Menghapus pesanan ${order.customer}. ${order.totalPcs} Pcs — ${itemsSummary} (Total: Rp ${(order.grandTotal || 0).toLocaleString('id-ID')})`,
+            snapshot: { id: order.id, customer: order.customer, grandTotal: order.grandTotal, totalPcs: order.totalPcs, items: order.items, productionDate: order.productionDate, deliveryDate: order.deliveryDate, status: order.status, deliveryNotes: order.deliveryNotes },
+          });
+
           setOrderHistory(prev => prev.filter(o => o.id !== order.id));
           setEditingOrder(null);
           setActiveMenu('history');
@@ -347,6 +380,16 @@ export function OrderManager({
           });
           if (!response.ok) throw new Error('Failed to clear all orders');
           
+          // Audit log
+          writeAuditLog({
+            module: 'ORDER',
+            action: 'DELETE',
+            entityType: 'ORDER',
+            entityId: 'ALL',
+            description: `PERINGATAN: Menghapus SELURUH riwayat pesanan (${orderHistory.length} pesanan)`,
+            snapshot: { totalOrders: orderHistory.length, totalOmset: orderHistory.reduce((s, o) => s + (o.grandTotal || 0), 0) },
+          });
+
           setOrderHistory([]);
           showToast('Semua pesanan berhasil dihapus!');
           closeConfirmDialog();
@@ -394,6 +437,17 @@ export function OrderManager({
            return o;
          }));
       }
+
+      // Audit log for status change
+      writeAuditLog({
+        module: 'ORDER',
+        action: 'STATUS_CHANGE',
+        entityType: 'ORDER',
+        entityId: String(order.id),
+        description: `Status pesanan ${order.customer} berubah: ${order.status || 'Pesanan Dibuat'} → ${newStatus}`,
+        beforeData: { status: order.status || 'Pesanan Dibuat', customer: order.customer },
+        afterData: { status: newStatus, customer: order.customer },
+      });
 
       showToast(`Status diperbarui: ${newStatus}`);
     } catch (err) {

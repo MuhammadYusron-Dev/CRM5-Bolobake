@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getAdmins } from '@/lib/google-sheets';
+import { getAdmins, sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
 import bcrypt from 'bcryptjs';
 import { signToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
+import { writeAuditLogServer } from '@/lib/audit';
 
 export async function POST(request: Request) {
   try {
@@ -16,11 +17,25 @@ export async function POST(request: Request) {
     const admin = admins.find(a => (a.email?.toLowerCase() === email.toLowerCase()) || (a.username?.toLowerCase() === email.toLowerCase()));
 
     if (!admin) {
+      // Log failed login
+      writeAuditLogServer({
+        sheets, spreadsheetId: SPREADSHEET_ID,
+        module: 'SYSTEM', action: 'FAILED_LOGIN', entityType: 'USER',
+        description: `Percobaan login gagal untuk akun: ${email}`,
+        afterData: { email },
+      });
       return NextResponse.json({ success: false, message: 'Email atau password salah.' }, { status: 401 });
     }
 
     const passwordMatch = await bcrypt.compare(password, admin.passwordHash);
     if (!passwordMatch) {
+      // Log failed login
+      writeAuditLogServer({
+        sheets, spreadsheetId: SPREADSHEET_ID,
+        module: 'SYSTEM', action: 'FAILED_LOGIN', entityType: 'USER',
+        description: `Percobaan login gagal (password salah) untuk akun: ${email}`,
+        afterData: { email },
+      });
       return NextResponse.json({ success: false, message: 'Email atau password salah.' }, { status: 401 });
     }
 
@@ -43,6 +58,17 @@ export async function POST(request: Request) {
       sameSite: 'lax',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 // 7 days
+    });
+
+    // Log successful login
+    const displayName = admin.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : (admin.email || admin.username);
+    writeAuditLogServer({
+      sheets, spreadsheetId: SPREADSHEET_ID,
+      userId: admin.email || admin.username,
+      userName: displayName,
+      module: 'SYSTEM', action: 'LOGIN', entityType: 'USER',
+      entityId: admin.email || admin.username,
+      description: `${displayName} berhasil login ke sistem`,
     });
 
     return NextResponse.json({ 

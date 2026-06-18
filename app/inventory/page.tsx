@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Package, AlertTriangle, Bookmark, History, PlusCircle } from 'lucide-react';
+import { writeAuditLog } from '@/lib/audit';
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<any[]>([]);
@@ -57,6 +58,18 @@ export default function InventoryPage() {
       });
       const data = await res.json();
       if (data.success) {
+        // Audit log for stock adjustment
+        const existingItem = inventory.find(i => i.sku === addStockModal.sku);
+        writeAuditLog({
+          module: 'INVENTORY',
+          action: 'UPDATE',
+          entityType: 'INVENTORY_ITEM',
+          entityId: addStockModal.sku,
+          description: `Menambahkan +${addStockModal.addedStock} stok untuk ${addStockModal.sku}${existingItem ? ` (sebelumnya: ${existingItem.availableStock})` : ''}`,
+          beforeData: existingItem ? { sku: addStockModal.sku, availableStock: existingItem.availableStock } : null,
+          afterData: { sku: addStockModal.sku, addedStock: addStockModal.addedStock, availableStock: (existingItem?.availableStock || 0) + addStockModal.addedStock },
+        });
+
         setAddStockModal({ isOpen: false, sku: '', addedStock: 0 });
         fetchInventory();
         fetchMovements();

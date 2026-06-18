@@ -17,7 +17,7 @@ export async function GET() {
       { title: 'customers', cols: 6 },
       { title: 'tier_prices', cols: 4 },
       { title: 'production_capacities', cols: 3 },
-      { title: 'audit_logs', cols: 6 },
+      { title: 'audit_logs', cols: 12 },
       { title: 'leads', cols: 6 },
     ];
 
@@ -68,8 +68,8 @@ export async function GET() {
         values: [['date', 'max_capacity_pcs', 'booked_pcs']]
       },
       {
-        range: 'audit_logs!A1:F1',
-        values: [['log_id', 'timestamp', 'user_id', 'user_name', 'action_type', 'details']]
+        range: 'audit_logs!A1:L1',
+        values: [['log_id', 'timestamp', 'user_id', 'user_name', 'module', 'action', 'entity_type', 'entity_id', 'description', 'before_data', 'after_data', 'snapshot']]
       },
       {
         range: 'leads!A1:F1',

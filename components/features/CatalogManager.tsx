@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { CatalogTutorial } from "@/components/features/CatalogTutorial";
+import { writeAuditLog, generateDiffDescription } from '@/lib/audit';
 
 // --- MOCK: Existing catalog data ---
 // Data sekarang di-fetch dari API (Google Sheets)
@@ -274,6 +275,16 @@ export function CatalogManager() {
 
       setCatalog(prev => [...prev, ...newCatalogItems]);
       setUndoStack(prev => [...prev, { action: 'ADD', data: newCatalogItems, description: `Menambahkan ${newCatalogItems.length} produk dari AI Scanner` }]);
+
+      // Audit log
+      writeAuditLog({
+        module: 'CATALOG',
+        action: 'CREATE',
+        entityType: 'PRODUCT',
+        entityId: newCatalogItems.map(i => i.id).join(', '),
+        description: `Menambahkan ${newCatalogItems.length} produk baru via AI Scanner: ${newCatalogItems.map(i => i.nama).join(', ')}`,
+        afterData: { items: newCatalogItems.map(i => ({ id: i.id, nama: i.nama, harga: i.harga, kategori: i.kategori })) },
+      });
       setScannedItems([]);
       setScanComplete(false);
       setFileName("");
@@ -324,6 +335,16 @@ export function CatalogManager() {
 
       setCatalog(prev => [...prev, newItem]);
       setUndoStack(prev => [...prev, { action: 'ADD', data: newItem, description: `Menambahkan produk "${newItem.nama}"` }]);
+
+      // Audit log
+      writeAuditLog({
+        module: 'CATALOG',
+        action: 'CREATE',
+        entityType: 'PRODUCT',
+        entityId: newItem.id,
+        description: `Menambahkan produk baru "${newItem.nama}" (${newItem.kategori}) — Rp ${newItem.harga.toLocaleString('id-ID')}`,
+        afterData: { id: newItem.id, nama: newItem.nama, harga: newItem.harga, kategori: newItem.kategori, satuan: newItem.satuan },
+      });
       setManualName("");
       setManualCategory("");
       setManualPrice("");
@@ -360,6 +381,17 @@ export function CatalogManager() {
       });
       
       if (!response.ok) throw new Error("Gagal update");
+
+      // Audit log for status toggle
+      writeAuditLog({
+        module: 'CATALOG',
+        action: 'UPDATE',
+        entityType: 'PRODUCT',
+        entityId: id,
+        description: `Status produk ${item.nama} (${id}) berubah: ${item.aktif ? 'Aktif' : 'Nonaktif'} → ${newStatus ? 'Aktif' : 'Nonaktif'}`,
+        beforeData: { aktif: item.aktif },
+        afterData: { aktif: newStatus },
+      });
       
       setToastType("success");
       setToastMessage(`Status SKU ${id} berhasil diupdate!`);
@@ -386,6 +418,16 @@ export function CatalogManager() {
       if (!response.ok) throw new Error("Gagal hapus");
 
       setUndoStack(prev => [...prev, { action: 'DELETE', data: itemToDelete, description: `Menghapus produk "${itemToDelete.nama}"` }]);
+
+      // Audit log with snapshot
+      writeAuditLog({
+        module: 'CATALOG',
+        action: 'DELETE',
+        entityType: 'PRODUCT',
+        entityId: itemToDelete.id,
+        description: `Menghapus produk "${itemToDelete.nama}" (${itemToDelete.id}) — Rp ${itemToDelete.harga.toLocaleString('id-ID')}`,
+        snapshot: { id: itemToDelete.id, nama: itemToDelete.nama, harga: itemToDelete.harga, kategori: itemToDelete.kategori, satuan: itemToDelete.satuan, aktif: itemToDelete.aktif },
+      });
 
       setToastType("success");
       setToastMessage(`Dihapus: ${itemToDelete.nama} (${itemToDelete.id})`);
@@ -421,7 +463,19 @@ export function CatalogManager() {
 
       setCatalog(prev => prev.map(c => (editingItem.rowIndex ? c.rowIndex === editingItem.rowIndex : c.id === editingItem.id) ? editingItem : c));
       if (oldItem) {
+        const diffDesc = generateDiffDescription(oldItem as any, editingItem as any);
         setUndoStack(prev => [...prev, { action: 'EDIT', data: editingItem, oldData: oldItem, description: `Mengubah data produk "${oldItem.nama}"` }]);
+
+        // Audit log with diff
+        writeAuditLog({
+          module: 'CATALOG',
+          action: 'UPDATE',
+          entityType: 'PRODUCT',
+          entityId: editingItem.id,
+          description: `Mengedit produk "${oldItem.nama}". ${diffDesc || 'Data diperbarui'}`,
+          beforeData: { nama: oldItem.nama, harga: oldItem.harga, kategori: oldItem.kategori, satuan: oldItem.satuan },
+          afterData: { nama: editingItem.nama, harga: editingItem.harga, kategori: editingItem.kategori, satuan: editingItem.satuan },
+        });
       }
       setEditingItem(null);
       
