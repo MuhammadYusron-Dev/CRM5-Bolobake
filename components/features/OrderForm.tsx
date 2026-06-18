@@ -176,6 +176,15 @@ export function OrderForm({
            
            finalDeliveryDate = todayStr;
            finalProductionDate = todayStr;
+        } else if (textUpper.includes('PAGI') && finalDeliveryDate) {
+           const d = new Date(finalDeliveryDate);
+           if (!isNaN(d.getTime())) {
+              d.setDate(d.getDate() - 1);
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, '0');
+              const dd = String(d.getDate()).padStart(2, '0');
+              finalProductionDate = `${yyyy}-${mm}-${dd}`;
+           }
         }
 
         if (finalDeliveryDate) {
