@@ -238,6 +238,14 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
   const [ncrSeverity, setNcrSeverity] = useState('MEDIUM');
   const [ncrCause, setNcrCause] = useState('HUMAN_ERROR');
 
+  // Smart Decision Gate States
+  const [failureMode, setFailureMode] = useState<'ALL' | 'PARTIAL'>('ALL');
+  const [partialRejects, setPartialRejects] = useState<Record<number, number>>({});
+  
+  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const isDeliveryToday = order.deliveryDate === todayStr;
+  const [followUpAction, setFollowUpAction] = useState<'SCHEDULE_REBAKE' | 'ESCALATE_TO_ADMIN'>(isDeliveryToday ? 'ESCALATE_TO_ADMIN' : 'SCHEDULE_REBAKE');
+
   const handleSubmit = async () => {
     setErrorMsg(null);
     if (action === 'REJECT' && !notes.trim()) {
@@ -278,12 +286,26 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
         };
 
         if (qcStatus === 'FAILED') {
+          let partialNote = '';
+          if (failureMode === 'PARTIAL') {
+            const rejectedItems = order.items.map((item, i) => {
+              const r = partialRejects[i];
+              return r && r > 0 ? `${item.sku} (Reject: ${r} pcs)` : null;
+            }).filter(Boolean);
+            partialNote = `Gagal Sebagian:\n- ${rejectedItems.join('\n- ')}\n\n`;
+          }
+
           payload.ncr = {
             issueType: ncrType,
             severity: ncrSeverity,
             causeCategory: ncrCause,
-            description: notes
+            description: `${partialNote}${notes}`
           };
+          payload.followUpAction = followUpAction;
+          
+          if (followUpAction === 'ESCALATE_TO_ADMIN') {
+            payload.notes = `${partialNote}Menunggu Konfirmasi Penyesuaian Invoice oleh Admin.\nCatatan: ${notes}`;
+          }
         }
       }
 
@@ -369,7 +391,58 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
               {qcStatus === 'FAILED' && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-md space-y-3">
                   <p className="text-xs font-bold text-red-800 uppercase flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Non-Conformance Report (NCR)</p>
+                  
                   <div className="grid grid-cols-2 gap-2">
+                    <Select value={failureMode} onValueChange={(v: 'ALL'|'PARTIAL') => setFailureMode(v)}>
+                      <SelectTrigger className="text-xs h-8"><SelectValue placeholder="Mode Kegagalan" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">Gagal Semua</SelectItem>
+                        <SelectItem value="PARTIAL">Gagal Sebagian</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {failureMode === 'PARTIAL' && (
+                    <div className="bg-white p-2 rounded border border-red-100 space-y-2">
+                      <p className="text-[10px] font-bold text-slate-600">Input Jumlah Gagal per Item:</p>
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-2 text-xs">
+                          <span className="truncate flex-1">{item.sku} <span className="text-slate-400">(Pesan: {item.qty})</span></span>
+                          <input 
+                            type="number" 
+                            min="0" max={item.qty} 
+                            placeholder="Reject" 
+                            className="w-16 p-1 border rounded text-xs text-center"
+                            value={partialRejects[idx] || ''}
+                            onChange={(e) => setPartialRejects(p => ({...p, [idx]: parseInt(e.target.value) || 0}))}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="bg-white p-2 rounded border border-red-100 space-y-2">
+                    <p className="text-[10px] font-bold text-slate-600">Smart Delivery-Date Checker:</p>
+                    {isDeliveryToday ? (
+                      <div className="text-xs text-red-700 font-semibold bg-red-100 p-1.5 rounded">
+                        ⚠️ Kirim Hari Ini. Tidak ada waktu untuk rebake.
+                      </div>
+                    ) : (
+                      <div className="text-xs text-green-700 font-semibold bg-green-100 p-1.5 rounded">
+                        🟢 Kirim {order.deliveryDate}. Tersedia waktu rebake besok.
+                      </div>
+                    )}
+
+                    <Select value={followUpAction} onValueChange={(v: any) => setFollowUpAction(v)}>
+                      <SelectTrigger className="text-xs h-8"><SelectValue placeholder="Tindak Lanjut" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SCHEDULE_REBAKE">Jadwalkan Rebake</SelectItem>
+                        <SelectItem value="ESCALATE_TO_ADMIN">Eskalasi ke Admin (Konfirmasi Customer)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 border-t border-red-200 pt-2">
                     <Select value={ncrType} onValueChange={setNcrType}>
                       <SelectTrigger className="text-xs h-8"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -388,7 +461,7 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="grid grid-cols-1 gap-2 mt-2">
+                  <div className="grid grid-cols-1 gap-2">
                     <Select value={ncrCause} onValueChange={setNcrCause}>
                       <SelectTrigger className="text-xs h-8"><SelectValue /></SelectTrigger>
                       <SelectContent>

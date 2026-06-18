@@ -215,8 +215,18 @@ export function HistoryTable({
           return b.id - a.id;
         });
 
-        const leftOrders = sortedHistory.filter(o => !o.productionDate || o.productionDate <= todayStr);
-        const rightOrders = sortedHistory.filter(o => o.productionDate && o.productionDate > todayStr);
+        const priorityOrders = sortedHistory.filter(o => 
+          o.currentState === 'REWORK_REQUIRED' || 
+          (o.currentStage === 'ADMIN' && o.currentState === 'REVIEW_REQUIRED')
+        );
+
+        const nonPriorityHistory = sortedHistory.filter(o => 
+          o.currentState !== 'REWORK_REQUIRED' && 
+          !(o.currentStage === 'ADMIN' && o.currentState === 'REVIEW_REQUIRED')
+        );
+
+        const leftOrders = nonPriorityHistory.filter(o => !o.productionDate || o.productionDate <= todayStr);
+        const rightOrders = nonPriorityHistory.filter(o => o.productionDate && o.productionDate > todayStr);
 
         const renderOrderCard = (order: Order) => {
             const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
@@ -355,9 +365,23 @@ export function HistoryTable({
           };
 
           return (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-              <div className="space-y-4">
-                <h4 className="font-bold text-slate-700 bg-slate-100 p-3 rounded-lg border flex items-center justify-between shadow-sm">
+            <div className="space-y-6">
+              {priorityOrders.length > 0 && (
+                <div className="space-y-4">
+                  <h4 className="font-bold text-red-800 bg-red-100 p-3 rounded-lg border border-red-200 flex items-center justify-between shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-red-500 animate-pulse"></div>
+                    <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> ⚠️ PRIORITAS: Menunggu Rebake / Konfirmasi</span>
+                    <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded border border-red-700 font-bold shadow-sm">{priorityOrders.length} Pesanan</span>
+                  </h4>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                    {priorityOrders.map(renderOrderCard)}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                <div className="space-y-4">
+                  <h4 className="font-bold text-slate-700 bg-slate-100 p-3 rounded-lg border flex items-center justify-between shadow-sm">
                   <span>Hari Ini & Sebelumnya</span>
                   <span className="bg-white text-slate-700 text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm">{leftOrders.length} Pesanan</span>
                 </h4>
@@ -383,6 +407,7 @@ export function HistoryTable({
                     </p>
                   )}
                 </div>
+              </div>
               </div>
             </div>
           );

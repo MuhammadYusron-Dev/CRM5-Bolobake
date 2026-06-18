@@ -191,7 +191,13 @@ export async function POST(request: Request) {
       if (qcData?.status === 'PASSED') {
         nextState = 'QC_PASSED';
       } else if (qcData?.status === 'FAILED') {
-        nextState = 'REWORK_REQUIRED';
+        const followUpAction = body.followUpAction;
+        if (followUpAction === 'ESCALATE_TO_ADMIN') {
+          nextStage = 'ADMIN';
+          nextState = 'REVIEW_REQUIRED';
+        } else {
+          nextState = 'REWORK_REQUIRED';
+        }
       } else {
         return NextResponse.json({ error: 'INVALID_QC', message: 'QC status must be PASSED or FAILED' }, { status: 400 });
       }
