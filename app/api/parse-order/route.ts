@@ -17,6 +17,12 @@ export async function POST(request: Request) {
     const currentDateObj = new Date();
     const currentMonth = currentDateObj.toLocaleString('id-ID', { month: 'long' });
     const currentYear = currentDateObj.getFullYear();
+    const currentDate = currentDateObj.getDate();
+    const yyyy = currentDateObj.getFullYear();
+    const mm = String(currentDateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(currentDateObj.getDate()).padStart(2, '0');
+    const todayYMD = `${yyyy}-${mm}-${dd}`;
+
     const skuListString = Array.isArray(valid_skus) && valid_skus.length > 0 
       ? valid_skus.join(', ')
       : '"Butter Croissant 75gr", "Butter Croissant 30gr", "Butter Croissant 50gr", "Mochi Croissant Tiramisu", "Pain Au Suisse", "Almond Croissant", dll.';
@@ -55,8 +61,8 @@ export async function POST(request: Request) {
 Tugasmu adalah menganalisis teks percakapan dan mengubahnya menjadi format JSON terstruktur untuk pesanan.
 
 PENTING - KONTEKS WAKTU:
-Hari ini adalah bulan ${currentMonth} tahun ${currentYear}. 
-Saat menentukan tanggal pengiriman, SELALU prioritaskan bulan dan tahun saat ini (${currentMonth} ${currentYear}) jika pelanggan tidak menyebutkan bulan/tahun secara spesifik. DILARANG KERAS menyetel bulan atau tahun yang terlalu jauh ke depan/belakang tanpa indikasi yang jelas.
+Hari ini adalah tanggal ${currentDate} ${currentMonth} ${currentYear} (Format YYYY-MM-DD: ${todayYMD}).
+Saat menentukan tanggal pengiriman, gunakan referensi tanggal hari ini (${todayYMD}). Jika pelanggan menyebutkan kata-kata relatif seperti "besok", hitung berdasarkan tanggal hari ini (besok berarti H+1 dari ${todayYMD}). SELALU prioritaskan bulan dan tahun saat ini jika pelanggan tidak menyebutkan secara spesifik. DILARANG KERAS menyetel bulan atau tahun yang terlalu jauh ke depan/belakang tanpa indikasi yang jelas.
 
 Customer sering menggunakan format B2B seperti:
 - "ORDER B2B" / "NAMA OUTLET" -> jadikan ini nama customer (customer_name)
