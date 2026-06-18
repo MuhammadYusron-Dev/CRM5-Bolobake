@@ -336,17 +336,6 @@ export function HistoryTable({
                     <span className="text-primary text-lg">{formatRp(order.grandTotal)}</span>
                   </div>
 
-                  {/* Time Tracking Info */}
-                  {order.statusTimestamps && Object.keys(order.statusTimestamps).some(k => (order.statusTimestamps as any)[k]) && (
-                    <div className="mt-4 pt-3 border-t border-border/50 text-[10px] text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
-                      {order.statusTimestamps.dikonfirmasi && <span><span className="font-semibold">Dikonfirmasi:</span> {order.statusTimestamps.dikonfirmasi}</span>}
-                      {order.statusTimestamps.produksi && <span><span className="font-semibold">Produksi:</span> {order.statusTimestamps.produksi}</span>}
-                      {order.statusTimestamps.packing && <span><span className="font-semibold">Packing:</span> {order.statusTimestamps.packing}</span>}
-                      {order.statusTimestamps.delivery && <span><span className="font-semibold">Delivery:</span> {order.statusTimestamps.delivery}</span>}
-                      {order.statusTimestamps.diterima && <span><span className="font-semibold">Diterima:</span> {order.statusTimestamps.diterima}</span>}
-                    </div>
-                  )}
-
                   <ActionControl 
                     order={order} 
                     currentUser={currentUser} 

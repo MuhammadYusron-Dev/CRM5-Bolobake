@@ -40,7 +40,10 @@ export function StatusBadge({ stage, state, health, iconOnly }: { stage?: OrderS
     healthIndicator = <span className="ml-2 flex items-center text-red-600 font-bold animate-bounce"><AlertTriangle className="w-3 h-3 mr-0.5" /> OVERDUE</span>;
   }
 
-  const label = `${stage} ${state !== 'IN_PROGRESS' ? `- ${state}` : ''}`;
+  let label = `${stage} ${state !== 'IN_PROGRESS' ? `- ${state}` : ''}`;
+  if (stage === 'COMPLETED' && state === 'COMPLETED') {
+    label = 'COMPLETED';
+  }
 
   if (iconOnly) {
     return (
