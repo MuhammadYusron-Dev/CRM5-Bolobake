@@ -174,7 +174,21 @@ export async function syncRekapSheet(syncData?: SyncData) {
         if (baseSku.endsWith(' (sample)')) {
           baseSku = baseSku.replace(' (sample)', '');
         }
-        const data = skuData[baseSku] || { category: '', satuan: 'pcs' };
+        
+        let data = skuData[baseSku];
+        if (!data) {
+          // Try without variant info in parentheses e.g. " (Panjang, Potong 8)"
+          const strippedSku = baseSku.replace(/\s*\(.*?\)$/, '');
+          data = skuData[strippedSku];
+        }
+        
+        data = data || { category: '', satuan: 'pcs' };
+        
+        // Fallback check if category is empty but the name implies it's a cake
+        if (!data.category && isCakeOrOther(baseSku)) {
+          data.category = 'Cake';
+        }
+
         if (isCakeOrOther(data.category)) {
           rightItems.push({ ...item, satuan: data.satuan });
         } else {
