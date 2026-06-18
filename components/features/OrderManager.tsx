@@ -22,6 +22,9 @@ import { PackingBoard } from './PackingBoard';
 import { SampleTracker } from './SampleTracker';
 import { SalesCRM } from './SalesCRM';
 import { useSearchParams } from 'next/navigation';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json()).then(data => data.success ? data.data : []);
 
 export function OrderManager({ 
   initialOrders, 
@@ -36,7 +39,21 @@ export function OrderManager({
 }) {
   const [katalog] = useState<Product[]>(initialCatalog);
   const [customers] = useState<Customer[]>(initialCustomers);
-  const [orderHistory, setOrderHistory] = useState<Order[]>(initialOrders);
+
+  const { data: swrOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { 
+    fallbackData: initialOrders,
+    refreshInterval: 15000 
+  });
+  const orderHistory = swrOrders || initialOrders;
+
+  const setOrderHistory = (updater: any) => {
+    mutate(async (currentData: Order[] = []) => {
+      if (typeof updater === 'function') {
+        return updater(currentData);
+      }
+      return updater;
+    }, { revalidate: false });
+  };
   
   const [activeMenu, setActiveMenu] = useState('new_order');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -338,11 +355,7 @@ export function OrderManager({
 
   const refreshOrders = async () => {
     try {
-      const res = await fetch('/api/orders');
-      const data = await res.json();
-      if (data.success && data.data) {
-        setOrderHistory(data.data);
-      }
+      await mutate();
     } catch (e) {
       console.error("Failed to refresh orders", e);
     }
