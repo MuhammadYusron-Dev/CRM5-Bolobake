@@ -32,10 +32,7 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
     fallbackData: initialOrders,
     refreshInterval: 15000 
   });
-  const { data: orders = initialOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { 
-    fallbackData: initialOrders,
-    refreshInterval: 15000 
-  });
+
 
   const groupedOrders = orders.reduce((acc, order) => {
     if (order.currentStage !== 'PRODUCTION') return acc;
