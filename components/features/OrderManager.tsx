@@ -332,6 +332,7 @@ export function OrderManager({
     } catch (err) {
       console.error(err);
       alert('Gagal menyimpan ke Google Sheets. Periksa koneksi internet Anda.');
+      throw err; // Re-throw so caller can handle the failure
     }
   };
 
@@ -340,12 +341,7 @@ export function OrderManager({
       const res = await fetch('/api/orders');
       const data = await res.json();
       if (data.success && data.data) {
-        setOrderHistory(prev => {
-          const serverIds = new Set(data.data.map((o: any) => o.id));
-          // Keep optimistic items that haven't appeared in server response yet
-          const optimisticOnly = prev.filter(o => !serverIds.has(o.id) && !o.rowNumber);
-          return [...optimisticOnly, ...data.data];
-        });
+        setOrderHistory(data.data);
       }
     } catch (e) {
       console.error("Failed to refresh orders", e);

@@ -391,6 +391,10 @@ export function OrderForm({
       } else {
         resetForm();
       }
+    }).catch(() => {
+      // Save failed (alert already shown by persistOrderToDb)
+      // Close confirm modal but keep form data for retry
+      setShowConfirmModal(false);
     });
   };
 
