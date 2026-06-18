@@ -11,7 +11,7 @@ export async function GET() {
     
     const requests: any[] = [];
     const sheetsToCreate = [
-      { title: 'Laporan Transaksi Harian', cols: 10 },
+      { title: 'Laporan Transaksi Harian', cols: 22 },
       { title: 'Master Katalog', cols: 5 },
       { title: 'customer_tiers', cols: 3 },
       { title: 'customers', cols: 6 },
@@ -44,8 +44,8 @@ export async function GET() {
     // Now set headers and default data
     const headerUpdates = [
       {
-        range: 'Laporan Transaksi Harian!A1:I1',
-        values: [['Timestamp', 'Customer', 'Rincian Produksi', 'Total Pcs', 'Subtotal', 'Ongkos Kirim', 'Grand Total', 'Catatan Produksi', 'Status']]
+        range: 'Laporan Transaksi Harian!A1:V1',
+        values: [['Timestamp', 'Customer', 'Nama Produk', 'QTY', 'Harga', 'Total Pcs', 'Subtotal', 'Ongkos Kirim', 'Grand Total', 'Catatan Produksi', 'Status', 'Tanggal Produksi', 'Tanggal Pengiriman', 'Dikonfirmasi', 'Produksi', 'Packing', 'Delivery', 'Diterima', 'Catatan Pengiriman', 'Status Follow-up Sampel', 'Feedback Sampel', 'Lifecycle_Data']]
       },
       {
         range: 'Master Katalog!A1:E1',

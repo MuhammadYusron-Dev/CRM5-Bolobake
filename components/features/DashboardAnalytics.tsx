@@ -14,6 +14,14 @@ interface DashboardData {
   activeProductionOrders: number;
   newCustomersThisMonth: number;
   categorySales?: { croissant: number; cake: number };
+  bottlenecks?: {
+    waiting: { orderId: number, customer: string, stage: string, durationMin: number }[];
+    atRiskCount: number;
+    blockedCount: number;
+    overdueCount: number;
+    ncrList: { orderId: number, customer: string, stage: string, issue: string, severity: string }[];
+    qcPendingList: { orderId: number, customer: string, stage: string, durationMin: number }[];
+  };
 }
 
 const AnimatedProgressBar = ({ percentage, colorClass }: { percentage: string; colorClass: string }) => {
@@ -245,8 +253,122 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
+        {/* Bottlenecks Panel */}
+        <Card className="shadow-sm border-border/50 lg:col-span-2">
+          <CardHeader className="pb-3 border-b border-border/50">
+            <CardTitle className="text-lg flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-5 h-5" />
+              Operational Bottlenecks & SLA
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="p-3 bg-orange-50 border border-orange-100 rounded-lg text-center">
+                <p className="text-2xl font-bold text-orange-600">{dashboard.bottlenecks?.atRiskCount || 0}</p>
+                <p className="text-xs font-semibold text-orange-800">AT RISK</p>
+              </div>
+              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
+                <p className="text-2xl font-bold text-red-600">{dashboard.bottlenecks?.blockedCount || 0}</p>
+                <p className="text-xs font-semibold text-red-800">BLOCKED</p>
+              </div>
+              <div className="p-3 bg-red-100 border border-red-200 rounded-lg text-center">
+                <p className="text-2xl font-bold text-red-700">{dashboard.bottlenecks?.overdueCount || 0}</p>
+                <p className="text-xs font-semibold text-red-900">OVERDUE</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h5 className="font-bold text-sm mb-3">Menunggu Diterima (Handover Waiting)</h5>
+                <div className="overflow-x-auto border rounded-md max-h-64 overflow-y-auto">
+                  <table className="w-full text-left border-collapse text-sm">
+                    <thead className="bg-slate-50 sticky top-0 z-10">
+                      <tr>
+                        <th className="py-2 px-3 font-semibold text-slate-600">Pelanggan</th>
+                        <th className="py-2 px-3 font-semibold text-slate-600">Divisi</th>
+                        <th className="py-2 px-3 font-semibold text-slate-600">Durasi Menunggu</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {!dashboard.bottlenecks?.waiting || dashboard.bottlenecks.waiting.length === 0 ? (
+                        <tr><td colSpan={3} className="py-4 text-center text-slate-500">Tidak ada antrian.</td></tr>
+                      ) : (
+                        dashboard.bottlenecks.waiting.map(w => (
+                          <tr key={`w-${w.orderId}`} className="border-b last:border-0 hover:bg-slate-50">
+                            <td className="py-2 px-3 font-medium">{w.customer}</td>
+                            <td className="py-2 px-3 text-slate-600">{w.stage}</td>
+                            <td className="py-2 px-3 text-red-600 font-medium">{w.durationMin} Menit</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <h5 className="font-bold text-sm mb-3 text-cyan-700">Antrian Verifikasi QC (QC Pending)</h5>
+                <div className="overflow-x-auto border rounded-md max-h-64 overflow-y-auto">
+                  <table className="w-full text-left border-collapse text-sm">
+                    <thead className="bg-cyan-50 sticky top-0 z-10">
+                      <tr>
+                        <th className="py-2 px-3 font-semibold text-cyan-800">Pelanggan</th>
+                        <th className="py-2 px-3 font-semibold text-cyan-800">Sumber QC</th>
+                        <th className="py-2 px-3 font-semibold text-cyan-800">Durasi Menunggu</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {!dashboard.bottlenecks?.qcPendingList || dashboard.bottlenecks.qcPendingList.length === 0 ? (
+                        <tr><td colSpan={3} className="py-4 text-center text-slate-500">Semua QC Tuntas.</td></tr>
+                      ) : (
+                        dashboard.bottlenecks.qcPendingList.map(w => (
+                          <tr key={`qc-${w.orderId}`} className="border-b last:border-0 hover:bg-cyan-50/30">
+                            <td className="py-2 px-3 font-medium">{w.customer}</td>
+                            <td className="py-2 px-3 text-slate-600">{w.stage}</td>
+                            <td className="py-2 px-3 text-red-600 font-medium">{w.durationMin} Menit</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {dashboard.bottlenecks?.ncrList && dashboard.bottlenecks.ncrList.length > 0 && (
+              <div className="mt-6">
+                <h5 className="font-bold text-sm mb-3 text-red-700 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Non-Conformance Report (Unresolved NCR)</h5>
+                <div className="overflow-x-auto border border-red-200 rounded-md">
+                  <table className="w-full text-left border-collapse text-sm">
+                    <thead className="bg-red-50">
+                      <tr>
+                        <th className="py-2 px-3 font-semibold text-red-800">Pelanggan</th>
+                        <th className="py-2 px-3 font-semibold text-red-800">Divisi Rework</th>
+                        <th className="py-2 px-3 font-semibold text-red-800">Isu QC</th>
+                        <th className="py-2 px-3 font-semibold text-red-800">Tingkat (Severity)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboard.bottlenecks.ncrList.map(n => (
+                        <tr key={`ncr-${n.orderId}`} className="border-b border-red-100 last:border-0 hover:bg-red-50/50">
+                          <td className="py-2 px-3 font-medium text-red-900">{n.customer}</td>
+                          <td className="py-2 px-3 text-red-700">{n.stage}</td>
+                          <td className="py-2 px-3 text-red-700">{n.issue}</td>
+                          <td className="py-2 px-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${n.severity === 'HIGH' ? 'bg-red-600 text-white' : n.severity === 'MEDIUM' ? 'bg-orange-500 text-white' : 'bg-yellow-400 text-yellow-900'}`}>{n.severity}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Customer Leaderboard */}
-        <Card className="shadow-sm border-border/50 flex flex-col">
+        <Card className="shadow-sm border-border/50 flex flex-col lg:col-span-2">
           <CardHeader className="pb-3 border-b border-border/50">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <CardTitle className="text-lg flex items-center gap-2">

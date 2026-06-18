@@ -2,6 +2,8 @@ import { NextResponse, after } from 'next/server';
 import { sheets, SPREADSHEET_ID } from '@/lib/google-sheets';
 import { runFullBackgroundSync } from '@/lib/rekap-sync';
 import { getFromCache, setCache, invalidateCache } from '@/lib/cache';
+import { SLA_CONFIG } from '@/lib/config/sla';
+import { OrderStage, OrderState, OrderHealth, LifecycleEvent } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -107,7 +109,89 @@ export async function GET() {
             deliveryNotes: existingDeliveryNotes
           };
         })(),
-        status: (row[10] as any) || 'Pesanan Dibuat',
+        ...(() => {
+          const statusStr = row[10] || 'Pesanan Dibuat';
+          let currentStage: OrderStage = 'ADMIN';
+          let currentState: OrderState = 'IN_PROGRESS';
+          
+          if (statusStr.includes('_') && !statusStr.includes(' ')) {
+            const parts = statusStr.split('_');
+            currentStage = parts[0] as OrderStage;
+            currentState = parts.slice(1).join('_') as OrderState;
+          } else {
+            // Legacy mapping
+            const low = statusStr.toLowerCase();
+            if (low.includes('produksi')) { currentStage = 'PRODUCTION'; currentState = 'ACCEPTED'; }
+            else if (low.includes('packing')) { currentStage = 'PACKING'; currentState = 'ACCEPTED'; }
+            else if (low.includes('delivery')) { currentStage = 'DELIVERY'; currentState = 'ACCEPTED'; }
+            else if (low.includes('diterima')) { currentStage = 'COMPLETED'; currentState = 'COMPLETED'; }
+            else if (low.includes('dikonfirmasi')) { currentStage = 'PRODUCTION'; currentState = 'WAITING'; }
+            else { currentStage = 'ADMIN'; currentState = 'IN_PROGRESS'; }
+          }
+
+          let lifecycleData: LifecycleEvent[] = [];
+          if (row[21]) {
+            try {
+              lifecycleData = JSON.parse(row[21]);
+            } catch (e) {}
+          }
+
+          if (lifecycleData.length === 0) {
+            // Virtual timeline for legacy
+            if (row[13]) {
+              lifecycleData.push({ version: '1.0', eventId: 'legacy_1', event: 'HANDOVER', source: 'MIGRATION', actor: { userId: 'system', name: 'Legacy Data', role: 'ADMIN' }, timestamp: row[13], toStage: 'PRODUCTION' });
+            }
+            if (row[14]) {
+              lifecycleData.push({ version: '1.0', eventId: 'legacy_2', event: 'ACCEPT', source: 'MIGRATION', actor: { userId: 'system', name: 'Legacy Data', role: 'PRODUCTION' }, timestamp: row[14], stage: 'PRODUCTION' });
+            }
+          }
+
+          let qcMeta = undefined;
+          if (currentState === 'QC_PENDING') {
+            const lastComplete = [...lifecycleData].reverse().find(e => e.event === 'COMPLETE' && (e.stage === 'PRODUCTION' || e.stage === 'PACKING'));
+            if (lastComplete) {
+              qcMeta = {
+                pendingAt: lastComplete.timestamp,
+                stageOwner: lastComplete.stage || 'PRODUCTION',
+                isBlocked: true
+              };
+            }
+          }
+
+          let healthStatus: OrderHealth = 'HEALTHY';
+          
+          if (currentState === 'REVIEW_REQUIRED') {
+            healthStatus = 'BLOCKED';
+          } else if (currentState === 'WAITING' && lifecycleData.length > 0) {
+            const lastHandover = [...lifecycleData].reverse().find(e => e.event === 'HANDOVER');
+            if (lastHandover && lastHandover.timestamp) {
+              const minutesWaiting = (Date.now() - new Date(lastHandover.timestamp).getTime()) / 60000;
+              let threshold = 120; // Default
+              if (currentStage === 'PRODUCTION') threshold = SLA_CONFIG.PRODUCTION_WAITING_MINUTES;
+              if (currentStage === 'PACKING') threshold = SLA_CONFIG.PACKING_WAITING_MINUTES;
+              if (currentStage === 'DELIVERY') threshold = SLA_CONFIG.DELIVERY_WAITING_MINUTES;
+              
+              if (minutesWaiting > threshold) {
+                healthStatus = 'AT_RISK';
+              }
+            }
+          } else if (currentStage !== 'COMPLETED' && row[12]) {
+             // Overdue check
+             const deliveryDate = new Date(row[12]);
+             if (deliveryDate.getTime() < Date.now() - 86400000) { // Overdue by a day
+               healthStatus = 'OVERDUE';
+             }
+          }
+
+          return {
+            status: statusStr,
+            currentStage,
+            currentState,
+            healthStatus,
+            lifecycleData,
+            qcMeta
+          };
+        })(),
         productionDate: row[11] || '',
         deliveryDate: row[12] || '',
         isFreeShipping: Number(row[7]) === 0,
@@ -268,7 +352,22 @@ export async function POST(request: Request) {
       body.statusTimestamps?.diterima || '',
       body.deliveryNotes || '',
       sampleStatuses,
-      sampleFeedbacks
+      sampleFeedbacks,
+      JSON.stringify([{
+        version: "1.0",
+        eventId: `evt_${Date.now()}_create`,
+        event: "CREATE",
+        source: "WEB_APP",
+        actor: {
+          userId: body.userId || 'system',
+          name: body.userName || 'System',
+          role: body.userRole || 'ADMIN'
+        },
+        stage: "ADMIN",
+        timestamp: new Date().toISOString(),
+        notes: body.notes || '',
+        attachments: imageUrl ? [imageUrl] : []
+      }])
     ];
 
     await sheets.spreadsheets.values.append({

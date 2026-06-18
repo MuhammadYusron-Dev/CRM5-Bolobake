@@ -67,10 +67,24 @@ export async function ensureAdminsSheet() {
       });
       await sheets.spreadsheets.values.update({
         spreadsheetId: SPREADSHEET_ID,
-        range: 'Admins!A1:E1',
+        range: 'Admins!A1:F1',
         valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [['Email', 'PasswordHash', 'FirstName', 'LastName', 'AvatarUrl']] }
+        requestBody: { values: [['Email', 'PasswordHash', 'FirstName', 'LastName', 'AvatarUrl', 'Role']] }
       });
+    } else {
+      // Ensure column F exists for existing Admins sheet
+      const res = await sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Admins!F1',
+      });
+      if (!res.data.values || !res.data.values[0] || !res.data.values[0][0]) {
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SPREADSHEET_ID,
+          range: 'Admins!F1',
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [['Role']] }
+        });
+      }
     }
     adminsSheetVerified = true;
   } catch (error) {
@@ -144,7 +158,7 @@ export async function getAdmins() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Admins!A2:E',
+      range: 'Admins!A2:F',
     });
     const rows = response.data.values;
     if (!rows || rows.length === 0) return [];
@@ -155,6 +169,7 @@ export async function getAdmins() {
       firstName: row[2] || '',
       lastName: row[3] || '',
       avatarUrl: row[4] || '',
+      role: row[5] || 'ADMIN', // Default role is ADMIN
       // Backward compatibility map
       username: row[0], 
     }));
@@ -164,15 +179,15 @@ export async function getAdmins() {
   }
 }
 
-export async function addAdmin(email: string, passwordHash: string, firstName: string, lastName: string, avatarUrl: string) {
+export async function addAdmin(email: string, passwordHash: string, firstName: string, lastName: string, avatarUrl: string, role: string = 'ADMIN') {
   await ensureAdminsSheet();
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Admins!A:E',
+      range: 'Admins!A:F',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
-        values: [[email, passwordHash, firstName, lastName, avatarUrl]]
+        values: [[email, passwordHash, firstName, lastName, avatarUrl, role]]
       }
     });
     return true;
@@ -201,12 +216,13 @@ export async function updateAdmin(email: string, newPasswordHash?: string, newAv
       newPasswordHash || row[1],
       row[2] || '',
       row[3] || '',
-      newAvatarUrl !== undefined ? newAvatarUrl : (row[4] || '')
+      newAvatarUrl !== undefined ? newAvatarUrl : (row[4] || ''),
+      row[5] || 'ADMIN' // Maintain existing role if not updating
     ];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Admins!A${rowIndex + 2}:E${rowIndex + 2}`,
+      range: `Admins!A${rowIndex + 2}:F${rowIndex + 2}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [updatedRow]

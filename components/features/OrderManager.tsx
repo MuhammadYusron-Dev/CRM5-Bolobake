@@ -10,6 +10,8 @@ import { writeAuditLog, generateDiffDescription, generateItemsDiff } from '@/lib
 import { OrderForm } from './OrderForm';
 import { DashboardAnalytics } from './DashboardAnalytics';
 import { HistoryTable } from './HistoryTable';
+import { useOperationsIntelligence } from '@/hooks/useOperationsIntelligence';
+import { OperationsControlTower } from './OperationsControlTower';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { DateRangeFilter } from './DateRangeFilter';
 import { SalesTutorial } from './SalesTutorial';
@@ -27,7 +29,8 @@ export function OrderManager({
 }: { 
   initialOrders: Order[], 
   initialCatalog: Product[],
-  initialCustomers?: Customer[]
+  initialCustomers?: Customer[],
+  currentUser?: { userId: string; name: string; role: string } | null;
 }) {
   const [katalog] = useState<Product[]>(initialCatalog);
   const [customers] = useState<Customer[]>(initialCustomers);
@@ -62,6 +65,11 @@ export function OrderManager({
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState<number | null>(null);
+
+  // Phase 3: Operations Intelligence
+  const intelligenceData = useOperationsIntelligence(orderHistory);
 
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   
@@ -112,6 +120,15 @@ export function OrderManager({
     const todayStr = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
     const currentMonthStr = todayStr.substring(0, 7);
 
+    const bottlenecks = {
+      waiting: [] as { orderId: number, customer: string, stage: string, durationMin: number }[],
+      atRiskCount: 0,
+      blockedCount: 0,
+      overdueCount: 0,
+      ncrList: [] as { orderId: number, customer: string, stage: string, issue: string, severity: string }[],
+      qcPendingList: [] as { orderId: number, customer: string, stage: string, durationMin: number }[]
+    };
+
     orderHistory.forEach(order => {
       const tsStr = String(order.timestamp || '');
       let d = String(order.productionDate || tsStr.split('T')[0] || '');
@@ -123,7 +140,40 @@ export function OrderManager({
       if (d >= todayStr) {
         activeProductionOrders++;
       }
+
+      // Track Bottlenecks (from all time or filtered? we should track from all orders so we don't miss pending issues)
+      if (order.healthStatus === 'AT_RISK') bottlenecks.atRiskCount++;
+      if (order.healthStatus === 'BLOCKED' || order.currentState === 'REVIEW_REQUIRED') bottlenecks.blockedCount++;
+      if (order.healthStatus === 'OVERDUE') bottlenecks.overdueCount++;
+
+      if (order.currentState === 'WAITING' && order.currentStage && order.lifecycleData) {
+        const lastHandover = [...order.lifecycleData].reverse().find(e => e.event === 'HANDOVER' && e.toStage === order.currentStage);
+        if (lastHandover) {
+           const durationMin = Math.round((today.getTime() - new Date(lastHandover.timestamp).getTime()) / 60000);
+           bottlenecks.waiting.push({ orderId: order.id, customer: order.customer, stage: order.currentStage, durationMin });
+        }
+      }
+
+      // Track QC Pending
+      if (order.currentState === 'QC_PENDING' && order.qcMeta) {
+         const durationMin = Math.round((today.getTime() - new Date(order.qcMeta.pendingAt).getTime()) / 60000);
+         bottlenecks.qcPendingList.push({ orderId: order.id, customer: order.customer, stage: order.qcMeta.stageOwner, durationMin });
+      }
+
+      // Track NCR (Rework Required)
+      if (order.currentState === 'REWORK_REQUIRED' && order.lifecycleData) {
+        const lastNcr = [...order.lifecycleData].reverse().find(e => e.event === 'NCR_CREATED' && e.ncr);
+        if (lastNcr && lastNcr.ncr) {
+           bottlenecks.ncrList.push({
+             orderId: order.id, customer: order.customer, stage: order.currentStage || 'N/A',
+             issue: lastNcr.ncr.issueType, severity: lastNcr.ncr.severity
+           });
+        }
+      }
     });
+
+    bottlenecks.waiting.sort((a, b) => b.durationMin - a.durationMin);
+    bottlenecks.qcPendingList.sort((a, b) => b.durationMin - a.durationMin);
 
     const parseDateToNumber = (dateStr: any) => {
       if (!dateStr) return 0;
@@ -215,7 +265,8 @@ export function OrderManager({
       uniqueCustomers: Array.from(uniqueCustomers), 
       variantPerformance, customerLeaderboard,
       trendText, activeProductionOrders, newCustomersThisMonth,
-      categorySales: { croissant: croissantSales, cake: cakeSales }
+      categorySales: { croissant: croissantSales, cake: cakeSales },
+      bottlenecks
     };
   }, [orderHistory, filterStartDate, filterEndDate, katalog]);
 
@@ -282,6 +333,18 @@ export function OrderManager({
     }
   };
 
+  const refreshOrders = async () => {
+    try {
+      const res = await fetch('/api/orders');
+      const data = await res.json();
+      if (data.success && data.data) {
+        setOrderHistory(data.data);
+      }
+    } catch (e) {
+      console.error("Failed to refresh orders", e);
+    }
+  };
+
   const handleSaveOrder = async (order: Order, imageFile?: File | null) => {
     setIsSubmitting(true);
     
@@ -298,9 +361,7 @@ export function OrderManager({
       }
 
       // Background sync
-      fetch('/api/orders').then(res => res.json()).then(data => {
-        if (data.success && data.data) setOrderHistory(data.data);
-      }).catch(console.error);
+      refreshOrders();
 
       setEditingOrder(null);
       showToast(isEdit ? 'Pesanan berhasil diperbarui di server!' : 'Pesanan berhasil dikirim ke Dapur & Sheet!');
@@ -478,6 +539,9 @@ export function OrderManager({
               />
             </div>
             <DashboardAnalytics dashboard={dashboard} isLoading={false} error={null} />
+            <div className="mt-8">
+              <OperationsControlTower intelligence={intelligenceData} />
+            </div>
           </div>
         );
       case 'history':
@@ -497,6 +561,8 @@ export function OrderManager({
                 setFilterStartDate={setFilterStartDate}
                 filterEndDate={filterEndDate}
                 setFilterEndDate={setFilterEndDate}
+                currentUser={currentUser}
+                onRefresh={refreshOrders}
               />
           </div>
         );

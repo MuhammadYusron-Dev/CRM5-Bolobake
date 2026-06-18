@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DateRangeFilter } from './DateRangeFilter';
 import { formatDate } from '@/lib/utils';
+import { StatusBadge, OrderTimeline, ActionControl } from './OrderLifecycleUI';
+
 
 interface HistoryTableProps {
   orderHistory: Order[];
@@ -19,6 +21,8 @@ interface HistoryTableProps {
   handleReorder?: (order: Order) => void;
   handleClearAll?: () => void;
   handleUpdateStatus?: (orderId: number, status: OrderStatus) => void;
+  currentUser?: { userId: string; name: string; role: string } | null;
+  onRefresh?: () => void;
 }
 
 export function HistoryTable({
@@ -31,12 +35,15 @@ export function HistoryTable({
   setFilterEndDate,
   handleReorder,
   handleClearAll,
-  handleUpdateStatus
+  handleUpdateStatus,
+  currentUser,
+  onRefresh
 }: HistoryTableProps) {
   const [searchHistoryInput, setSearchHistoryInput] = useState('');
   const [searchHistoryQuery, setSearchHistoryQuery] = useState('');
   const [highlightedOutlet, setHighlightedOutlet] = useState('');
   const [printingOrder, setPrintingOrder] = useState<Order | null>(null);
+  const [timelineOrder, setTimelineOrder] = useState<Order | null>(null);
 
   const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
@@ -219,9 +226,7 @@ export function HistoryTable({
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border ${getStatusColor(order.status || 'Pesanan Dibuat')}`}>
-                          {order.status || 'Pesanan Dibuat'}
-                        </span>
+                        <StatusBadge stage={order.currentStage} state={order.currentState} health={order.healthStatus} />
                         {!isNaN(new Date(order.timestamp).getTime()) && (
                           <span className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">{new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                         )}
@@ -264,6 +269,14 @@ export function HistoryTable({
                         className="h-8 text-xs font-bold gap-1.5"
                       >
                         <Printer className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Cetak Struk</span>
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setTimelineOrder(order)}
+                        className="h-8 text-xs font-bold gap-1.5"
+                      >
+                        <Clock className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Timeline</span>
                       </Button>
                       <Button 
                         variant={editingOrderId === order.id ? "secondary" : "outline"}
@@ -323,6 +336,19 @@ export function HistoryTable({
                       {order.statusTimestamps.diterima && <span><span className="font-semibold">Diterima:</span> {order.statusTimestamps.diterima}</span>}
                     </div>
                   )}
+
+                  <ActionControl 
+                    order={order} 
+                    currentUser={currentUser} 
+                    onActionComplete={() => {
+                      if (onRefresh) {
+                        onRefresh();
+                      } else if (handleUpdateStatus) {
+                        // Fallback
+                        window.location.reload();
+                      }
+                    }} 
+                  />
                 </CardContent>
               </Card>
             );
@@ -525,6 +551,22 @@ export function HistoryTable({
               <Button onClick={() => handlePrintReceipt(printingOrder)}>
                 <Printer className="w-4 h-4 mr-2" /> Cetak
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {timelineOrder && (
+        <Dialog open={!!timelineOrder} onOpenChange={(open) => !open && setTimelineOrder(null)}>
+          <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Timeline: {timelineOrder.customer}</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <OrderTimeline events={timelineOrder.lifecycleData} />
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button variant="outline" onClick={() => setTimelineOrder(null)}>Tutup</Button>
             </div>
           </DialogContent>
         </Dialog>

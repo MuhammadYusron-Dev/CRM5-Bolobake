@@ -45,7 +45,9 @@ export async function POST(request: Request) {
       email: admin.email || admin.username,
       firstName: admin.firstName,
       lastName: admin.lastName,
-      avatarUrl: admin.avatarUrl
+      avatarUrl: admin.avatarUrl,
+      role: admin.role,
+      issuedAt: new Date().toISOString()
     });
 
     // Set cookie
@@ -74,7 +76,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       message: 'Login berhasil.',
-      user: { username: admin.email || admin.username, email: admin.email, firstName: admin.firstName, lastName: admin.lastName, avatarUrl: admin.avatarUrl }
+      user: { username: admin.email || admin.username, email: admin.email, firstName: admin.firstName, lastName: admin.lastName, avatarUrl: admin.avatarUrl, role: admin.role }
     });
   } catch (error: any) {
     console.error('Login error:', error);
