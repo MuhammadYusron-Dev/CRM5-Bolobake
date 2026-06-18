@@ -23,7 +23,17 @@ export async function GET() {
 
     const rows = response.data.values || [];
     
-    const orders = rows.map((row, index) => {
+    // Filter out empty/ghost rows left behind after clearing the spreadsheet
+    const validRows = rows.filter(row => {
+      // A row must have at least a timestamp (col A) or a customer name (col B) to be valid
+      const hasTimestamp = row[0] && String(row[0]).trim() !== '';
+      const hasCustomer = row[1] && String(row[1]).trim() !== '';
+      return hasTimestamp || hasCustomer;
+    });
+
+    const orders = validRows.map((row, index) => {
+      // Recalculate the actual row number in the spreadsheet
+      const actualRowNumber = rows.indexOf(row) + 2; // +2 because A2 is the first data row
       let items: any[] = [];
       const colC = row[2] || '';
       const colD = row[3] || '';
@@ -72,8 +82,11 @@ export async function GET() {
       }
 
       return {
-        id: new Date(row[0]).getTime() || Date.now() + index,
-        rowNumber: index + 2, // A2 is row 2
+        id: (() => {
+          const parsed = new Date(row[0]).getTime();
+          return (!isNaN(parsed) && parsed > 0) ? parsed : Date.now() + actualRowNumber;
+        })(),
+        rowNumber: actualRowNumber, // actual position in spreadsheet
         timestamp: row[0],
         customer: row[1] || '',
         items: items,
@@ -318,21 +331,11 @@ export async function POST(request: Request) {
     // Default Status
     const status = body.status || 'Pesanan Dibuat';
     
-    const formatDate = (dateString: string) => {
-      if (!dateString) return '-';
-      const [y, m, d] = dateString.split('-');
-      const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-      return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
-    };
-
-    const prodDateStr = formatDate(body.productionDate);
-    const delivDateStr = formatDate(body.deliveryDate);
-    const timeColumnDisplay = `Produksi: ${prodDateStr}\nPengiriman: ${delivDateStr}`;
 
     const finalNotes = imageUrl ? `${body.notes || ''}\n[IMAGE_URL:${imageUrl}]` : (body.notes || '');
 
     const rowData = [
-      timeColumnDisplay, // Timestamp (Column A)
+      new Date().toISOString(), // Timestamp (Column A) - proper ISO format for reliable parsing
       body.customer,            // Customer
       productNames,             // NAMA PRODUK
       productQtys,              // QTY
