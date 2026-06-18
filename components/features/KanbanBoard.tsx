@@ -9,14 +9,13 @@ import { formatDate } from '@/lib/utils';
 import { ProductionSchedule } from '@/components/features/ProductionSchedule';
 import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
+import { ActionControl, StatusBadge } from '@/components/features/OrderLifecycleUI';
 
 export interface ColumnDef {
   id: string;
   title: string;
   description?: string;
-  statuses: OrderStatus[];
-  actionLabel?: string;
-  nextStatus?: OrderStatus;
+  filterFn: (order: Order) => boolean;
   colorClass: string;
 }
 
@@ -51,49 +50,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
     fallbackData: initialOrders,
     refreshInterval: 15000 // Poll every 15 seconds automatically
   });
-  const [isUpdating, setIsUpdating] = useState<number | null>(null);
   const [activeView, setActiveView] = useState<'board' | 'schedule'>('board');
-
-  const handleUpdateStatus = async (orderId: number, newStatus: OrderStatus) => {
-    setIsUpdating(orderId);
-    
-    // Find the order
-    const orderIndex = orders.findIndex((o: Order) => o.id === orderId);
-    if (orderIndex === -1) {
-      setIsUpdating(null);
-      return;
-    }
-    const order = orders[orderIndex];
-
-    // Optimistic UI
-    mutate(orders.map((o: Order) => o.id === orderId ? { ...o, status: newStatus } : o), false);
-
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rowNumber: order.rowNumber, status: newStatus })
-      });
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error);
-      }
-      
-      // Merge precise timestamps if returned
-      if (data.success) {
-        // Use optimistic UI update or just rely on SWR mutate
-        mutate();
-      } else {
-        alert('Gagal update: ' + data.error);
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Gagal memperbarui status');
-    } finally {
-      setIsUpdating(null);
-    }
-  };
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 overflow-hidden print:h-auto print:overflow-visible print:bg-white">
@@ -131,7 +88,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 sm:p-6 print:hidden snap-x snap-mandatory scroll-smooth custom-scrollbar">
         <div className="flex h-full gap-4 sm:gap-6 items-start w-full min-w-max pb-2 sm:pb-0">
           {columns.map((col) => {
-            const colOrders = orders.filter((o: Order) => col.statuses.includes(o.status || 'Pesanan Dibuat'));
+            const colOrders = orders.filter(col.filterFn);
             
             return (
               <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
@@ -158,98 +115,12 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                       Kosong
                     </div>
                   ) : (
-                    divisionName === 'Produksi' && (col.id === 'masuk' || col.id === 'antrean') ? (
-                      // GROUPED VIEW FOR PRODUKSI
-                      Object.entries(
-                        colOrders.reduce((acc: Record<string, Record<string, Order[]>>, order: Order) => {
-                          const date = order.productionDate || 'Tanpa Tanggal';
-                          if (!acc[date]) acc[date] = {};
-                          if (!acc[date][order.customer]) acc[date][order.customer] = [];
-                          acc[date][order.customer].push(order);
-                          return acc;
-                        }, {})
-                      )
-                      .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
-                      .map(([date, customers]) => (
-                        <div key={date} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-4">
-                          <div className="bg-slate-100 dark:bg-slate-800 px-3 py-2 border-b border-slate-200 dark:border-slate-700">
-                            <span className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-1.5"><Clock className="w-4 h-4 text-blue-600"/> Produksi: {date}</span>
-                          </div>
-                          
-                          <div className="p-2 space-y-3">
-                            {Object.entries(customers as Record<string, Order[]>)
-                              .sort(([custA], [custB]) => custA.localeCompare(custB))
-                              .map(([customer, ordersList]) => (
-                              <div key={customer} className="border border-slate-200 dark:border-slate-700/60 rounded-lg bg-slate-50 dark:bg-slate-900/50 p-2 space-y-2">
-                                <div className="flex items-center justify-between px-1">
-                                  <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200">{customer}</h4>
-                                </div>
-                                
-                                {ordersList.map((order: Order) => {
-                                  const batch = getBatchLabel(order.timestamp);
-                                  return (
-                                    <Card 
-                                      key={order.id} 
-                                      draggable={true}
-                                      onDragStart={(e) => {
-                                          e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
-                                          e.dataTransfer.effectAllowed = 'copy';
-                                      }}
-                                      className={`shadow-none border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing bg-white dark:bg-slate-950 ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
-                                    >
-                                      <CardContent className="p-2.5">
-                                        <div className="flex justify-between items-start gap-2 mb-2">
-                                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${batch.color}`}>
-                                            {batch.label}
-                                          </span>
-                                        </div>
-                                        
-                                        <div className="bg-slate-50/50 dark:bg-slate-900/30 p-2 rounded text-[11px] space-y-1 mb-2 border border-slate-100 dark:border-slate-800">
-                                          {(order.items || []).map((item: any, idx: number) => (
-                                            <div key={idx} className="flex justify-between gap-2">
-                                              <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">
-                                                {item.qty}x {item.sku.replace(' (sample)', '')}
-                                                {item.isSample && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">S</span>}
-                                              </span>
-                                            </div>
-                                          ))}
-                                        </div>
-
-                                        {order.notes && (
-                                          <div className="mb-2 text-[10px] bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-1.5 rounded border border-red-200 dark:border-red-800/50 leading-tight">
-                                            <span className="font-bold flex items-center gap-1 mb-0.5"><ChefHat className="w-2.5 h-2.5 shrink-0"/> Catatan:</span>
-                                            <p className="break-words">{order.notes}</p>
-                                          </div>
-                                        )}
-
-                                        {/* Action Button */}
-                                        {col.nextStatus && (
-                                          <Button 
-                                            size="sm" 
-                                            variant="secondary"
-                                            className="w-full h-7 text-[11px] font-bold mt-1 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700"
-                                            onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
-                                            disabled={!canEditStatus || isUpdating === order.id}
-                                          >
-                                            {col.actionLabel}
-                                          </Button>
-                                        )}
-                                      </CardContent>
-                                    </Card>
-                                  );
-                                })}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      // DEFAULT FLAT VIEW FOR OTHERS (e.g. Packing, Sedang Dipanggang)
-                      colOrders.map((order: Order) => {
-                        const batch = getBatchLabel(order.timestamp);
-                        return (
-                          <Card 
-                            key={order.id} 
+                    // FLAT VIEW FOR CARDS
+                    colOrders.map((order: Order) => {
+                      const batch = getBatchLabel(order.timestamp);
+                      return (
+                        <Card 
+                          key={order.id} 
                             draggable={true}
                             onDragStart={(e) => {
                                 e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
@@ -261,14 +132,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                               <div className="flex justify-between items-start gap-2 mb-2">
                                 <h4 className="font-bold text-sm line-clamp-2">{order.customer}</h4>
                                 <div className="flex flex-col items-end gap-1">
-                                  <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0">
-                                    {order.status || 'Pesanan Dibuat'}
-                                  </span>
-                                  {divisionName === 'Produksi' && (
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${batch.color}`}>
-                                      {batch.label}
-                                    </span>
-                                  )}
+                                  <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} />
                                 </div>
                               </div>
                               
@@ -302,21 +166,11 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                               </div>
 
                               {/* Action Button */}
-                              {col.nextStatus && (
-                                <Button 
-                                  size="sm" 
-                                  className="w-full h-8 text-xs font-bold"
-                                  onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
-                                  disabled={!canEditStatus || isUpdating === order.id}
-                                >
-                                  {col.actionLabel}
-                                </Button>
-                              )}
+                              <ActionControl order={order} currentUser={currentUser} onActionComplete={() => mutate()} />
                             </CardContent>
                           </Card>
                         );
                       })
-                    )
                   )}
                 </div>
               </div>

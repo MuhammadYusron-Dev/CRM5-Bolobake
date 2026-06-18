@@ -6,6 +6,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { Clock, RotateCcw } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { ActionControl, StatusBadge } from '@/components/features/OrderLifecycleUI';
 
 function getBatchLabel(timestamp: string): { label: string, color: string } {
   if (!timestamp) return { label: 'Batch Unknown', color: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300' };
@@ -31,46 +32,13 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
     fallbackData: initialOrders,
     refreshInterval: 15000 
   });
-  const [isUpdating, setIsUpdating] = useState<number | null>(null);
-
-  const handleUpdateStatus = async (orderId: number, newStatus: OrderStatus) => {
-    setIsUpdating(orderId);
-    
-    const orderIndex = orders.findIndex((o: Order) => o.id === orderId);
-    if (orderIndex === -1) {
-      setIsUpdating(null);
-      return;
-    }
-    const order = orders[orderIndex];
-
-    mutate(orders.map((o: Order) => o.id === orderId ? { ...o, status: newStatus } : o), false);
-
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rowNumber: order.rowNumber, status: newStatus })
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        mutate();
-      } else {
-        alert('Gagal update: ' + data.error);
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Gagal memperbarui status');
-    } finally {
-      setIsUpdating(null);
-    }
-  };
-
-  const activeStatuses = ['Pesanan Dibuat', 'Dikonfirmasi', 'Produksi'];
-  const statusOptions: OrderStatus[] = ['Pesanan Dibuat', 'Dikonfirmasi', 'Produksi', 'Packing'];
+  const { data: orders = initialOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { 
+    fallbackData: initialOrders,
+    refreshInterval: 15000 
+  });
 
   const groupedOrders = orders.reduce((acc, order) => {
-    if (!activeStatuses.includes(order.status || 'Pesanan Dibuat')) return acc;
+    if (order.currentStage !== 'PRODUCTION') return acc;
     
     const date = order.productionDate || 'Tanpa Tanggal';
     if (!acc[date]) acc[date] = [];
@@ -126,9 +94,10 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
                               <td className="px-4 py-3 align-top">
                                 <div className="flex flex-col gap-1.5 items-start">
                                   <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-normal line-clamp-2">{order.customer}</span>
-                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color}`}>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color} mb-1`}>
                                     {batch.label}
                                   </span>
+                                  <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} />
                                   {order.deliveryDate && (
                                     <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 mt-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                                       Tgl Kirim: {formatDate(order.deliveryDate)}
@@ -208,25 +177,7 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
                                 </div>
                               </td>
                               <td className="px-4 py-3 align-top">
-                                <select 
-                                  value={order.status || 'Pesanan Dibuat'}
-                                  onChange={(e) => handleUpdateStatus(order.id, e.target.value as OrderStatus)}
-                                  disabled={!canEditStatus || isUpdating === order.id}
-                                  className={`w-full text-xs font-bold rounded-md border-slate-300 dark:border-slate-700 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 disabled:opacity-50 p-2
-                                    ${order.status === 'Pesanan Dibuat' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300' : ''}
-                                    ${order.status === 'Dikonfirmasi' ? 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300' : ''}
-                                    ${order.status === 'Produksi' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300' : ''}
-                                  `}
-                                >
-                                  {statusOptions.map(opt => (
-                                    <option key={opt} value={opt} className="bg-white text-slate-800 dark:bg-slate-800 dark:text-slate-200">
-                                      {opt === 'Pesanan Dibuat' ? '1. Pesanan Masuk' : 
-                                       opt === 'Dikonfirmasi' ? '2. Antrean Produksi' : 
-                                       opt === 'Produksi' ? '3. Sedang Dipanggang' : 
-                                       opt === 'Packing' ? '4. Selesai (Oper Packing)' : opt}
-                                    </option>
-                                  ))}
-                                </select>
+                                <ActionControl order={order} currentUser={currentUser} onActionComplete={() => mutate()} />
                               </td>
                             </tr>
                           );
