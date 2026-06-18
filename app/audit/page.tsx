@@ -67,6 +67,20 @@ function getModuleIcon(module: string) {
   }
 }
 
+function getModuleBorderColor(module: string) {
+  switch (module) {
+    case 'ORDER': return 'border-l-emerald-500';
+    case 'PRODUCTION': return 'border-l-blue-500';
+    case 'PACKING': return 'border-l-purple-500';
+    case 'QA': return 'border-l-rose-500';
+    case 'INVENTORY': return 'border-l-amber-500';
+    case 'CATALOG': return 'border-l-pink-500';
+    case 'SYSTEM': return 'border-l-slate-500';
+    case 'SALES': return 'border-l-cyan-500';
+    default: return 'border-l-slate-300 dark:border-l-slate-600';
+  }
+}
+
 /**
  * Parses a log entry to extract a human-readable description.
  * Handles both v2 (structured) and v1 (legacy) formats.
@@ -74,9 +88,25 @@ function getModuleIcon(module: string) {
 function getLogDisplay(log: AuditLog): { title: string; detail: string; action: string; module: string } {
   // V2 format: structured description is available
   if (log.description) {
+    let title = log.description;
+    let detail = '';
+
+    let splitIndex = log.description.indexOf('. ');
+    
+    if (log.description.includes('PT. ') && splitIndex === log.description.indexOf('PT. ') + 2) {
+      splitIndex = log.description.indexOf('. ', splitIndex + 2);
+    } else if (log.description.includes('CV. ') && splitIndex === log.description.indexOf('CV. ') + 2) {
+      splitIndex = log.description.indexOf('. ', splitIndex + 2);
+    }
+
+    if (splitIndex !== -1) {
+      title = log.description.substring(0, splitIndex);
+      detail = log.description.substring(splitIndex + 2);
+    }
+
     return {
-      title: log.description,
-      detail: '',
+      title,
+      detail,
       action: log.action,
       module: log.module,
     };
@@ -389,7 +419,7 @@ export default function AuditLogsPage() {
                           onClick={() => hasDetail && setSelectedLog(log)}
                           className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors group ${hasDetail ? 'cursor-pointer' : ''}`}
                         >
-                          <td className="px-5 py-3.5 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400 font-medium align-top">
+                          <td className={`px-5 py-3.5 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400 font-medium align-top border-l-4 ${getModuleBorderColor(display.module)}`}>
                             {log.timestamp}
                           </td>
                           <td className="px-5 py-3.5 whitespace-nowrap align-top">
