@@ -59,7 +59,8 @@ export async function POST(request: Request) {
       email: admin.email || admin.username,
       firstName: admin.firstName,
       lastName: admin.lastName,
-      avatarUrl: admin.avatarUrl || picture
+      avatarUrl: admin.avatarUrl || picture,
+      role: admin.role
     });
 
     // Set cookie
