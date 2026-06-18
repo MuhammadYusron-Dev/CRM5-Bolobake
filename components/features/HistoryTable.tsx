@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { History, Filter, Search, X, Clock, Calendar, Truck, Edit, Trash2, Printer } from 'lucide-react';
+import { History, Filter, Search, X, Clock, Calendar, Truck, Edit, Trash2, Printer, AlertTriangle } from 'lucide-react';
 import { Order, OrderStatus } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
