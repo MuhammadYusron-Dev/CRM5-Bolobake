@@ -55,7 +55,7 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
         ) : (
           <div className="space-y-8">
             {sortedDates.map((date) => {
-              const dateOrders = groupedOrders[date].sort((a, b) => a.customer.localeCompare(b.customer));
+              const dateOrders = groupedOrders[date].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
               
               return (
                 <div key={date} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">

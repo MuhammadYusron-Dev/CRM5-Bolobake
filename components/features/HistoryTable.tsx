@@ -211,8 +211,8 @@ export function HistoryTable({
         const sortedHistory = [...filteredHistory].sort((a, b) => {
           const dateA = a.productionDate || '';
           const dateB = b.productionDate || '';
-          if (dateA !== dateB) return dateB.localeCompare(dateA);
-          return b.id - a.id;
+          if (dateA !== dateB) return dateA.localeCompare(dateB);
+          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
         });
 
         const priorityOrders = sortedHistory.filter(o => 

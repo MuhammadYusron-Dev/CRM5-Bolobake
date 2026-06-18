@@ -88,7 +88,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
         <div className="flex-1 overflow-x-auto overflow-y-hidden p-4 sm:p-6 print:hidden snap-x snap-mandatory scroll-smooth custom-scrollbar">
         <div className="flex h-full gap-4 sm:gap-6 items-start w-full min-w-max pb-2 sm:pb-0">
           {columns.map((col) => {
-            const colOrders = orders.filter(col.filterFn);
+            const colOrders = orders.filter(col.filterFn).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
             
             return (
               <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 sm:min-w-[320px] shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm">
