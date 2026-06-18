@@ -126,7 +126,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                                 e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
                                 e.dataTransfer.effectAllowed = 'copy';
                             }}
-                            className={`shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${isUpdating === order.id ? 'opacity-50 pointer-events-none' : ''}`}
+                            className="shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing"
                           >
                             <CardContent className="p-3 sm:p-4">
                               <div className="flex justify-between items-start gap-2 mb-2">
