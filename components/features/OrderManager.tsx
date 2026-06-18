@@ -26,7 +26,8 @@ import { useSearchParams } from 'next/navigation';
 export function OrderManager({ 
   initialOrders, 
   initialCatalog,
-  initialCustomers = []
+  initialCustomers = [],
+  currentUser
 }: { 
   initialOrders: Order[], 
   initialCatalog: Product[],
