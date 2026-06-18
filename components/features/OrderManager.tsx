@@ -340,7 +340,12 @@ export function OrderManager({
       const res = await fetch('/api/orders');
       const data = await res.json();
       if (data.success && data.data) {
-        setOrderHistory(data.data);
+        setOrderHistory(prev => {
+          const serverIds = new Set(data.data.map((o: any) => o.id));
+          // Keep optimistic items that haven't appeared in server response yet
+          const optimisticOnly = prev.filter(o => !serverIds.has(o.id) && !o.rowNumber);
+          return [...optimisticOnly, ...data.data];
+        });
       }
     } catch (e) {
       console.error("Failed to refresh orders", e);
@@ -362,8 +367,8 @@ export function OrderManager({
         setOrderHistory(prev => [order, ...prev]);
       }
 
-      // Background sync
-      refreshOrders();
+      // Background sync — delay to give Google Sheets time to persist
+      setTimeout(() => refreshOrders(), 3000);
 
       setEditingOrder(null);
       showToast(isEdit ? 'Pesanan berhasil diperbarui di server!' : 'Pesanan berhasil dikirim ke Dapur & Sheet!');
