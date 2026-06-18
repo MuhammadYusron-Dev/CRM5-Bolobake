@@ -165,18 +165,45 @@ export function ActionControl({
   const canReject = hasRoleAccess && state !== 'COMPLETED' && stage !== 'ADMIN';
   const canQc = hasRoleAccess && state === 'QC_PENDING';
 
+  const getAcceptText = () => {
+    switch (stage) {
+      case 'PRODUCTION': return 'Mulai Produksi';
+      case 'PACKING': return 'Mulai Packing';
+      case 'DELIVERY': return 'Mulai Pengiriman';
+      default: return 'Terima Tugas';
+    }
+  };
+
+  const getCompleteText = () => {
+    switch (stage) {
+      case 'PRODUCTION': return 'Produksi Selesai';
+      case 'PACKING': return 'Packing Selesai';
+      case 'DELIVERY': return 'Pesanan Terkirim';
+      default: return 'Selesaikan Tugas';
+    }
+  };
+
+  const getHandoverText = () => {
+    switch (stage) {
+      case 'ADMIN': return 'Lanjut ke Produksi';
+      case 'PRODUCTION': return 'Lanjut ke Packing';
+      case 'PACKING': return 'Lanjut ke Pengiriman';
+      default: return 'Handover';
+    }
+  };
+
   return (
     <>
       <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100">
         {canAccept && (
           <Button size="sm" onClick={() => setModalState({ isOpen: true, action: 'ACCEPT' })} className="h-7 text-xs bg-blue-600 hover:bg-blue-700">
-            <Play className="w-3 h-3 mr-1.5" /> Terima Tugas
+            <Play className="w-3 h-3 mr-1.5" /> {getAcceptText()}
           </Button>
         )}
         
         {canComplete && (
           <Button size="sm" onClick={() => setModalState({ isOpen: true, action: 'COMPLETE' })} className="h-7 text-xs bg-green-600 hover:bg-green-700">
-            <CheckCircle2 className="w-3 h-3 mr-1.5" /> Selesaikan {state === 'REWORK_REQUIRED' ? 'Rework' : ''}
+            <CheckCircle2 className="w-3 h-3 mr-1.5" /> {state === 'REWORK_REQUIRED' ? 'Selesaikan Rework' : getCompleteText()}
           </Button>
         )}
 
@@ -188,7 +215,7 @@ export function ActionControl({
 
         {canHandover && (
           <Button size="sm" variant="outline" onClick={() => setModalState({ isOpen: true, action: 'HANDOVER' })} className="h-7 text-xs border-yellow-500 text-yellow-700 hover:bg-yellow-50">
-            <ArrowRight className="w-3 h-3 mr-1.5" /> Handover
+            <ArrowRight className="w-3 h-3 mr-1.5" /> {getHandoverText()}
           </Button>
         )}
 
@@ -332,9 +359,20 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
 
   const getTitle = () => {
     switch (action) {
-      case 'HANDOVER': return `Handover dari ${order.currentStage}`;
-      case 'ACCEPT': return `Terima Tugas di ${order.currentStage}`;
-      case 'COMPLETE': return `Selesaikan Tugas di ${order.currentStage}`;
+      case 'HANDOVER': 
+        if (order.currentStage === 'PRODUCTION') return 'Lanjut ke Divisi Packing?';
+        if (order.currentStage === 'PACKING') return 'Lanjut ke Divisi Pengiriman?';
+        return `Handover dari ${order.currentStage}`;
+      case 'ACCEPT': 
+        if (order.currentStage === 'PRODUCTION') return 'Mulai Proses Produksi?';
+        if (order.currentStage === 'PACKING') return 'Mulai Proses Packing?';
+        if (order.currentStage === 'DELIVERY') return 'Mulai Proses Pengiriman?';
+        return `Terima Tugas di ${order.currentStage}`;
+      case 'COMPLETE': 
+        if (order.currentStage === 'PRODUCTION') return 'Produksi Telah Selesai?';
+        if (order.currentStage === 'PACKING') return 'Packing Telah Selesai?';
+        if (order.currentStage === 'DELIVERY') return 'Pesanan Telah Diterima Pelanggan?';
+        return `Selesaikan Tugas di ${order.currentStage}`;
       case 'REJECT': return `Tolak/Revisi Pesanan`;
       case 'QC_CHECK': return `Quality Control (QC Gate)`;
       default: return action;
@@ -352,7 +390,7 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
             <span className="font-semibold block">Pelanggan:</span> {order.customer}
           </div>
           
-          {action === 'HANDOVER' && (
+          {action === 'HANDOVER' && order.currentStage === 'ADMIN' && (
             <div className="space-y-2">
               <label className="text-sm font-semibold">Kirim Ke (Target Stage)</label>
               <Select value={targetStage} onValueChange={setTargetStage}>
@@ -479,11 +517,21 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold">Catatan Operasional {action === 'REJECT' || (action === 'QC_CHECK' && qcStatus === 'FAILED') ? <span className="text-red-500">*</span> : ''}</label>
+            <label className="text-sm font-semibold">
+              {order.currentStage === 'DELIVERY' ? 'Nama Penerima / Catatan Kurir' : 
+               order.currentStage === 'PRODUCTION' ? 'Catatan Produksi' :
+               order.currentStage === 'PACKING' ? 'Catatan Kondisi Packing' :
+               'Catatan Operasional'} 
+              {action === 'REJECT' || (action === 'QC_CHECK' && qcStatus === 'FAILED') ? <span className="text-red-500 ml-1">*</span> : <span className="text-slate-400 font-normal ml-1">(Opsional)</span>}
+            </label>
             <Textarea 
               value={notes} 
               onChange={e => setNotes(e.target.value)} 
-              placeholder={action === 'QC_CHECK' && qcStatus === 'FAILED' ? "Deskripsikan detail cacat produk / alasan NCR..." : "Opsional: Tambahkan catatan operasional..."}
+              placeholder={
+                action === 'QC_CHECK' && qcStatus === 'FAILED' ? "Deskripsikan detail cacat produk / alasan NCR..." : 
+                order.currentStage === 'DELIVERY' ? "Opsional: Nama penerima pesanan atau info pengiriman..." :
+                "Opsional: Tambahkan catatan..."
+              }
               rows={3}
             />
           </div>
