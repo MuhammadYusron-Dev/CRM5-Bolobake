@@ -6,8 +6,8 @@ type CacheItem<T> = {
 
 const cache = new Map<string, CacheItem<any>>();
 
-// Cache duration in milliseconds (e.g., 30 seconds = 30000)
-const DEFAULT_TTL = 30000;
+// Cache duration in milliseconds (e.g., 2 seconds = 2000)
+const DEFAULT_TTL = 2000;
 
 /**
  * Get data from cache if it exists and is fresh.
