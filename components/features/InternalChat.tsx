@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Paperclip, Reply, Smile, Download } from 'lucide-react';
+import { MessageCircle, X, Send, Paperclip, Reply, Smile, Download, StickyNote } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -54,6 +54,9 @@ export function InternalChat() {
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
+  const [privateNote, setPrivateNote] = useState('');
+  const [activeTab, setActiveTab] = useState<'chat' | 'note'>('chat');
+
   const loadMessages = () => {
     const saved = localStorage.getItem('bolobake_internal_chat');
     if (saved) {
@@ -61,6 +64,10 @@ export function InternalChat() {
         const parsed = JSON.parse(saved);
         setMessages(parsed);
       } catch (e) {}
+    }
+    const savedNote = localStorage.getItem('bolobake_private_note');
+    if (savedNote) {
+      setPrivateNote(savedNote);
     }
   };
 
@@ -71,6 +78,9 @@ export function InternalChat() {
       if (e.key === 'bolobake_internal_chat') {
         loadMessages();
         if (!isOpen) setHasUnread(true);
+      }
+      if (e.key === 'bolobake_private_note') {
+        loadMessages();
       }
     };
     
@@ -259,27 +269,38 @@ export function InternalChat() {
               </div>
           )}
           
-          <div className="bg-primary text-primary-foreground p-4 flex flex-col gap-2 shrink-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-5 h-5" />
-                <h3 className="font-bold">Diskusi Lintas Divisi</h3>
-              </div>
+          <div className="bg-primary text-primary-foreground p-4 flex flex-col gap-3 shrink-0">
+            <div className="flex bg-primary-foreground/10 p-1 rounded-lg">
+               <button 
+                 onClick={() => setActiveTab('chat')} 
+                 className={`flex-1 py-1.5 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'chat' ? 'bg-white text-primary shadow-sm' : 'text-primary-foreground hover:bg-white/10'}`}
+               >
+                  <MessageCircle className="w-4 h-4" /> Diskusi
+               </button>
+               <button 
+                 onClick={() => setActiveTab('note')} 
+                 className={`flex-1 py-1.5 text-sm font-bold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'note' ? 'bg-white text-primary shadow-sm' : 'text-primary-foreground hover:bg-white/10'}`}
+               >
+                  <StickyNote className="w-4 h-4" /> Catatan Pribadi
+               </button>
             </div>
             
-            <div className="flex items-center gap-2 text-xs bg-primary-foreground/10 p-1.5 rounded-lg border border-primary-foreground/20">
-              <span className="opacity-80">Kirim sebagai:</span>
-              <select 
-                value={myDivision} 
-                onChange={(e) => setMyDivision(e.target.value)}
-                className="bg-transparent font-bold focus:outline-none flex-1 cursor-pointer"
-              >
-                {DIVISIONS.map(d => <option key={d} value={d} className="text-black dark:text-white">{d}</option>)}
-              </select>
-            </div>
+            {activeTab === 'chat' && (
+              <div className="flex items-center gap-2 text-xs bg-primary-foreground/10 p-1.5 rounded-lg border border-primary-foreground/20">
+                <span className="opacity-80">Kirim sebagai:</span>
+                <select 
+                  value={myDivision} 
+                  onChange={(e) => setMyDivision(e.target.value)}
+                  className="bg-transparent font-bold focus:outline-none flex-1 cursor-pointer"
+                >
+                  {DIVISIONS.map(d => <option key={d} value={d} className="text-black dark:text-white">{d}</option>)}
+                </select>
+              </div>
+            )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50 relative" ref={scrollRef}>
+          {activeTab === 'chat' ? (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50 relative" ref={scrollRef}>
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center space-y-2">
                 <MessageCircle className="w-8 h-8 opacity-20" />
@@ -395,6 +416,19 @@ export function InternalChat() {
               })
             )}
           </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/50 flex flex-col relative">
+              <textarea
+                value={privateNote}
+                onChange={(e) => {
+                  setPrivateNote(e.target.value);
+                  localStorage.setItem('bolobake_private_note', e.target.value);
+                }}
+                placeholder="Tulis atau paste catatan pelanggan di sini. Catatan ini hanya terlihat oleh Anda dan tersimpan secara lokal."
+                className="flex-1 w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              />
+            </div>
+          )}
 
           {/* Reply Preview */}
           {replyingTo && (
@@ -419,41 +453,43 @@ export function InternalChat() {
               </div>
           )}
 
-          {/* Input Area */}
-          <div className="p-3 bg-white dark:bg-slate-950 border-t shrink-0">
-            <form onSubmit={handleSend} className="flex items-end gap-2">
-              <input 
-                type="file" 
-                accept="image/*" 
-                hidden 
-                ref={fileInputRef} 
-                onChange={handleFileChange}
-              />
-              <button 
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full shrink-0"
-              >
-                <Paperclip className="w-5 h-5" />
-              </button>
-              
-              <input 
-                type="text" 
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Ketik pesan..."
-                className="flex-1 bg-slate-100 dark:bg-slate-900 border-none rounded-2xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[36px]"
-              />
-              
-              <button 
-                type="submit"
-                disabled={!newMessage.trim() && !attachmentPreview && !replyingTo}
-                className="w-9 h-9 flex items-center justify-center bg-primary text-primary-foreground rounded-full disabled:opacity-50 hover:bg-primary/90 transition-colors shrink-0"
-              >
-                <Send className="w-4 h-4 ml-0.5" />
-              </button>
-            </form>
-          </div>
+          {/* Input Area (Only for Chat) */}
+          {activeTab === 'chat' && (
+            <div className="p-3 bg-white dark:bg-slate-950 border-t shrink-0">
+              <form onSubmit={handleSend} className="flex items-end gap-2">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  hidden 
+                  ref={fileInputRef} 
+                  onChange={handleFileChange}
+                />
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full shrink-0"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+                
+                <input 
+                  type="text" 
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Ketik pesan..."
+                  className="flex-1 bg-slate-100 dark:bg-slate-900 border-none rounded-2xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[36px]"
+                />
+                
+                <button 
+                  type="submit"
+                  disabled={!newMessage.trim() && !attachmentPreview && !replyingTo}
+                  className="w-9 h-9 flex items-center justify-center bg-primary text-primary-foreground rounded-full disabled:opacity-50 hover:bg-primary/90 transition-colors shrink-0"
+                >
+                  <Send className="w-4 h-4 ml-0.5" />
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       )}
 
