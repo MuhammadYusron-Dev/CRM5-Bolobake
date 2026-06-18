@@ -7,6 +7,7 @@ import { EventType, OrderStage, OrderState, LifecycleEvent, Role } from '@/lib/t
 import crypto from 'crypto';
 import { SLA_CONFIG } from '@/lib/config/sla';
 import { roleCache, eventLock, allowedTransitions } from '@/lib/lifecycle-hardening';
+import { invalidateCache } from '@/lib/cache';
 
 export async function POST(request: Request) {
   try {
@@ -298,6 +299,9 @@ export async function POST(request: Request) {
       beforeData: { status: currentStatusStr },
       afterData: { status: newStatusStr, eventId: newEvent.eventId }
     });
+
+    // STEP 6: Invalidate Server Cache
+    invalidateCache('orders_data');
 
     return NextResponse.json({ success: true, event: newEvent, newStatus: newStatusStr });
 
