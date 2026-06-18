@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, AlertTriangle, CheckCircle2, User, ArrowRight, Play, RefreshCcw, XCircle, FileText } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
-export function StatusBadge({ stage, state, health }: { stage?: OrderStage, state?: OrderState, health?: OrderHealth }) {
+export function StatusBadge({ stage, state, health, iconOnly }: { stage?: OrderStage, state?: OrderState, health?: OrderHealth, iconOnly?: boolean }) {
   if (!stage || !state) return <Badge variant="outline" className="bg-slate-100 text-slate-700">Legacy Mode</Badge>;
 
   let bgColor = 'bg-slate-100 text-slate-700';
@@ -16,19 +16,19 @@ export function StatusBadge({ stage, state, health }: { stage?: OrderStage, stat
 
   if (state === 'WAITING') {
     bgColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    icon = <Clock className="w-3 h-3 mr-1" />;
+    icon = <Clock className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
   } else if (state === 'ACCEPTED' || state === 'IN_PROGRESS') {
     bgColor = 'bg-blue-100 text-blue-800 border-blue-300';
-    icon = <Play className="w-3 h-3 mr-1" />;
+    icon = <Play className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
   } else if (state === 'REVIEW_REQUIRED' || state === 'REWORK_REQUIRED' || state === 'QC_FAILED') {
     bgColor = 'bg-red-100 text-red-800 border-red-300';
-    icon = <XCircle className="w-3 h-3 mr-1" />;
+    icon = <XCircle className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
   } else if (state === 'COMPLETED' || state === 'QC_PASSED') {
     bgColor = 'bg-green-100 text-green-800 border-green-300';
-    icon = <CheckCircle2 className="w-3 h-3 mr-1" />;
+    icon = <CheckCircle2 className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
   } else if (state === 'QC_PENDING') {
     bgColor = 'bg-cyan-100 text-cyan-800 border-cyan-300 animate-pulse';
-    icon = <FileText className="w-3 h-3 mr-1" />;
+    icon = <FileText className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
   }
 
   let healthIndicator = null;
@@ -40,11 +40,24 @@ export function StatusBadge({ stage, state, health }: { stage?: OrderStage, stat
     healthIndicator = <span className="ml-2 flex items-center text-red-600 font-bold animate-bounce"><AlertTriangle className="w-3 h-3 mr-0.5" /> OVERDUE</span>;
   }
 
+  const label = `${stage} ${state !== 'IN_PROGRESS' ? `- ${state}` : ''}`;
+
+  if (iconOnly) {
+    return (
+      <div className="flex items-center text-[10px] font-bold" title={label}>
+        <div className={`flex items-center justify-center w-5 h-5 rounded-full ${bgColor} border cursor-help shadow-sm`}>
+          {icon}
+        </div>
+        {healthIndicator}
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center text-[10px] font-bold">
       <Badge variant="outline" className={`flex items-center px-2 py-0.5 rounded-full uppercase tracking-wider ${bgColor}`}>
         {icon}
-        {stage} {state !== 'IN_PROGRESS' ? ` - ${state}` : ''}
+        {label}
       </Badge>
       {healthIndicator}
     </div>

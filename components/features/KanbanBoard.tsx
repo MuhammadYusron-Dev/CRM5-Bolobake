@@ -129,11 +129,19 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                             className="shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing"
                           >
                             <CardContent className="p-3 sm:p-4">
-                              <div className="flex justify-between items-start gap-2 mb-2">
-                                <h4 className="font-bold text-sm line-clamp-2">{order.customer}</h4>
-                                <div className="flex flex-col items-end gap-1">
-                                  <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} />
+                              <div className="flex flex-col gap-1.5 items-start mb-2">
+                                <div className="flex items-center gap-2 w-full">
+                                  <h4 className="font-bold text-sm line-clamp-2">{order.customer}</h4>
+                                  <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} iconOnly={true} />
                                 </div>
+                                {order.deliveryDate && (
+                                  <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                                    Tgl Kirim: {formatDate(order.deliveryDate)}
+                                  </span>
+                                )}
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color}`}>
+                                  {batch.label}
+                                </span>
                               </div>
                               
                               <div className="bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border">

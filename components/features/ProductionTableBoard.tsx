@@ -90,16 +90,20 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
                               <td className="px-4 py-3 align-top text-center text-slate-500 font-medium">{idx + 1}</td>
                               <td className="px-4 py-3 align-top">
                                 <div className="flex flex-col gap-1.5 items-start">
-                                  <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-normal line-clamp-2">{order.customer}</span>
-                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color} mb-1`}>
-                                    {batch.label}
-                                  </span>
-                                  <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} />
+                                  <div className="flex items-center gap-2 w-full">
+                                    <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-normal line-clamp-2">{order.customer}</span>
+                                    <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} iconOnly={true} />
+                                  </div>
+                                  
                                   {order.deliveryDate && (
-                                    <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 mt-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                                    <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                                       Tgl Kirim: {formatDate(order.deliveryDate)}
                                     </span>
                                   )}
+                                  
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color} mb-1`}>
+                                    {batch.label}
+                                  </span>
                                 </div>
                               </td>
                               <td className="px-4 py-3 align-top whitespace-normal text-xs text-slate-600 dark:text-slate-300">
