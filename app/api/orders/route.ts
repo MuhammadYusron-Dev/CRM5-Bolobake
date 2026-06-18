@@ -375,7 +375,7 @@ export async function POST(request: Request) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Laporan Transaksi Harian!A:V',
+      range: 'Laporan Transaksi Harian!A:A',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [rowData],
