@@ -115,8 +115,9 @@ export function OrderManager({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastOptions, setToastOptions] = useState<{show: boolean; message: string; isUndoable?: boolean; onUndo?: () => void}>({show: false, message: ''});
   
-  const [filterStartDate, setFilterStartDate] = useState('');
-  const [filterEndDate, setFilterEndDate] = useState('');
+  const todayYMD = new Date().toISOString().split('T')[0];
+  const [filterStartDate, setFilterStartDate] = useState(todayYMD);
+  const [filterEndDate, setFilterEndDate] = useState(todayYMD);
 
   const undoTimeoutsRef = useRef<Record<number, NodeJS.Timeout>>({});
   const backupOrdersRef = useRef<Record<number, Order>>({});

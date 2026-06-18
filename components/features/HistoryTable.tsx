@@ -5,7 +5,7 @@ import { Order, OrderStatus } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { DateRangeFilter } from './DateRangeFilter';
+import { HorizontalDateFilter } from './HorizontalDateFilter';
 import { formatDate } from '@/lib/utils';
 import { StatusBadge, OrderTimeline, ActionControl } from './OrderLifecycleUI';
 
@@ -58,6 +58,34 @@ export function HistoryTable({
     const timer = setTimeout(() => setSearchHistoryQuery(searchHistoryInput), 300);
     return () => clearTimeout(timer);
   }, [searchHistoryInput]);
+
+  const orderDates = useMemo(() => {
+    const dates = new Set<string>();
+    orderHistory.forEach(order => {
+      let dStr = order.productionDate;
+      if (!dStr && order.timestamp) {
+         try {
+           const ts = new Date(order.timestamp);
+           if (!isNaN(ts.getTime())) dStr = ts.toISOString().split('T')[0];
+         } catch (e) {}
+      }
+      
+      if (dStr) {
+        // Normalize to YYYY-MM-DD
+        const match2 = String(dStr).match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (match2) {
+          dStr = `${match2[3]}-${match2[2].padStart(2, '0')}-${match2[1].padStart(2, '0')}`;
+        } else {
+          const match1 = String(dStr).match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+          if (match1) {
+            dStr = `${match1[1]}-${match1[2].padStart(2, '0')}-${match1[3].padStart(2, '0')}`;
+          }
+        }
+        dates.add(dStr);
+      }
+    });
+    return dates;
+  }, [orderHistory]);
 
   const filteredHistory = useMemo(() => {
     const parseDateToNumber = (dateStr: any) => {
@@ -153,17 +181,16 @@ export function HistoryTable({
           )}
         </div>
 
-        {/* Date Period Filter */}
-        <div className="relative z-50 flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <Filter className="w-4 h-4 text-primary" />
-            Periode
-          </div>
-          <DateRangeFilter 
-            filterStartDate={filterStartDate}
-            setFilterStartDate={setFilterStartDate}
-            filterEndDate={filterEndDate}
-            setFilterEndDate={setFilterEndDate}
+        {/* Horizontal Date Filter */}
+        <div className="relative z-50 mt-4 mb-6">
+          <HorizontalDateFilter 
+            startDate={filterStartDate}
+            endDate={filterEndDate}
+            onRangeChange={(start, end) => {
+              setFilterStartDate(start);
+              setFilterEndDate(end);
+            }}
+            orderDates={orderDates}
           />
         </div>
 
