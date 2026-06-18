@@ -13,11 +13,6 @@ export default function InventoryPage() {
   const [addStockModal, setAddStockModal] = useState({ isOpen: false, sku: '', addedStock: 0 });
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchInventory();
-    fetchMovements();
-  }, []);
-
   const fetchInventory = async () => {
     try {
       const res = await fetch('/api/inventory');
@@ -43,6 +38,11 @@ export default function InventoryPage() {
       console.error('Error fetching movements:', error);
     }
   };
+
+  useEffect(() => {
+    fetchInventory();
+    fetchMovements();
+  }, []);
 
   const handleAddStock = async () => {
     if (!addStockModal.sku || addStockModal.addedStock <= 0) return;
@@ -302,7 +302,7 @@ export default function InventoryPage() {
                       Qty: <span className="font-bold">{mov.quantity}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">Ref: {mov.refType} ({mov.refId})</div>
-                    {mov.notes && <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 italic">"{mov.notes}"</div>}
+                    {mov.notes && <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 italic">&quot;{mov.notes}&quot;</div>}
                   </div>
                 ))
               )}

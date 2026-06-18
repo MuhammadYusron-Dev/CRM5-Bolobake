@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Search } from 'lucide-react';
+import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Search, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface DashboardData {

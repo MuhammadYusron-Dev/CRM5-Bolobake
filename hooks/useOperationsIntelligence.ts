@@ -116,7 +116,7 @@ export function useOperationsIntelligence(orders: Order[]): IntelligenceData {
     // Formatting NCR Insight
     const ncrInsight = {
       recurringIssues: Object.entries(ncrIssues).map(([issue, count]) => ({ issue, count })).sort((a, b) => b.count - a.count),
-      severityTrend: 'STABLE' as 'STABLE', // Placeholder for complex logic
+      severityTrend: 'STABLE' as const, // Placeholder for complex logic
       affectedStages: Array.from(ncrStages)
     };
 
