@@ -15,7 +15,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [user, setUser] = useState<{username: string, avatarUrl: string, email?: string, fullName?: string} | null>(null);
+  const [user, setUser] = useState<{username: string, avatarUrl: string, email?: string, fullName?: string, role?: string} | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
@@ -90,6 +90,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
         { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
         { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
         { id: 'audit', label: 'Audit Logs', icon: ShieldAlert },
+        ...(user?.role === 'SUPER_ADMIN' ? [{ id: 'users', label: 'Manajemen Pengguna', icon: User }] : [])
       ]
     },
     {

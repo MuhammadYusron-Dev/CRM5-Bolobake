@@ -202,7 +202,7 @@ export async function updateAdmin(email: string, newPasswordHash?: string, newAv
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Admins!A2:E',
+      range: 'Admins!A2:F',
     });
     const rows = response.data.values;
     if (!rows) return false;
@@ -231,6 +231,44 @@ export async function updateAdmin(email: string, newPasswordHash?: string, newAv
     return true;
   } catch (error) {
     console.error('Error updating admin:', error);
+    return false;
+  }
+}
+
+export async function updateAdminRole(email: string, newRole: string) {
+  await ensureAdminsSheet();
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Admins!A2:F',
+    });
+    const rows = response.data.values;
+    if (!rows) return false;
+    
+    const rowIndex = rows.findIndex(row => row[0].toLowerCase() === email.toLowerCase());
+    if (rowIndex === -1) return false;
+
+    const row = rows[rowIndex];
+    const updatedRow = [
+      row[0],
+      row[1] || '',
+      row[2] || '',
+      row[3] || '',
+      row[4] || '',
+      newRole
+    ];
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Admins!A${rowIndex + 2}:F${rowIndex + 2}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [updatedRow]
+      }
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating admin role:', error);
     return false;
   }
 }

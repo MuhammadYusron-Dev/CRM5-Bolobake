@@ -26,7 +26,8 @@ export async function GET() {
         email: payload.email,
         firstName: payload.firstName,
         lastName: payload.lastName,
-        fullName: payload.firstName ? `${payload.firstName} ${payload.lastName || ''}`.trim() : null
+        fullName: payload.firstName ? `${payload.firstName} ${payload.lastName || ''}`.trim() : null,
+        role: payload.role
       } 
     });
   } catch (error) {

@@ -13,6 +13,7 @@ import { HistoryTable } from './HistoryTable';
 import { useOperationsIntelligence } from '@/hooks/useOperationsIntelligence';
 import { OperationsControlTower } from './OperationsControlTower';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { UserManager } from './UserManager';
 import { DateRangeFilter } from './DateRangeFilter';
 import { SalesTutorial } from './SalesTutorial';
 import { CatalogManager } from './CatalogManager';
@@ -576,6 +577,8 @@ export function OrderManager({
         return <SampleTracker initialOrders={orderHistory} initialCatalog={katalog} />;
       case 'sales':
         return <SalesCRM initialOrders={orderHistory} />;
+      case 'users':
+        return <UserManager />;
       case 'new_order':
       default:
         return (
