@@ -347,7 +347,7 @@ function ActionModal({ isOpen, action, order, onClose, onSuccess }: { isOpen: bo
         <DialogHeader>
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto px-1">
           <div className="text-sm">
             <span className="font-semibold block">Pelanggan:</span> {order.customer}
           </div>
