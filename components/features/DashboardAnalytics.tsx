@@ -168,23 +168,16 @@ export function DashboardAnalytics({
               const cakePct = total > 0 ? (cake / total) * 100 : 40;
 
               return (
-                <div className="w-full bg-white/20 rounded-full h-1.5 mt-2 flex relative items-center">
-                   <div className="bg-white h-1.5 rounded-l-full transition-all duration-1000" style={{ width: `${croissantPct}%` }}></div>
-                   <div className="bg-white/40 h-1.5 rounded-r-full transition-all duration-1000" style={{ width: `${cakePct}%` }}></div>
+                <div className="w-full bg-white/10 rounded-full h-2 mt-3 flex relative items-center shadow-inner">
+                   {/* Background Glow Effect */}
+                   <div className="absolute top-1/2 -translate-y-1/2 left-0 h-4 bg-white/40 blur-[8px] rounded-full transition-all duration-1000" style={{ width: `${croissantPct}%` }}></div>
+
+                   {/* Main Filled Bar */}
+                   <div className="bg-gradient-to-r from-white/60 via-white/90 to-white h-2 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10" style={{ width: `${croissantPct}%` }}></div>
                    
-                   {/* Efek Sumbu Bom (Spark) */}
+                   {/* Neon Glowing Thumb / Indicator */}
                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 transition-all duration-1000" style={{ left: `${croissantPct}%` }}>
-                     <div className="relative flex items-center justify-center">
-                       {/* Core Spark */}
-                       <div className="w-2 h-2 bg-yellow-200 rounded-full shadow-[0_0_8px_3px_rgba(253,224,71,0.9)] animate-pulse"></div>
-                       <div className="w-1 h-1 bg-white rounded-full absolute"></div>
-                       
-                       {/* Flying Particles */}
-                       <div className="absolute top-0 left-1/2 w-1 h-1 bg-amber-400 rounded-full animate-fuse-1"></div>
-                       <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-orange-400 rounded-full animate-fuse-2"></div>
-                       <div className="absolute top-0 left-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-fuse-3"></div>
-                       <div className="absolute top-0 left-1/2 w-0.5 h-0.5 bg-white rounded-full animate-fuse-4"></div>
-                     </div>
+                     <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_15px_6px_rgba(255,255,255,0.9),0_0_30px_10px_rgba(255,230,150,0.6)] animate-pulse"></div>
                    </div>
                 </div>
               );
