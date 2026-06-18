@@ -661,7 +661,7 @@ export function OrderManager({
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <h1 className={`font-medium transition-colors duration-1000 ${headerTextColor}`} style={{ fontSize: 'var(--text-xl)' }}>
                 {activeMenu === 'dashboard' ? 'Dashboard' : 
                  activeMenu === 'history' ? 'Riwayat Pesanan' : 

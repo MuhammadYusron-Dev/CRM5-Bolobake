@@ -78,10 +78,6 @@
   box-sizing: border-box;
 }
 
-/* Prevent flex/grid children from overflowing */
-.flex > *, .grid > *, [class*="flex"] > *, [class*="grid"] > * {
-  min-width: 0;
-}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
