@@ -1,27 +1,35 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: light-dark(#FAF8F5, #000000);
-  --color-foreground: light-dark(#2C1810, #f8fafc);
-  --color-card: light-dark(#FFFFFF, #1e293b);
-  --color-card-foreground: light-dark(#2C1810, #f8fafc);
-  --color-popover: light-dark(#FFFFFF, #1e293b);
-  --color-popover-foreground: light-dark(#2C1810, #f8fafc);
-  --color-primary: #2563eb;
+  --color-background: light-dark(#FAF8F5, #030923);
+  --color-foreground: light-dark(#2C1810, #ffffff);
+  --color-card: light-dark(#FFFFFF, #041A53);
+  --color-card-foreground: light-dark(#2C1810, #ffffff);
+  --color-popover: light-dark(#FFFFFF, #041A53);
+  --color-popover-foreground: light-dark(#2C1810, #ffffff);
+  --color-primary: light-dark(#2563eb, #0059FF);
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: light-dark(#F3F4F6, #334155);
-  --color-secondary-foreground: light-dark(#111827, #f8fafc);
-  --color-muted: light-dark(#F3F4F6, #1e293b);
-  --color-muted-foreground: light-dark(#6B7280, #94a3b8);
-  --color-accent: #2563eb;
+  --color-secondary: light-dark(#F3F4F6, #0b2158);
+  --color-secondary-foreground: light-dark(#111827, #ffffff);
+  --color-muted: light-dark(#F3F4F6, #0b2158);
+  --color-muted-foreground: light-dark(#6B7280, #889cbd);
+  --color-accent: light-dark(#2563eb, #0059FF);
   --color-accent-foreground: #FFFFFF;
   --color-destructive: #ef4444;
-  --color-destructive-foreground: light-dark(#FFFFFF, #f8fafc);
-  --color-border: light-dark(#E5E7EB, #334155);
-  --color-input: light-dark(#E5E7EB, #334155);
-  --color-ring: #2563eb;
+  --color-destructive-foreground: light-dark(#FFFFFF, #ffffff);
+  --color-border: light-dark(#E5E7EB, #1e3a8a);
+  --color-input: light-dark(#E5E7EB, #1e3a8a);
+  --color-ring: light-dark(#2563eb, #0059FF);
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-serif: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
+  
+  --animate-blob: blob 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
 }
 
 @layer base {
@@ -96,6 +104,15 @@ body {
 /* ============================
    ENTERPRISE COMPONENT CLASSES
    ============================ */
+
+@layer components {
+  .glass-panel {
+    @apply dark:!bg-none dark:bg-[var(--color-card)]/40 dark:backdrop-blur-2xl dark:border dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+  }
+  .neon-glow {
+    @apply dark:shadow-[0_0_15px_rgba(0,89,255,0.4)];
+  }
+}
 
 /* Card System */
 .enterprise-card {

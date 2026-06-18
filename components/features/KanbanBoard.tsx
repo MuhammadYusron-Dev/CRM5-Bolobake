@@ -91,7 +91,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
             const colOrders = orders.filter(col.filterFn).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
             
             return (
-              <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:bg-slate-900/50 rounded-2xl border shadow-sm" style={{ minWidth: 'clamp(260px, 22vw, 320px)' }}>
+              <div key={col.id} className="w-[85vw] max-w-[280px] sm:w-auto sm:flex-1 shrink-0 snap-start sm:snap-align-none flex flex-col h-full bg-slate-100 dark:glass-panel rounded-2xl border shadow-sm" style={{ minWidth: 'clamp(260px, 22vw, 320px)' }}>
                 {/* Column Header */}
                 <div className={`p-4 rounded-t-2xl border-b flex flex-col gap-1.5 ${col.colorClass}`}>
                   <div className="flex items-center justify-between">
@@ -126,7 +126,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                                 e.dataTransfer.setData('application/bolobake-order', JSON.stringify(order));
                                 e.dataTransfer.effectAllowed = 'copy';
                             }}
-                            className="shadow-sm transition-all hover:shadow-md cursor-grab active:cursor-grabbing"
+                            className="shadow-sm transition-all hover:shadow-md dark:glass-panel cursor-grab active:cursor-grabbing hover:border-primary/50 dark:hover:shadow-[0_0_15px_rgba(0,89,255,0.4)]"
                           >
                             <CardContent className="p-3 sm:p-4">
                               <div className="flex flex-col gap-1.5 items-start mb-2">
@@ -144,7 +144,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                                 </span>
                               </div>
                               
-                              <div className="bg-slate-50 dark:bg-slate-900/50 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border">
+                              <div className="bg-slate-50 dark:bg-black/20 p-2 sm:p-2.5 rounded-lg text-xs space-y-1 mb-3 border dark:border-white/5">
                                 {(order.items || []).map((item: any, idx: number) => (
                                   <div key={idx} className="flex justify-between gap-2">
                                     <span className="font-medium text-slate-700 dark:text-slate-300 leading-tight">

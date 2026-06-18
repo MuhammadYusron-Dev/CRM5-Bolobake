@@ -83,8 +83,8 @@ export function DashboardAnalytics({
 
   return (
     <div className="space-y-6 animate-in fade-in">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-600 to-cyan-500 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-blue-600 to-blue-400 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(0,89,255,0.6)]">
           <div className="absolute -right-4 -top-4 opacity-15 group-hover:scale-110 transition-transform duration-500">
             <TrendingUp className="w-24 h-24" />
           </div>
@@ -118,7 +118,7 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+        <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-500 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(139,92,246,0.6)]">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
             <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
                <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
@@ -145,7 +145,7 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+        <Card className="bg-gradient-to-br from-orange-500 to-red-500 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(249,115,22,0.6)]">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
             <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
                <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
@@ -185,7 +185,7 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-400 text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+        <Card className="bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-400 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(34,211,238,0.6)]">
           <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
             <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-15 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
                <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
@@ -206,7 +206,7 @@ export function DashboardAnalytics({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Variant Performance */}
-        <Card className="shadow-sm border-border/50">
+        <Card className="shadow-sm border-border/50 dark:glass-panel dark:border-white/10 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <span className="w-1.5 h-6 bg-gradient-to-b from-blue-600 to-cyan-500 rounded-full"></span>
@@ -247,7 +247,7 @@ export function DashboardAnalytics({
         </Card>
 
         {/* Bottlenecks Panel */}
-        <Card className="shadow-sm border-border/50 lg:col-span-2">
+        <Card className="shadow-sm border-border/50 lg:col-span-2 dark:glass-panel dark:border-white/10 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
           <CardHeader className="pb-3 border-b border-border/50">
             <CardTitle className="text-lg flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" />

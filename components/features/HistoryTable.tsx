@@ -259,7 +259,7 @@ export function HistoryTable({
         const renderOrderCard = (order: Order) => {
             const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
             return (
-              <Card key={order.id} className={`transition-all duration-300 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-primary bg-primary/5 shadow-md ring-2 ring-primary/40 scale-[1.01] z-10 relative' : 'hover:border-primary/50 hover:shadow-md'}`}>
+              <Card key={order.id} className={`transition-all duration-300 dark:glass-panel ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 dark:bg-blue-900/50 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-primary bg-primary/5 dark:bg-primary/20 shadow-md ring-2 ring-primary/40 scale-[1.01] z-10 relative' : 'hover:border-primary/50 hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(0,89,255,0.4)]'}`}>
                 <CardContent className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div>

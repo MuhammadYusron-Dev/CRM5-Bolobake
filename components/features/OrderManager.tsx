@@ -630,6 +630,13 @@ export function OrderManager({
 
   return (
     <div className="grid grid-cols-[auto_1fr] h-[100dvh] bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
+      
+      {/* Dark Mode Ambient Blobs */}
+      <div className="hidden dark:block fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-[#0059FF]/20 blur-[120px] animate-blob mix-blend-screen"></div>
+        <div className="absolute top-[20%] right-[-10%] w-[35vw] h-[35vw] rounded-full bg-[#8b5cf6]/20 blur-[100px] animate-blob animation-delay-2000 mix-blend-screen"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#0ea5e9]/15 blur-[150px] animate-blob animation-delay-4000 mix-blend-screen"></div>
+      </div>
       <Sidebar 
         activeMenu={activeMenu} 
         setActiveMenu={setActiveMenu} 

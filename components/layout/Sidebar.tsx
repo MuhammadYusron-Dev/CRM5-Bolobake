@@ -126,7 +126,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       )}
 
       <aside 
-        className={`fixed md:static inset-y-0 left-0 z-50 bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 text-white flex flex-col h-full min-h-0 transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
+        className={`fixed md:static inset-y-0 left-0 z-50 bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 dark:bg-none dark:bg-card/40 dark:backdrop-blur-xl dark:border-r dark:border-white/10 text-white flex flex-col h-full min-h-0 transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{ width: isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
@@ -160,13 +160,13 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                     key={item.id}
                     onClick={() => handleMenuClick(item)}
                     title={isCollapsed ? item.label : undefined}
-                    className={`flex items-center py-2.5 transition-all duration-300 group ${
+                    className={`flex items-center py-2.5 transition-all duration-300 group relative ${
                       isActive 
-                        ? 'bg-white/20 text-white font-bold border-l-4 border-white border-r-4 border-r-transparent' 
-                        : 'text-white/80 hover:bg-white/10 hover:text-white border-l-4 border-transparent border-r-4 border-r-transparent'
+                        ? 'bg-white/20 dark:bg-primary/20 text-white font-bold border-l-4 border-white dark:border-primary border-r-4 border-r-transparent dark:shadow-[inset_20px_0_40px_-20px_rgba(0,89,255,0.5)]' 
+                        : 'text-white/80 hover:bg-white/10 dark:hover:bg-white/5 hover:text-white border-l-4 border-transparent border-r-4 border-r-transparent'
                     } ${isCollapsed ? 'justify-center px-0' : 'px-5'}`}
                   >
-                    <Icon className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${isActive ? 'text-white' : 'group-hover:scale-110'}`} />
+                    <Icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isActive ? 'text-white dark:text-primary dark:drop-shadow-[0_0_8px_rgba(0,89,255,0.8)]' : 'group-hover:scale-110'}`} />
                     <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[200px] opacity-100 ml-3'}`} style={{ fontSize: 'var(--text-sm)' }}>
                       {item.label}
                     </span>

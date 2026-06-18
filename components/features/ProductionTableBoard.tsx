@@ -86,7 +86,7 @@ export function ProductionTableBoard({ initialOrders, currentUser }: { initialOr
                           const cakeItems = order.items.filter(item => isCakeOrOther(item.sku));
 
                           return (
-                            <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-primary/10 dark:hover:shadow-[inset_0_0_20px_rgba(0,89,255,0.15)] transition-all duration-300">
                               <td className="px-4 py-3 align-top text-center text-slate-500 font-medium">{idx + 1}</td>
                               <td className="px-4 py-3 align-top">
                                 <div className="flex flex-col gap-1.5 items-start">
