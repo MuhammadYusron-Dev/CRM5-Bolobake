@@ -39,9 +39,14 @@ interface KanbanBoardProps {
   icon?: 'produksi' | 'packing';
   showOverview?: boolean;
   extraHeaderAction?: React.ReactNode;
+  currentUser?: { userId: string; name: string; role: string } | null;
 }
 
-export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOverview, extraHeaderAction }: KanbanBoardProps) {
+export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOverview, extraHeaderAction, currentUser }: KanbanBoardProps) {
+  const canEditStatus = 
+    currentUser?.role === 'SUPER_ADMIN' || 
+    (icon === 'produksi' && currentUser?.role === 'PRODUCTION') || 
+    (icon === 'packing' && (currentUser?.role === 'PACKING' || currentUser?.role === 'DELIVERY'));
   const { data: orders = initialOrders, mutate, isLoading } = useSWR('/api/orders', fetcher, { 
     fallbackData: initialOrders,
     refreshInterval: 15000 // Poll every 15 seconds automatically
@@ -224,7 +229,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                                             variant="secondary"
                                             className="w-full h-7 text-[11px] font-bold mt-1 bg-white hover:bg-slate-100 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700"
                                             onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
-                                            disabled={isUpdating === order.id}
+                                            disabled={!canEditStatus || isUpdating === order.id}
                                           >
                                             {col.actionLabel}
                                           </Button>
@@ -302,7 +307,7 @@ export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOv
                                   size="sm" 
                                   className="w-full h-8 text-xs font-bold"
                                   onClick={() => handleUpdateStatus(order.id, col.nextStatus!)}
-                                  disabled={isUpdating === order.id}
+                                  disabled={!canEditStatus || isUpdating === order.id}
                                 >
                                   {col.actionLabel}
                                 </Button>

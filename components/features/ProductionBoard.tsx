@@ -10,7 +10,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { Order } from '@/lib/types';
 
-export function ProductionBoard({ initialOrders }: { initialOrders: Order[] }) {
+export function ProductionBoard({ initialOrders, currentUser }: { initialOrders: Order[], currentUser?: { userId: string; name: string; role: string } | null }) {
   const { data: orders = initialOrders } = useSWR<Order[]>('/api/orders', fetcher, { 
     fallbackData: initialOrders,
     refreshInterval: 15000 
@@ -50,7 +50,7 @@ export function ProductionBoard({ initialOrders }: { initialOrders: Order[] }) {
         </div>
       ) : (
         <div className="flex-1 overflow-hidden flex flex-col">
-          <ProductionTableBoard initialOrders={orders} />
+          <ProductionTableBoard initialOrders={orders} currentUser={currentUser} />
         </div>
       )}
       

@@ -25,7 +25,8 @@ function isCakeOrOther(sku: string) {
 
 const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
-export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[] }) {
+export function ProductionTableBoard({ initialOrders, currentUser }: { initialOrders: Order[], currentUser?: { userId: string; name: string; role: string } | null }) {
+  const canEditStatus = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'PRODUCTION';
   const { data: orders = initialOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { 
     fallbackData: initialOrders,
     refreshInterval: 15000 
@@ -210,7 +211,7 @@ export function ProductionTableBoard({ initialOrders }: { initialOrders: Order[]
                                 <select 
                                   value={order.status || 'Pesanan Dibuat'}
                                   onChange={(e) => handleUpdateStatus(order.id, e.target.value as OrderStatus)}
-                                  disabled={isUpdating === order.id}
+                                  disabled={!canEditStatus || isUpdating === order.id}
                                   className={`w-full text-xs font-bold rounded-md border-slate-300 dark:border-slate-700 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 disabled:opacity-50 p-2
                                     ${order.status === 'Pesanan Dibuat' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300' : ''}
                                     ${order.status === 'Dikonfirmasi' ? 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300' : ''}

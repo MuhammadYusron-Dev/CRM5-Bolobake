@@ -4,7 +4,7 @@ import React from 'react';
 import { KanbanBoard, ColumnDef } from '@/components/features/KanbanBoard';
 import { PackingTutorial } from '@/components/features/PackingTutorial';
 
-export function PackingBoard({ initialOrders }: { initialOrders: any[] }) {
+export function PackingBoard({ initialOrders, currentUser }: { initialOrders: any[], currentUser?: { userId: string; name: string; role: string } | null }) {
   const columns: ColumnDef[] = [
     {
       id: 'packing',
@@ -38,6 +38,7 @@ export function PackingBoard({ initialOrders }: { initialOrders: any[] }) {
         divisionName="Packing & Delivery"
         icon="packing"
         extraHeaderAction={<PackingTutorial />}
+        currentUser={currentUser}
       />
     </div>
   );

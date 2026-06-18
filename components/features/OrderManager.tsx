@@ -570,9 +570,9 @@ export function OrderManager({
       case 'catalog':
         return <CatalogManager />;
       case 'produksi':
-        return <ProductionBoard initialOrders={orderHistory} />;
+        return <ProductionBoard initialOrders={orderHistory} currentUser={currentUser} />;
       case 'packing':
-        return <PackingBoard initialOrders={orderHistory} />;
+        return <PackingBoard initialOrders={orderHistory} currentUser={currentUser} />;
       case 'samples':
         return <SampleTracker initialOrders={orderHistory} initialCatalog={katalog} />;
       case 'sales':
