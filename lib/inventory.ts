@@ -125,7 +125,7 @@ export async function adjustStock(
         range: 'Inventory!A:E',
       });
       const rows = response.data.values || [];
-      const rowIndex = rows.findIndex(row => row[0] === sku);
+      const rowIndex = rows.findIndex(row => String(row[0]).toLowerCase().trim() === String(sku).toLowerCase().trim());
 
       let totalStock = 0;
       let reservedStock = 0;
@@ -152,12 +152,13 @@ export async function adjustStock(
           }
         });
       } else {
+        const existingSku = rows[rowIndex][0] || sku;
         await sheets.spreadsheets.values.update({
           spreadsheetId: SPREADSHEET_ID,
           range: `Inventory!A${rowIndex + 1}:E${rowIndex + 1}`,
           valueInputOption: 'USER_ENTERED',
           requestBody: {
-            values: [[sku, totalStock, reservedStock, `=INDIRECT("B"&ROW())-INDIRECT("C"&ROW())`, minStock]]
+            values: [[existingSku, totalStock, reservedStock, `=INDIRECT("B"&ROW())-INDIRECT("C"&ROW())`, minStock]]
           }
         });
       }
