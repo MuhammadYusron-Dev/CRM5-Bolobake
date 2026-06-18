@@ -141,36 +141,88 @@ export default function AuditLogsPage() {
                     <tr>
                       <th className="px-6 py-4 w-48">Waktu</th>
                       <th className="px-6 py-4 w-40">User</th>
-                      <th className="px-6 py-4 w-64">Aksi</th>
-                      <th className="px-6 py-4">Detail</th>
+                      <th className="px-6 py-4">Aktivitas & Detail</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                    {filteredLogs.map((log, idx) => (
-                      <tr key={log.log_id || idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors group">
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400 font-medium align-top">
-                          {log.timestamp}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap align-top">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300 text-xs shrink-0">
-                              {(log.user_name || log.user_id || 'A')[0].toUpperCase()}
+                    {filteredLogs.map((log, idx) => {
+                      // Fix misalignment for old logs
+                      let rawAction = log.action_type;
+                      let rawDetails = log.details;
+                      if (rawAction.startsWith('{') || rawAction.startsWith('[')) {
+                        rawDetails = rawAction;
+                        rawAction = '-';
+                      }
+
+                      let actionTitle = rawAction || 'Aktivitas Sistem';
+                      let detailText = rawDetails;
+                      let isJson = false;
+
+                      try {
+                        const parsed = JSON.parse(rawDetails);
+                        isJson = true;
+
+                        // Order Created / Edited
+                        if (parsed.customer && parsed.items) {
+                          const orderAction = rawAction === 'EDIT_ORDER' ? 'Mengedit Pesanan' : 'Membuat Pesanan Baru';
+                          const totalPcs = parsed.totalPcs || parsed.items.reduce((acc: number, i: any) => acc + (Number(i.qty) || 0), 0);
+                          const itemsList = parsed.items.map((i: any) => `${i.qty}x ${i.sku}`).join(', ');
+                          
+                          actionTitle = `${orderAction} untuk ${parsed.customer}`;
+                          detailText = `${totalPcs} Pcs - ${itemsList}`;
+                          if (parsed.grandTotal) {
+                             detailText += ` (Total: Rp ${parsed.grandTotal.toLocaleString('id-ID')})`;
+                          }
+                        } 
+                        // Inventory Adjustment
+                        else if (parsed.sku && parsed.addedStock !== undefined) {
+                          actionTitle = 'Penyesuaian Stok Manual';
+                          const sign = parsed.addedStock >= 0 ? '+' : '';
+                          detailText = `Menambahkan ${sign}${parsed.addedStock} stok untuk SKU: ${parsed.sku}`;
+                        }
+                        // Order Status Update
+                        else if (parsed.orderId && parsed.status) {
+                          actionTitle = 'Update Status Pesanan';
+                          detailText = `Order ID ${parsed.orderId} diubah menjadi ${parsed.status}`;
+                        }
+                      } catch (e) {
+                        // Not JSON, keep raw
+                      }
+
+                      // If title is just uppercase system text, make it prettier
+                      if (actionTitle === 'CREATE_ORDER') actionTitle = 'Membuat Pesanan Baru';
+                      if (actionTitle === 'EDIT_ORDER') actionTitle = 'Mengedit Pesanan';
+
+                      return (
+                        <tr key={log.log_id || idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors group">
+                          <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400 font-medium align-top">
+                            {log.timestamp}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap align-top">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300 text-xs shrink-0">
+                                {(log.user_name || log.user_id || 'A')[0].toUpperCase()}
+                              </div>
+                              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                {log.user_name || log.user_id || 'Admin'}
+                              </span>
                             </div>
-                            <span className="font-semibold text-slate-800 dark:text-slate-200">
-                              {log.user_name || log.user_id || 'Admin'}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 align-top">
-                          <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {log.action_type || '-'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 align-top w-full max-w-xl">
-                          {formatJsonDetails(log.details)}
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-6 py-4 align-top">
+                            <div className="flex flex-col gap-1">
+                               <span className="font-bold text-slate-800 dark:text-slate-200">
+                                 {actionTitle}
+                               </span>
+                               {detailText && detailText !== '-' && (
+                                 <span className="text-sm text-slate-600 dark:text-slate-400">
+                                   {detailText}
+                                 </span>
+                               )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}
