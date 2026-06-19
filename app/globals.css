@@ -110,7 +110,7 @@ body {
 
 @layer components {
   .glass-panel {
-    @apply bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-transparent transition-all duration-300;
+    @apply bg-white/40 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-white/60 transition-all duration-300 rounded-[24px];
   }
   .glass-panel-warning {
     @apply bg-orange-50/50 rounded-[20px] shadow-[0_8px_30px_rgb(249,115,22,0.05)] border border-orange-100/50 transition-all duration-300;
