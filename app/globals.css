@@ -101,13 +101,38 @@ body {
   overflow-x: hidden;
 }
 
+/* Deep Space Starry Background for Dark Mode */
+.dark body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -2;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 130px 80px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 160px 120px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 /* ============================
    ENTERPRISE COMPONENT CLASSES
    ============================ */
 
 @layer components {
   .glass-panel {
-    @apply dark:!bg-none dark:bg-[var(--color-card)]/40 dark:backdrop-blur-2xl dark:border dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+    @apply dark:!bg-none dark:bg-[var(--color-card)]/10 dark:backdrop-blur-2xl dark:border dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+  }
+  .glass-panel-warning {
+    @apply dark:!bg-none dark:bg-orange-500/10 dark:backdrop-blur-xl dark:border dark:border-orange-500/20 dark:shadow-[inset_0_0_20px_rgba(249,115,22,0.1)];
+  }
+  .glass-panel-danger {
+    @apply dark:!bg-none dark:bg-red-500/10 dark:backdrop-blur-xl dark:border dark:border-red-500/20 dark:shadow-[inset_0_0_20px_rgba(239,68,68,0.1)];
   }
   .neon-glow {
     @apply dark:shadow-[0_0_15px_rgba(0,89,255,0.4)];

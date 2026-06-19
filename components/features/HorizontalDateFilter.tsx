@@ -147,18 +147,18 @@ export function HorizontalDateFilter({
   const todayYMD = formatYMD(today.getFullYear(), today.getMonth(), today.getDate());
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-muted/30 p-2 rounded-xl border border-border">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-muted/30 dark:glass-panel p-2 rounded-xl border border-border dark:border-white/10">
       
       {/* Month/Year Selector */}
-      <div className="flex items-center justify-between sm:justify-start gap-2 bg-background px-3 py-2 rounded-lg border border-border shadow-sm shrink-0">
-        <button onClick={prevMonth} className="p-1 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors">
+      <div className="flex items-center justify-between sm:justify-start gap-2 bg-background dark:bg-black/20 px-3 py-2 rounded-lg border border-border dark:border-white/5 shadow-sm shrink-0">
+        <button onClick={prevMonth} className="p-1 hover:bg-muted dark:hover:bg-white/10 rounded-md text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors">
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div className="flex flex-col items-center min-w-[100px]">
-          <span className="text-xs font-bold text-foreground">{monthNames[viewMonth]}</span>
-          <span className="text-[10px] text-muted-foreground">{viewYear}</span>
+          <span className="text-xs font-bold text-foreground dark:text-white">{monthNames[viewMonth]}</span>
+          <span className="text-[10px] text-muted-foreground dark:text-white/60">{viewYear}</span>
         </div>
-        <button onClick={nextMonth} className="p-1 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={nextMonth} className="p-1 hover:bg-muted dark:hover:bg-white/10 rounded-md text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -184,15 +184,15 @@ export function HorizontalDateFilter({
               onMouseUp={handleMouseUp}
               className={`
                 relative flex flex-col items-center justify-center min-w-[32px] h-[40px] rounded-md transition-all
-                ${isSelected ? 'bg-primary text-primary-foreground shadow-sm scale-105 z-10' : 'bg-background hover:bg-muted border border-border/50 text-foreground'}
-                ${isToday && !isSelected ? 'border-primary/50' : ''}
+                ${isSelected ? 'bg-primary text-primary-foreground shadow-sm scale-105 z-10 dark:shadow-[0_0_15px_rgba(0,89,255,0.6)]' : 'bg-background hover:bg-muted dark:bg-black/20 dark:hover:bg-primary/20 border border-border/50 dark:border-white/5 text-foreground'}
+                ${isToday && !isSelected ? 'border-primary/50 dark:border-primary/50 dark:shadow-[inset_0_0_10px_rgba(0,89,255,0.3)]' : ''}
               `}
             >
               <span className={`text-xs ${isSelected ? 'font-bold' : 'font-medium'}`}>{day}</span>
               
               {/* Dot Indicator for Orders */}
               {hasOrders && (
-                <div className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-primary-foreground' : 'bg-primary'}`} />
+                <div className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-primary-foreground dark:bg-white dark:shadow-[0_0_5px_rgba(255,255,255,0.8)]' : 'bg-primary dark:bg-primary dark:shadow-[0_0_8px_rgba(0,89,255,0.8)]'}`} />
               )}
             </div>
           );

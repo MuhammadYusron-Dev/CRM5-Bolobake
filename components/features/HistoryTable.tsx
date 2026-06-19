@@ -195,7 +195,7 @@ export function HistoryTable({
         </div>
 
         {/* Search Filter */}
-        <div className="flex items-center bg-background p-2 rounded-xl border border-border shadow-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+        <div className="flex items-center bg-background dark:bg-black/20 p-2 rounded-xl border border-border dark:border-white/10 shadow-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
           <div className="pl-3 pr-2 text-muted-foreground">
             <Search className="w-4 h-4" />
           </div>
@@ -398,9 +398,9 @@ export function HistoryTable({
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
                 <div className="space-y-4">
-                  <h4 className="font-bold text-slate-700 bg-slate-100 p-3 rounded-lg border flex items-center justify-between shadow-sm">
+                  <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-black/20 p-3 rounded-lg border dark:border-white/10 flex items-center justify-between shadow-sm">
                   <span>Hari Ini & Sebelumnya</span>
-                  <span className="bg-white text-slate-700 text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm">{leftOrders.length} Pesanan</span>
+                  <span className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[10px] px-2 py-0.5 rounded border dark:border-white/10 font-bold shadow-sm">{leftOrders.length} Pesanan</span>
                 </h4>
                 <div className="space-y-4">
                   {leftOrders.map(renderOrderCard)}
@@ -412,9 +412,9 @@ export function HistoryTable({
                 </div>
               </div>
               <div className="space-y-4">
-                <h4 className="font-bold text-slate-700 bg-slate-100 p-3 rounded-lg border flex items-center justify-between shadow-sm">
+                <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-black/20 p-3 rounded-lg border dark:border-white/10 flex items-center justify-between shadow-sm">
                   <span>Besok & Selanjutnya</span>
-                  <span className="bg-white text-slate-700 text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm">{rightOrders.length} Pesanan</span>
+                  <span className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[10px] px-2 py-0.5 rounded border dark:border-white/10 font-bold shadow-sm">{rightOrders.length} Pesanan</span>
                 </h4>
                 <div className="space-y-4">
                   {rightOrders.map(renderOrderCard)}

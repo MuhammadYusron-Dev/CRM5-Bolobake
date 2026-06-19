@@ -256,30 +256,30 @@ export function DashboardAnalytics({
           </CardHeader>
           <CardContent className="pt-4">
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="p-3 bg-orange-50 border border-orange-100 rounded-lg text-center">
-                <p className="text-2xl font-bold text-orange-600">{dashboard.bottlenecks?.atRiskCount || 0}</p>
-                <p className="text-xs font-semibold text-orange-800">AT RISK</p>
+              <div className="p-3 bg-orange-50 dark:glass-panel-warning border border-orange-100 dark:border-transparent rounded-lg text-center transition-all">
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{dashboard.bottlenecks?.atRiskCount || 0}</p>
+                <p className="text-xs font-semibold text-orange-800 dark:text-orange-300">AT RISK</p>
               </div>
-              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
-                <p className="text-2xl font-bold text-red-600">{dashboard.bottlenecks?.blockedCount || 0}</p>
-                <p className="text-xs font-semibold text-red-800">BLOCKED</p>
+              <div className="p-3 bg-red-50 dark:glass-panel-danger border border-red-100 dark:border-transparent rounded-lg text-center transition-all">
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">{dashboard.bottlenecks?.blockedCount || 0}</p>
+                <p className="text-xs font-semibold text-red-800 dark:text-red-300">BLOCKED</p>
               </div>
-              <div className="p-3 bg-red-100 border border-red-200 rounded-lg text-center">
-                <p className="text-2xl font-bold text-red-700">{dashboard.bottlenecks?.overdueCount || 0}</p>
-                <p className="text-xs font-semibold text-red-900">OVERDUE</p>
+              <div className="p-3 bg-red-100 dark:glass-panel-danger border border-red-200 dark:border-transparent rounded-lg text-center transition-all">
+                <p className="text-2xl font-bold text-red-700 dark:text-red-400">{dashboard.bottlenecks?.overdueCount || 0}</p>
+                <p className="text-xs font-semibold text-red-900 dark:text-red-300">OVERDUE</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h5 className="font-bold text-sm mb-3">Menunggu Diterima (Handover Waiting)</h5>
-                <div className="overflow-x-auto border rounded-md max-h-64 overflow-y-auto">
+                <div className="overflow-x-auto border dark:border-white/10 rounded-md max-h-64 overflow-y-auto">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead className="bg-slate-50 sticky top-0 z-10">
+                    <thead className="bg-slate-50 dark:bg-black/40 dark:backdrop-blur-md sticky top-0 z-10">
                       <tr>
-                        <th className="py-2 px-3 font-semibold text-slate-600">Pelanggan</th>
-                        <th className="py-2 px-3 font-semibold text-slate-600">Divisi</th>
-                        <th className="py-2 px-3 font-semibold text-slate-600">Durasi Menunggu</th>
+                        <th className="py-2 px-3 font-semibold text-slate-600 dark:text-slate-300">Pelanggan</th>
+                        <th className="py-2 px-3 font-semibold text-slate-600 dark:text-slate-300">Divisi</th>
+                        <th className="py-2 px-3 font-semibold text-slate-600 dark:text-slate-300">Durasi Menunggu</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -287,10 +287,10 @@ export function DashboardAnalytics({
                         <tr><td colSpan={3} className="py-4 text-center text-slate-500">Tidak ada antrian.</td></tr>
                       ) : (
                         dashboard.bottlenecks.waiting.map(w => (
-                          <tr key={`w-${w.orderId}`} className="border-b last:border-0 hover:bg-slate-50">
+                          <tr key={`w-${w.orderId}`} className="border-b dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                             <td className="py-2 px-3 font-medium">{w.customer}</td>
-                            <td className="py-2 px-3 text-slate-600">{w.stage}</td>
-                            <td className="py-2 px-3 text-red-600 font-medium">{w.durationMin} Menit</td>
+                            <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{w.stage}</td>
+                            <td className="py-2 px-3 text-red-600 dark:text-red-400 font-medium">{w.durationMin} Menit</td>
                           </tr>
                         ))
                       )}
@@ -300,14 +300,14 @@ export function DashboardAnalytics({
               </div>
 
               <div>
-                <h5 className="font-bold text-sm mb-3 text-cyan-700">Antrian Verifikasi QC (QC Pending)</h5>
-                <div className="overflow-x-auto border rounded-md max-h-64 overflow-y-auto">
+                <h5 className="font-bold text-sm mb-3 text-cyan-700 dark:text-cyan-400">Antrian Verifikasi QC (QC Pending)</h5>
+                <div className="overflow-x-auto border dark:border-white/10 rounded-md max-h-64 overflow-y-auto">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead className="bg-cyan-50 sticky top-0 z-10">
+                    <thead className="bg-cyan-50 dark:bg-black/40 dark:backdrop-blur-md sticky top-0 z-10">
                       <tr>
-                        <th className="py-2 px-3 font-semibold text-cyan-800">Pelanggan</th>
-                        <th className="py-2 px-3 font-semibold text-cyan-800">Sumber QC</th>
-                        <th className="py-2 px-3 font-semibold text-cyan-800">Durasi Menunggu</th>
+                        <th className="py-2 px-3 font-semibold text-cyan-800 dark:text-cyan-300">Pelanggan</th>
+                        <th className="py-2 px-3 font-semibold text-cyan-800 dark:text-cyan-300">Sumber QC</th>
+                        <th className="py-2 px-3 font-semibold text-cyan-800 dark:text-cyan-300">Durasi Menunggu</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -315,10 +315,10 @@ export function DashboardAnalytics({
                         <tr><td colSpan={3} className="py-4 text-center text-slate-500">Semua QC Tuntas.</td></tr>
                       ) : (
                         dashboard.bottlenecks.qcPendingList.map(w => (
-                          <tr key={`qc-${w.orderId}`} className="border-b last:border-0 hover:bg-cyan-50/30">
+                          <tr key={`qc-${w.orderId}`} className="border-b dark:border-white/5 last:border-0 hover:bg-cyan-50/30 dark:hover:bg-white/5 transition-colors">
                             <td className="py-2 px-3 font-medium">{w.customer}</td>
-                            <td className="py-2 px-3 text-slate-600">{w.stage}</td>
-                            <td className="py-2 px-3 text-red-600 font-medium">{w.durationMin} Menit</td>
+                            <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{w.stage}</td>
+                            <td className="py-2 px-3 text-red-600 dark:text-red-400 font-medium">{w.durationMin} Menit</td>
                           </tr>
                         ))
                       )}
@@ -330,23 +330,23 @@ export function DashboardAnalytics({
 
             {dashboard.bottlenecks?.ncrList && dashboard.bottlenecks.ncrList.length > 0 && (
               <div className="mt-6">
-                <h5 className="font-bold text-sm mb-3 text-red-700 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Non-Conformance Report (Unresolved NCR)</h5>
-                <div className="overflow-x-auto border border-red-200 rounded-md">
+                <h5 className="font-bold text-sm mb-3 text-red-700 dark:text-red-400 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Non-Conformance Report (Unresolved NCR)</h5>
+                <div className="overflow-x-auto border border-red-200 dark:border-white/10 rounded-md">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead className="bg-red-50">
+                    <thead className="bg-red-50 dark:bg-black/40">
                       <tr>
-                        <th className="py-2 px-3 font-semibold text-red-800">Pelanggan</th>
-                        <th className="py-2 px-3 font-semibold text-red-800">Divisi Rework</th>
-                        <th className="py-2 px-3 font-semibold text-red-800">Isu QC</th>
-                        <th className="py-2 px-3 font-semibold text-red-800">Tingkat (Severity)</th>
+                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Pelanggan</th>
+                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Divisi Rework</th>
+                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Isu QC</th>
+                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Tingkat (Severity)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {dashboard.bottlenecks.ncrList.map(n => (
-                        <tr key={`ncr-${n.orderId}`} className="border-b border-red-100 last:border-0 hover:bg-red-50/50">
-                          <td className="py-2 px-3 font-medium text-red-900">{n.customer}</td>
-                          <td className="py-2 px-3 text-red-700">{n.stage}</td>
-                          <td className="py-2 px-3 text-red-700">{n.issue}</td>
+                        <tr key={`ncr-${n.orderId}`} className="border-b border-red-100 dark:border-white/5 last:border-0 hover:bg-red-50/50 dark:hover:bg-white/5 transition-colors">
+                          <td className="py-2 px-3 font-medium text-red-900 dark:text-red-300">{n.customer}</td>
+                          <td className="py-2 px-3 text-red-700 dark:text-red-400">{n.stage}</td>
+                          <td className="py-2 px-3 text-red-700 dark:text-red-400">{n.issue}</td>
                           <td className="py-2 px-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${n.severity === 'HIGH' ? 'bg-red-600 text-white' : n.severity === 'MEDIUM' ? 'bg-orange-500 text-white' : 'bg-yellow-400 text-yellow-900'}`}>{n.severity}</span>
                           </td>
@@ -382,8 +382,8 @@ export function DashboardAnalytics({
           <CardContent className="p-0 flex-1">
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
               <table className="w-full text-left border-collapse min-w-[300px]">
-                <thead className="bg-muted/50 sticky top-0 z-10 backdrop-blur-sm">
-                  <tr className="text-xs uppercase tracking-wider text-muted-foreground">
+                <thead className="bg-muted/50 dark:bg-black/40 sticky top-0 z-10 backdrop-blur-sm">
+                  <tr className="text-xs uppercase tracking-wider text-muted-foreground dark:text-slate-300">
                     <th className="py-3 px-4 font-semibold">Nama Outlet / Customer</th>
                     <th className="py-3 px-4 font-semibold text-center">Freq</th>
                     <th className="py-3 px-4 font-semibold text-right">Total Belanja</th>
@@ -398,7 +398,7 @@ export function DashboardAnalytics({
                     </tr>
                   ) : (
                     filteredLeaderboard.map(([cust, data], idx) => (
-                        <tr key={cust} className="border-b border-secondary last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+                        <tr key={cust} className="border-b border-secondary dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
                           <td className="py-3 px-4 text-sm font-semibold">
                             <div className="flex items-center gap-4">
                               <div className={`rounded-full flex items-center justify-center font-extrabold shrink-0 relative transition-all duration-300 ${
