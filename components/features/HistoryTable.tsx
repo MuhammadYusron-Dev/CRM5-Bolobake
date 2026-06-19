@@ -233,13 +233,7 @@ export function HistoryTable({
           <p className="text-sm">{orderHistory.length === 0 ? 'Belum ada pesanan yang dibuat.' : 'Tidak ada pesanan pada periode ini.'}</p>
         </div>
       ) : (() => {
-        const d = new Date();
-        const todayStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        
         const sortedHistory = [...filteredHistory].sort((a, b) => {
-          const dateA = a.productionDate || '';
-          const dateB = b.productionDate || '';
-          if (dateA !== dateB) return dateA.localeCompare(dateB);
           return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
         });
 
@@ -248,122 +242,136 @@ export function HistoryTable({
           (o.currentStage === 'ADMIN' && o.currentState === 'REVIEW_REQUIRED')
         );
 
-        const nonPriorityHistory = sortedHistory.filter(o => 
-          o.currentState !== 'REWORK_REQUIRED' && 
-          !(o.currentStage === 'ADMIN' && o.currentState === 'REVIEW_REQUIRED')
-        );
+        const normalOrders = sortedHistory.filter(o => !priorityOrders.some(po => po.id === o.id));
 
-        const leftOrders = nonPriorityHistory.filter(o => !o.productionDate || o.productionDate <= todayStr);
-        const rightOrders = nonPriorityHistory.filter(o => o.productionDate && o.productionDate > todayStr);
+        const groupedOrders = normalOrders.reduce((acc, order) => {
+          const date = order.productionDate || 'Tanpa Tanggal';
+          if (!acc[date]) acc[date] = [];
+          acc[date].push(order);
+          return acc;
+        }, {} as Record<string, Order[]>);
 
-        const renderOrderCard = (order: Order) => {
-            const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
-            return (
-              <Card key={order.id} className={`transition-all duration-300 dark:glass-panel dark:!border-transparent dark:!bg-white/5 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 dark:!bg-blue-900/50 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-primary bg-primary/5 dark:!bg-primary/20 shadow-md ring-2 ring-primary/40 scale-[1.01] z-10 relative' : 'hover:border-primary/50 hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(0,89,255,0.4)]'}`}>
-                <CardContent className="p-5">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <StatusBadge stage={order.currentStage} state={order.currentState} health={order.healthStatus} />
-                        {!isNaN(new Date(order.timestamp).getTime()) && (
-                          <span className="text-muted-foreground whitespace-pre-line leading-relaxed" style={{ fontSize: 'var(--text-xs)' }}>{new Date(order.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
-                        )}
-                      </div>
-                      <h4 className="font-bold">{order.customer}</h4>
-                      {(order.productionDate || order.deliveryDate) && (
-                        <div className="flex items-center gap-3 text-muted-foreground mt-1" style={{ fontSize: 'var(--text-xs)' }}>
-                          {order.productionDate && (
-                            <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5"/> Prod: {
-                              (() => {
-                                return formatDate(order.productionDate);
-                              })()
-                            }</span>
-                          )}
-                          {order.deliveryDate && (
-                            <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5"/> Kirim: {
-                              (() => {
-                                return formatDate(order.deliveryDate);
-                              })()
-                            }</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      {handleReorder && (
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleReorder(order)}
-                          className="h-8 text-xs font-bold gap-1.5"
-                        >
-                          <History className="w-3.5 h-3.5" /> Ulangi
-                        </Button>
-                      )}
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePrintReceipt(order)}
-                        className="h-8 text-xs font-bold gap-1.5"
-                      >
-                        <Printer className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Cetak Struk</span>
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setTimelineOrder(order)}
-                        className="h-8 text-xs font-bold gap-1.5"
-                      >
-                        <Clock className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Timeline</span>
-                      </Button>
-                      <Button 
-                        variant={editingOrderId === order.id ? "secondary" : "outline"}
-                        size="sm"
-                        onClick={() => handleEditOrder(order)}
-                        className="h-8 text-xs font-bold gap-1.5"
-                      >
-                        {editingOrderId === order.id ? 'Sedang Diedit' : <><Edit className="w-3.5 h-3.5" /> Edit</>}
-                      </Button>
-                    </div>
+        const sortedDates = Object.keys(groupedOrders).sort((a, b) => {
+          if (a === 'Tanpa Tanggal') return -1;
+          if (b === 'Tanpa Tanggal') return 1;
+          return b.localeCompare(a); // Sort descending dates or ascending? History usually descending. Let's do descending.
+        });
+
+        function getBatchLabel(timestamp: string): { label: string, color: string } {
+          if (!timestamp) return { label: 'Batch Unknown', color: 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300' };
+          const time = new Date(timestamp);
+          const hour = time.getHours();
+          
+          if (hour < 8) return { label: 'Batch Pagi (08:00)', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' };
+          if (hour >= 8 && hour < 10) return { label: 'Tambahan (09:00)', color: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300' };
+          if (hour >= 10 && hour < 15) return { label: 'Update Siang (14:00)', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' };
+          return { label: 'Final Malam (22:00)', color: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300' };
+        }
+
+        function isCakeOrOther(sku: string) {
+          const s = sku.toLowerCase();
+          return s.includes('cake') || s.includes('brownie') || s.includes('cookie') || s.includes('dessert') || s.includes('tiramisu') || s.includes('macaron');
+        }
+
+        const renderTableRow = (order: Order, idx: number) => {
+          const batch = getBatchLabel(order.timestamp);
+          const croissantItems = (order.items || []).filter(item => !isCakeOrOther(item.sku));
+          const cakeItems = (order.items || []).filter(item => isCakeOrOther(item.sku));
+
+          return (
+            <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-primary/5 transition-all duration-300">
+              <td className="px-4 py-4 align-top text-center text-slate-500 font-medium border-b border-slate-100 dark:border-slate-800/60">{idx + 1}</td>
+              <td className="px-4 py-4 align-top border-b border-slate-100 dark:border-slate-800/60">
+                <div className="flex flex-col gap-1.5 items-start">
+                  <div className="flex flex-col gap-1 w-full">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-normal">{order.customer}</span>
+                    <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} iconOnly={false} />
                   </div>
                   
-                  <div className="bg-muted dark:bg-white/5 rounded-lg space-y-1 mb-3 border border-border dark:border-transparent" style={{ padding: 'var(--card-padding)', fontSize: 'var(--text-sm)' }}>
-                    {(order.items || []).map((item, idx) => (
-                      <div key={idx} className="flex justify-between">
-                        <span>
-                          {item.qty}x {item.sku.endsWith(' (sample)') ? (
-                            <>{item.sku.replace(' (sample)', '')} <span className="italic text-xs text-primary ml-1">(sample)</span></>
-                          ) : item.sku}
-                          {item.isSplitInvoice && <span className="text-[10px] text-orange-600 border border-orange-500 bg-orange-50 px-1 rounded ml-1.5 font-bold">[Pisah Nota]</span>}
-                        </span>
-                        <span className="text-muted-foreground">{formatRp(item.qty * (item.sku.endsWith(' (sample)') ? 0 : item.price))}</span>
-                      </div>
-                    ))}
-                    {order.shippingCost > 0 && (
-                      <div className="flex justify-between border-t border-border mt-2 pt-2 text-xs">
-                        <span>Ongkos Kirim</span>
-                        <span>{formatRp(order.shippingCost)}</span>
-                      </div>
-                    )}
-                  </div>
+                  {order.deliveryDate && (
+                    <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 mt-1">
+                      Tgl Kirim: {formatDate(order.deliveryDate)}
+                    </span>
+                  )}
+                  
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color} mt-0.5`}>
+                    ${batch.label}
+                  </span>
+                </div>
+              </td>
+              <td className="px-4 py-4 align-top whitespace-normal text-xs text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/60">
+                <div className="flex flex-col gap-2 min-w-[200px]">
                   {order.notes && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded mb-3 border border-red-200 dark:border-transparent" style={{ fontSize: 'var(--text-2xs)' }}>
-                      <span className="font-bold block mb-0.5">Catatan Produksi:</span>
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded border border-red-100 dark:border-red-900/30">
+                      <span className="font-bold block mb-0.5 text-[10px] uppercase">Catatan Dapur:</span>
                       {order.notes}
                     </div>
                   )}
+                  
                   {order.deliveryNotes && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded mb-3 border border-blue-200 dark:border-transparent" style={{ fontSize: 'var(--text-2xs)' }}>
-                      <span className="font-bold block mb-0.5">Catatan Pengiriman:</span>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-100 dark:border-blue-900/30">
+                      <span className="font-bold block mb-0.5 text-[10px] uppercase">Pengiriman:</span>
                       {order.deliveryNotes}
                     </div>
                   )}
-                  
-                  <div className="flex justify-between items-center font-bold pt-1">
-                    <span style={{ fontSize: 'var(--text-sm)' }}>Total Tagihan</span>
-                    <span className="text-primary" style={{ fontSize: 'var(--text-lg)' }}>{formatRp(order.grandTotal)}</span>
-                  </div>
 
+                  <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700 space-y-1 text-[10px]">
+                    <div className="flex justify-between font-bold">
+                      <span>Logistik:</span>
+                      <span>{order.isFreeShipping ? 'Gratis Ongkir' : `Rp ${formatRp(order.shippingCost || 0).replace('Rp', '').trim()}`}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-primary border-t border-slate-200 dark:border-slate-700 pt-1 mt-1">
+                      <span>Grand Total:</span>
+                      <span>{formatRp(order.grandTotal || 0)}</span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td className="px-4 py-4 align-top border-b border-slate-100 dark:border-slate-800/60">
+                <div className="flex flex-col gap-3 min-w-[250px]">
+                  {croissantItems.length > 0 && (
+                    <div>
+                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 border-b border-slate-200 dark:border-slate-700 pb-1">
+                        Croissant / Artisan Bakery
+                      </div>
+                      <ul className="space-y-1">
+                        {croissantItems.map((item, i) => (
+                          <li key={i} className="flex justify-between items-start text-xs gap-4 text-slate-700 dark:text-slate-300">
+                            <span className="whitespace-normal flex-1">
+                              {item.sku.replace(' (sample)', '')}
+                              {item.isSample && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">Sample</span>}
+                              {item.isSplitInvoice && <span className="text-[9px] border border-orange-500 text-orange-600 bg-orange-50 px-1 ml-1 rounded inline-block font-bold">Pisah Nota</span>}
+                            </span>
+                            <span className="font-bold whitespace-nowrap">{item.qty} pcs</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {cakeItems.length > 0 && (
+                    <div>
+                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 border-b border-slate-200 dark:border-slate-700 pb-1 mt-1">
+                        Cake / Other
+                      </div>
+                      <ul className="space-y-1">
+                        {cakeItems.map((item, i) => (
+                          <li key={i} className="flex justify-between items-start text-xs gap-4 text-slate-700 dark:text-slate-300">
+                            <span className="whitespace-normal flex-1">
+                              {item.sku.replace(' (sample)', '')}
+                              {item.isSample && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 ml-1 rounded inline-block">Sample</span>}
+                              {item.isSplitInvoice && <span className="text-[9px] border border-orange-500 text-orange-600 bg-orange-50 px-1 ml-1 rounded inline-block font-bold">Pisah Nota</span>}
+                            </span>
+                            <span className="font-bold whitespace-nowrap">{item.qty} pcs</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </td>
+              <td className="px-4 py-4 align-top border-b border-slate-100 dark:border-slate-800/60">
+                <div className="flex flex-col gap-2 min-w-[180px]">
                   <ActionControl 
                     order={order} 
                     currentUser={currentUser} 
@@ -371,63 +379,105 @@ export function HistoryTable({
                       if (onRefresh) {
                         onRefresh();
                       } else if (handleUpdateStatus) {
-                        // Fallback
                         window.location.reload();
                       }
                     }} 
                   />
-                </CardContent>
-              </Card>
-            );
-          };
-
-          return (
-            <div className="space-y-6">
-              {priorityOrders.length > 0 && (
-                <div className="space-y-4">
-                  <h4 className="font-bold text-red-800 bg-red-100 p-3 rounded-lg border border-red-200 flex items-center justify-between shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-red-500 animate-pulse"></div>
-                    <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> ⚠️ PRIORITAS: Menunggu Rebake / Konfirmasi</span>
-                    <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded border border-red-700 font-bold shadow-sm">{priorityOrders.length} Pesanan</span>
-                  </h4>
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                    {priorityOrders.map(renderOrderCard)}
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {handleReorder && (
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleReorder(order)}
+                        className="h-8 text-[10px] font-bold gap-1 px-2"
+                      >
+                        <History className="w-3 h-3" /> Ulangi
+                      </Button>
+                    )}
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePrintReceipt(order)}
+                      className="h-8 text-[10px] font-bold gap-1 px-2"
+                    >
+                      <Printer className="w-3 h-3" /> Cetak
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setTimelineOrder(order)}
+                      className="h-8 text-[10px] font-bold gap-1 px-2"
+                    >
+                      <Clock className="w-3 h-3" /> Timeline
+                    </Button>
+                    <Button 
+                      variant={editingOrderId === order.id ? "secondary" : "outline"}
+                      size="sm"
+                      onClick={() => handleEditOrder(order)}
+                      className="h-8 text-[10px] font-bold gap-1 px-2"
+                    >
+                      {editingOrderId === order.id ? 'Loading' : <><Edit className="w-3 h-3" /> Edit</>}
+                    </Button>
                   </div>
                 </div>
-              )}
+              </td>
+            </tr>
+          );
+        };
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                <div className="space-y-4">
-                  <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-white/5 p-3 rounded-lg border dark:border-transparent flex items-center justify-between shadow-sm">
-                  <span>Hari Ini & Sebelumnya</span>
-                  <span className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[10px] px-2 py-0.5 rounded border dark:border-white/10 font-bold shadow-sm">{leftOrders.length} Pesanan</span>
-                </h4>
-                <div className="space-y-4">
-                  {leftOrders.map(renderOrderCard)}
-                  {leftOrders.length === 0 && (
-                    <p className="text-sm text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl bg-slate-50/50">
-                      Tidak ada pesanan
-                    </p>
-                  )}
-                </div>
+        const renderTableSection = (title: string, icon: React.ReactNode, orderList: Order[], isPriority: boolean = false) => {
+          if (orderList.length === 0) return null;
+          return (
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mb-8">
+              <div className={`px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between ${isPriority ? 'bg-red-50 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                <h3 className={`font-bold flex items-center gap-2 ${isPriority ? 'text-red-800 dark:text-red-300' : 'text-slate-800 dark:text-slate-200'}`}>
+                  {icon}
+                  {title}
+                </h3>
+                <span className={`text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm ${isPriority ? 'bg-red-600 text-white border-red-700' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600'}`}>
+                  {orderList.length} Pesanan
+                </span>
               </div>
-              <div className="space-y-4">
-                <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-white/5 p-3 rounded-lg border dark:border-transparent flex items-center justify-between shadow-sm">
-                  <span>Besok & Selanjutnya</span>
-                  <span className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[10px] px-2 py-0.5 rounded border dark:border-white/10 font-bold shadow-sm">{rightOrders.length} Pesanan</span>
-                </h4>
-                <div className="space-y-4">
-                  {rightOrders.map(renderOrderCard)}
-                  {rightOrders.length === 0 && (
-                    <p className="text-sm text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl bg-slate-50/50">
-                      Tidak ada pesanan
-                    </p>
-                  )}
-                </div>
-              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium">
+                    <tr>
+                      <th className="px-4 py-3 border-b dark:border-slate-700 w-12 text-center">No</th>
+                      <th className="px-4 py-3 border-b dark:border-slate-700 w-[20%]">Outlet</th>
+                      <th className="px-4 py-3 border-b dark:border-slate-700 w-[25%]">Catatan</th>
+                      <th className="px-4 py-3 border-b dark:border-slate-700 w-[30%]">Pesanan (Produk & Qty)</th>
+                      <th className="px-4 py-3 border-b dark:border-slate-700 w-[25%]">Status & Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orderList.map((order, idx) => renderTableRow(order, idx))}
+                  </tbody>
+                </table>
               </div>
             </div>
           );
+        };
+
+        return (
+          <div className="space-y-0">
+            {renderTableSection(
+              "PRIORITAS: Menunggu Rebake / Konfirmasi", 
+              <AlertTriangle className="w-4 h-4" />, 
+              priorityOrders, 
+              true
+            )}
+
+            {sortedDates.map((date) => {
+              const dateOrders = groupedOrders[date];
+              return renderTableSection(
+                `Produksi: ${date === 'Tanpa Tanggal' ? date : formatDate(date)}`,
+                <Calendar className="w-4 h-4 text-blue-600" />,
+                dateOrders
+              );
+            })}
+          </div>
+        );
       })()}
 
       {printingOrder && (
