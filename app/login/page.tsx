@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChefHat, Loader2, Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChefHat, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
@@ -15,35 +15,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const slides = [
-    { 
-      img: "/login_slides/slide1.png", 
-      title: "Dashboard Analitik", 
-      desc: "Pantau Total Omzet, Jumlah Transaksi, Total Produk, Customer Aktif, Performa Varian Terlaris, dan Top Customer secara real-time."
-    },
-    { 
-      img: "/login_slides/slide2.png", 
-      title: "Buat Pesanan Baru", 
-      desc: "Proses pesanan kilat menggunakan Smart Text Parser AI (Gemini) dari chat pembeli, lengkapi Informasi Customer dan Detail Pesanan."
-    },
-    { 
-      img: "/login_slides/slide3.png", 
-      title: "Sales CRM", 
-      desc: "Pantau klasifikasi customer (Champions, Loyal, At Risk, Hibernating), dan gunakan Editor Pesan untuk Smart Broadcast ke Daftar Antrian."
-    },
-    { 
-      img: "/login_slides/slide4.png", 
-      title: "Tracking Sample", 
-      desc: "Analisis efektivitas sampel produk lewat Tingkat Konversi (ROI), Avg Time-to-Convert, Budget Terpakai, dan Top 5 Customer vs CLV."
-    },
-  ];
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
@@ -96,72 +67,31 @@ export default function LoginPage() {
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
       <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
-        {/* Left Side: Blue Banner */}
-        <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-blue-700 to-cyan-500 text-white p-8 lg:p-12 relative overflow-hidden">
+        {/* Left Side: Illustration */}
+        <div className="hidden md:flex flex-col w-1/2 bg-white text-slate-800 relative overflow-hidden items-center justify-center p-8 lg:p-12">
           {/* Logo */}
-          <div className="absolute top-8 left-8 flex items-center gap-3 z-20">
+          <div className="absolute top-8 left-8 flex items-center gap-3 z-20 text-blue-600">
             <ChefHat className="w-8 h-8" />
-            <span className="text-2xl font-bold font-serif tracking-wide">Bolobake</span>
+            <span className="text-2xl font-bold font-serif tracking-wide text-slate-900">Bolobake</span>
           </div>
 
-          {/* Center Content: Title, Subtitle, and Carousel Image */}
-          <div className="flex-1 flex flex-col justify-center items-start w-full z-10 pt-16 pb-8 px-4 lg:px-8">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight drop-shadow-md transition-opacity duration-500">
-              {slides[currentSlide].title}
+          {/* Illustration */}
+          <div className="w-full max-w-xl mt-12 z-10 flex justify-center">
+            <img 
+              src="/outlet_bolobake.png" 
+              alt="Bolobake Outlet" 
+              className="w-full h-auto object-contain animate-float drop-shadow-xl" 
+            />
+          </div>
+          
+          {/* Text Content */}
+          <div className="mt-12 text-center max-w-md z-10">
+            <h1 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-slate-900">
+              Sistem Manajemen <br/><span className="text-blue-600">Terpadu Bolobake</span>
             </h1>
-            <p className="text-base lg:text-lg text-white/90 font-medium mb-12 max-w-xl leading-relaxed transition-opacity duration-500">
-              {slides[currentSlide].desc}
+            <p className="text-slate-500 font-medium leading-relaxed">
+              Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
             </p>
-
-            {/* Float Mockup Container Without Frame */}
-            <div className="w-full relative mt-4 perspective-1000">
-              <div className="w-full relative">
-                {slides.map((slide, i) => (
-                  <div
-                    key={i}
-                    className={`transition-all duration-1000 ease-out ${i === currentSlide ? 'opacity-100 z-10 translate-y-0 scale-100 relative' : 'opacity-0 z-0 translate-y-8 scale-95 absolute inset-0'}`}
-                  >
-                    <img 
-                      src={slide.img} 
-                      alt={slide.title} 
-                      className="w-full h-auto object-contain rounded-xl shadow-2xl animate-float border border-white/10" 
-                      style={{ 
-                        transform: 'translateZ(0)', 
-                        willChange: 'transform' 
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Carousel Indicators */}
-          <div className="flex justify-center items-center gap-6 z-20 mt-auto">
-            <button 
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors shadow-md text-slate-800"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div className="flex gap-2.5">
-              {slides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className={`h-2.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/70'}`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-            <button 
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-              className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors shadow-md text-slate-800"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
         </div>
 
