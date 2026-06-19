@@ -4,34 +4,38 @@ import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Searc
 import { Input } from '@/components/ui/input';
 
 const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: string }) => {
-  const pathData = "M0,90 L10,80 L20,95 L30,65 L40,75 L50,45 L60,55 L70,30 L80,45 L90,15 L100,20";
+  const pathData = "M0,80 C20,80 30,60 40,65 C50,70 60,40 70,45 C80,50 90,20 100,25";
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-40 flex items-end">
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-60 flex items-end">
       <svg className={`w-full h-24 ${colorClass}`} preserveAspectRatio="none" viewBox="0 0 100 100">
         <style>
           {`
             @keyframes drawLine-${id} {
-              0% { stroke-dashoffset: 300; }
+              0% { stroke-dashoffset: 100; }
               100% { stroke-dashoffset: 0; }
             }
             .path-draw-${id} {
-              stroke-dasharray: 300;
-              animation: drawLine-${id} 3s ease-out forwards;
+              stroke-dasharray: 100;
+              animation: drawLine-${id} 3s linear forwards;
             }
             @keyframes fadeFill-${id} {
               0% { opacity: 0; }
               100% { opacity: 1; }
             }
             .fill-fade-${id} {
-              animation: fadeFill-${id} 3s ease-out forwards;
+              animation: fadeFill-${id} 3s linear forwards;
             }
           `}
         </style>
         <defs>
           <linearGradient id={`grad-${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.6" />
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.4" />
             <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
+          <filter id={`glow-${id}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
         </defs>
         <path 
           d={`${pathData} L100,100 L0,100 Z`} 
@@ -39,14 +43,31 @@ const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: stri
           className={`fill-fade-${id}`}
         />
         <path 
+          id={`glowLinePath-${id}`}
           d={pathData} 
           fill="none" 
           stroke="currentColor" 
-          strokeWidth="2" 
+          strokeWidth="3" 
           strokeLinecap="round"
-          strokeLinejoin="round"
+          pathLength="100"
+          className={`path-draw-${id} opacity-50`}
+          filter={`url(#glow-${id})`}
+        />
+        <path 
+          id={`linePath-${id}`}
+          d={pathData} 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="1.5" 
+          strokeLinecap="round"
+          pathLength="100"
           className={`path-draw-${id}`}
         />
+        <circle r="1.5" fill="#fff" filter={`url(#glow-${id})`}>
+          <animateMotion dur="3s" fill="freeze" calcMode="linear">
+            <mpath href={`#linePath-${id}`} />
+          </animateMotion>
+        </circle>
       </svg>
     </div>
   );
