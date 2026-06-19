@@ -27,7 +27,7 @@ function isCakeOrOther(sku: string) {
 const formatRp = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 
 export function ProductionTableBoard({ initialOrders, currentUser }: { initialOrders: Order[], currentUser?: { userId: string; name: string; role: string } | null }) {
-  const canEditStatus = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'PRODUCTION';
+  const canEditStatus = currentUser?.role === 'SYSTEM_ADMIN' || currentUser?.role === 'PRODUCTION';
   const { data: orders = initialOrders, mutate } = useSWR<Order[]>('/api/orders', fetcher, { 
     fallbackData: initialOrders,
     refreshInterval: 15000 

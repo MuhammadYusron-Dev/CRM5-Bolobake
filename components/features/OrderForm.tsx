@@ -15,6 +15,7 @@ interface OrderFormProps {
   onDelete?: (order: Order) => Promise<void>;
   onCancelEdit: () => void;
   isSubmitting: boolean;
+  currentUser?: { userId: string; name: string; role: string } | null;
 }
 
 export function OrderForm({
@@ -24,7 +25,8 @@ export function OrderForm({
   onSave,
   onDelete,
   onCancelEdit,
-  isSubmitting
+  isSubmitting,
+  currentUser
 }: OrderFormProps) {
   const [customer, setCustomer] = useState('');
   const [customerInput, setCustomerInput] = useState('');
@@ -1031,8 +1033,8 @@ export function OrderForm({
                 </Button>
               )}
               <Button 
-                form="orderForm" type="submit" disabled={isSubmitting}
-                className={`font-bold h-12 flex-1 sm:flex-none ${orderToEdit ? 'bg-blue-600 hover:bg-blue-500 text-white' : ''}`}
+                form="orderForm" type="submit" disabled={isSubmitting || currentUser?.role === 'OWNER'}
+                className="font-bold flex-1 sm:flex-none h-14 px-8 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 text-base"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2"><LoaderSpin /> Mengirim...</span>
@@ -1045,6 +1047,13 @@ export function OrderForm({
                 )}
               </Button>
             </div>
+            
+            {currentUser?.role === 'OWNER' && (
+              <div className="text-center mt-4 text-xs text-red-500 font-medium">
+                Akun Anda hanya memiliki hak akses Lihat (Read-Only). Anda tidak dapat memproses pesanan.
+              </div>
+            )}
+            
           </div>
       </div>
 

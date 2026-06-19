@@ -13,7 +13,7 @@ interface UserData {
   role: Role;
 }
 
-export function UserManager() {
+export function UserManager({ currentUser }: { currentUser?: { userId: string; name: string; role: string } | null }) {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +117,8 @@ export function UserManager() {
                   <td className="px-4 py-3 text-slate-600">{u.email}</td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant="outline" className={
-                      u.role === 'SUPER_ADMIN' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                      u.role === 'SYSTEM_ADMIN' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                      u.role === 'OWNER' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                       u.role === 'ADMIN' ? 'bg-slate-100 text-slate-700' :
                       'bg-blue-50 text-blue-700 border-blue-200'
                     }>
@@ -127,6 +128,8 @@ export function UserManager() {
                   <td className="px-4 py-3">
                     {updating === u.email ? (
                       <Loader2 className="w-5 h-5 animate-spin text-slate-400 mx-auto" />
+                    ) : currentUser?.role === 'OWNER' ? (
+                      <span className="text-xs text-slate-400 italic">Read-Only</span>
                     ) : (
                       <Select 
                         value={u.role || 'ADMIN'} 
@@ -136,7 +139,7 @@ export function UserManager() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="SUPER_ADMIN">SUPER_ADMIN</SelectItem>
+                          <SelectItem value="SYSTEM_ADMIN">SYSTEM_ADMIN</SelectItem>
                           <SelectItem value="OWNER">OWNER</SelectItem>
                           <SelectItem value="ADMIN">ADMIN</SelectItem>
                           <SelectItem value="SALES">SALES</SelectItem>

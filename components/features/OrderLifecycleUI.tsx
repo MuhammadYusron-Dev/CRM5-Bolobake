@@ -171,7 +171,7 @@ export function ActionControl({
   const stage = order.currentStage;
   const state = order.currentState;
 
-  const isSuperAdmin = role === 'SUPER_ADMIN';
+  const isSuperAdmin = role === 'SYSTEM_ADMIN';
   
   // Matrix rules
   const hasRoleAccess = isSuperAdmin || stage === role;

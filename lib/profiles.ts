@@ -2,8 +2,8 @@ export const TEAM_PROFILES = [
   { 
     id: 'yusron', 
     name: 'Yusron', 
-    roleTitle: 'Sales Marketing', 
-    role: 'ADMIN', 
+    roleTitle: 'Developer & Admin', 
+    role: 'SYSTEM_ADMIN', 
     pin: '1111', 
     avatar: '/avatars/yusron.png' 
   },
@@ -51,7 +51,7 @@ export const TEAM_PROFILES = [
     id: 'juliana', 
     name: 'Juliana', 
     roleTitle: 'Owner', 
-    role: 'SUPER_ADMIN', 
+    role: 'OWNER', 
     pin: '7777', 
     avatar: '/avatars/juliana.png' 
   },

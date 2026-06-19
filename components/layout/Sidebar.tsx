@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { hasAccess } from '@/lib/rbac';
 
 interface SidebarProps {
   activeMenu: string;
@@ -20,6 +21,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   const [avatarPreview, setAvatarPreview] = useState<string>('');
   const [passwordInput, setPasswordInput] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isAccessDeniedOpen, setIsAccessDeniedOpen] = useState(false);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -89,7 +91,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
         { id: 'produksi', label: 'Divisi Produksi', icon: ChefHat },
         { id: 'packing', label: 'Divisi Packing', icon: PackageCheck },
         { id: 'audit', label: 'Audit Logs', icon: ShieldAlert },
-        ...(user?.role === 'SUPER_ADMIN' ? [{ id: 'users', label: 'Manajemen Pengguna', icon: User }] : [])
+        ...(user?.role === 'SYSTEM_ADMIN' || user?.role === 'OWNER' ? [{ id: 'users', label: 'Manajemen Pengguna', icon: User }] : [])
       ]
     },
     {
@@ -101,6 +103,11 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   ];
 
   const handleMenuClick = (item: { id: string }) => {
+    if (user && !hasAccess(user.role || 'ADMIN', item.id)) {
+      setIsAccessDeniedOpen(true);
+      return;
+    }
+
     if (['inventory', 'audit'].includes(item.id)) {
       if (item.id === 'inventory') router.push('/inventory');
       if (item.id === 'audit') router.push('/audit');
@@ -194,7 +201,8 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                 <span className="font-bold text-slate-900 truncate leading-tight block" style={{ fontSize: 'var(--text-sm)' }}>{user?.fullName || user?.username || 'Admin'}</span>
                 <span className="text-slate-500 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>
                   {user?.role ? (
-                    user.role === 'SUPER_ADMIN' ? 'Super Admin' :
+                    user.role === 'SYSTEM_ADMIN' ? 'System Admin' :
+                    user.role === 'OWNER' ? 'Owner' :
                     user.role === 'ADMIN' ? 'Admin Sales' :
                     user.role === 'PRODUCTION' ? 'Kepala Produksi' :
                     user.role === 'PACKING' ? 'Divisi Packing' :
@@ -284,6 +292,29 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               {isUpdating ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Access Denied Dialog */}
+      <Dialog open={isAccessDeniedOpen} onOpenChange={setIsAccessDeniedOpen}>
+        <DialogContent className="sm:max-w-md border-destructive/20 shadow-2xl overflow-hidden rounded-2xl">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-red-500"></div>
+          <div className="flex flex-col items-center justify-center pt-8 pb-4 text-center px-4">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5 ring-8 ring-red-50/50">
+               <ShieldAlert className="w-8 h-8 text-red-500" />
+            </div>
+            <DialogTitle className="text-2xl font-bold text-slate-800 mb-3 tracking-tight">
+              Akses Ditolak
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed">
+              Ini bukan halaman job desk Anda. Silakan kembali ke halaman yang sesuai dengan peran Anda.
+            </DialogDescription>
+          </div>
+          <DialogFooter className="flex justify-center mt-2 pb-2">
+            <Button onClick={() => setIsAccessDeniedOpen(false)} className="px-8 font-bold rounded-xl h-12">
+              Mengerti
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

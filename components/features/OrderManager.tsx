@@ -23,6 +23,7 @@ import { SampleTracker } from './SampleTracker';
 import { SalesCRM } from './SalesCRM';
 import { useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
+import { hasAccess, getDefaultMenu } from '@/lib/rbac';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json()).then(data => data.success ? data.data : []);
 
@@ -55,7 +56,7 @@ export function OrderManager({
     }, { revalidate: false });
   };
   
-  const [activeMenu, setActiveMenu] = useState('new_order');
+  const [activeMenu, setActiveMenu] = useState(currentUser?.role ? getDefaultMenu(currentUser.role) : 'dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentDateString, setCurrentDateString] = useState('');
   const [currentHour, setCurrentHour] = useState(12); // Default safe hour for SSR
@@ -65,10 +66,15 @@ export function OrderManager({
 
   useEffect(() => {
     const tab = searchParams?.get('tab');
-    if (tab) {
-      setActiveMenu(tab);
+    if (tab && currentUser?.role) {
+      if (hasAccess(currentUser.role, tab)) {
+        setActiveMenu(tab);
+      } else {
+        setActiveMenu(getDefaultMenu(currentUser.role));
+        showToast('Akses Ditolak: Anda diarahkan ke halaman utama divisi Anda.');
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, currentUser]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -584,7 +590,7 @@ export function OrderManager({
           </div>
         );
       case 'catalog':
-        return <CatalogManager />;
+        return <CatalogManager currentUser={currentUser} />;
       case 'produksi':
         return <ProductionBoard initialOrders={orderHistory} currentUser={currentUser} />;
       case 'packing':
@@ -592,9 +598,9 @@ export function OrderManager({
       case 'samples':
         return <SampleTracker initialOrders={orderHistory} initialCatalog={katalog} />;
       case 'sales':
-        return <SalesCRM initialOrders={orderHistory} />;
+        return <SalesCRM initialOrders={orderHistory} currentUser={currentUser} />;
       case 'users':
-        return <UserManager />;
+        return <UserManager currentUser={currentUser} />;
       case 'new_order':
       default:
         return (
@@ -610,6 +616,7 @@ export function OrderManager({
                   setActiveMenu('history');
                 }} 
                 isSubmitting={isSubmitting} 
+                currentUser={currentUser}
               />
           </div>
         );

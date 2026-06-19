@@ -43,7 +43,7 @@ interface KanbanBoardProps {
 
 export function KanbanBoard({ initialOrders, columns, divisionName, icon, showOverview, extraHeaderAction, currentUser }: KanbanBoardProps) {
   const canEditStatus = 
-    currentUser?.role === 'SUPER_ADMIN' || 
+    currentUser?.role === 'SYSTEM_ADMIN' || 
     (icon === 'produksi' && currentUser?.role === 'PRODUCTION') || 
     (icon === 'packing' && (currentUser?.role === 'PACKING' || currentUser?.role === 'DELIVERY'));
   const { data: orders = initialOrders, mutate, isLoading } = useSWR('/api/orders', fetcher, { 
