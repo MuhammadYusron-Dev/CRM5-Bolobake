@@ -3,27 +3,95 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Search, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-const AnimatedChartBg = ({ colorClass, id, d }: { colorClass: string, id: string, d: string }) => (
-  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-30 flex items-end">
-    <svg className={`w-full h-24 ${colorClass} animate-float`} preserveAspectRatio="none" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id={`grad-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path 
-        d={`${d} L100,100 L0,100 Z`} 
-        fill={`url(#grad-${id})`} 
+const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: string }) => {
+  const pathData = "M0,90 L10,80 L20,95 L30,65 L40,75 L50,45 L60,55 L70,30 L80,45 L90,15 L100,20";
+  return (
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-40 flex items-end">
+      <svg className={`w-full h-24 ${colorClass}`} preserveAspectRatio="none" viewBox="0 0 100 100">
+        <style>
+          {`
+            @keyframes drawLine-${id} {
+              0% { stroke-dashoffset: 300; }
+              100% { stroke-dashoffset: 0; }
+            }
+            .path-draw-${id} {
+              stroke-dasharray: 300;
+              animation: drawLine-${id} 3s ease-out forwards;
+            }
+            @keyframes fadeFill-${id} {
+              0% { opacity: 0; }
+              100% { opacity: 1; }
+            }
+            .fill-fade-${id} {
+              animation: fadeFill-${id} 3s ease-out forwards;
+            }
+          `}
+        </style>
+        <defs>
+          <linearGradient id={`grad-${id}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path 
+          d={`${pathData} L100,100 L0,100 Z`} 
+          fill={`url(#grad-${id})`} 
+          className={`fill-fade-${id}`}
+        />
+        <path 
+          d={pathData} 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`path-draw-${id}`}
+        />
+      </svg>
+    </div>
+  );
+};
+
+const AnimatedBarsBg = ({ colorClass }: { colorClass: string }) => (
+  <div className="absolute inset-x-0 bottom-0 h-24 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-20 flex items-end justify-between px-4 gap-2">
+    {[...Array(12)].map((_, i) => (
+      <div 
+        key={i} 
+        className={`w-full bg-current ${colorClass} rounded-t-sm animate-pulse`} 
+        style={{ 
+          height: `${20 + Math.random() * 80}%`, 
+          animationDelay: `${i * 0.15}s`,
+          animationDuration: `${1 + Math.random()}s`
+        }} 
       />
-      <path 
-        d={d} 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="3" 
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    ))}
+  </div>
+);
+
+const AnimatedGlowingOrbsBg = () => (
+  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-30">
+    <div className="absolute -left-4 top-4 w-32 h-32 bg-amber-500 rounded-full mix-blend-screen filter blur-2xl animate-pulse" style={{ animationDuration: '4s' }} />
+    <div className="absolute right-0 -bottom-4 w-40 h-40 bg-emerald-500 rounded-full mix-blend-screen filter blur-[32px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
+  </div>
+);
+
+const AnimatedNetworkBg = ({ colorClass }: { colorClass: string }) => (
+  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-30">
+    <svg className={`w-full h-full ${colorClass}`} viewBox="0 0 200 100">
+      <circle cx="30" cy="40" r="3" className="animate-pulse" style={{ animationDelay: '0.1s' }} fill="currentColor" />
+      <circle cx="80" cy="20" r="4" className="animate-pulse" style={{ animationDelay: '0.4s' }} fill="currentColor" />
+      <circle cx="150" cy="50" r="2" className="animate-pulse" style={{ animationDelay: '0.7s' }} fill="currentColor" />
+      <circle cx="110" cy="80" r="3" className="animate-pulse" style={{ animationDelay: '0.2s' }} fill="currentColor" />
+      <circle cx="180" cy="85" r="4" className="animate-pulse" style={{ animationDelay: '0.8s' }} fill="currentColor" />
+      <circle cx="50" cy="85" r="2.5" className="animate-pulse" style={{ animationDelay: '0.5s' }} fill="currentColor" />
+      
+      <line x1="30" y1="40" x2="80" y2="20" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.5" />
+      <line x1="80" y1="20" x2="150" y2="50" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.5" />
+      <line x1="150" y1="50" x2="110" y2="80" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.5" />
+      <line x1="110" y1="80" x2="50" y2="85" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.5" />
+      <line x1="50" y1="85" x2="30" y2="40" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.5" />
+      <line x1="80" y1="20" x2="110" y2="80" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.3" />
+      <line x1="150" y1="50" x2="180" y2="85" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.5" />
     </svg>
   </div>
 );
@@ -111,7 +179,7 @@ export function DashboardAnalytics({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Total Omset */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <AnimatedChartBg colorClass="text-emerald-400" id="chart1" d="M0,80 Q20,50 40,70 T80,30 T100,40" />
+          <AnimatedStockChartBg colorClass="text-emerald-400" id="chart1" />
           <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <TrendingUp className="w-5 h-5" />
@@ -136,7 +204,7 @@ export function DashboardAnalytics({
 
         {/* Card 2: Jumlah Transaksi */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <AnimatedChartBg colorClass="text-violet-400" id="chart2" d="M0,60 Q20,80 45,40 T80,50 T100,20" />
+          <AnimatedBarsBg colorClass="text-violet-400" />
           <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <ShoppingBag className="w-5 h-5" />
@@ -162,7 +230,7 @@ export function DashboardAnalytics({
 
         {/* Card 3: Total Produk */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <AnimatedChartBg colorClass="text-amber-400" id="chart3" d="M0,40 Q30,70 50,30 T80,60 T100,20" />
+          <AnimatedGlowingOrbsBg />
           <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Package className="w-5 h-5" />
@@ -179,7 +247,7 @@ export function DashboardAnalytics({
 
         {/* Card 4: Customer Aktif */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <AnimatedChartBg colorClass="text-cyan-400" id="chart4" d="M0,70 Q20,30 40,60 T70,40 T100,50" />
+          <AnimatedNetworkBg colorClass="text-cyan-400" />
           <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Users className="w-5 h-5" />
