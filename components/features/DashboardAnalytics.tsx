@@ -85,75 +85,75 @@ export function DashboardAnalytics({
     <div className="space-y-6 animate-in fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Total Omset */}
-        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-500/20">
-               <TrendingUp className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-[14px] bg-primary/10 flex items-center justify-center text-primary">
+               <TrendingUp className="w-5 h-5" />
             </div>
             {dashboard.trendText && (
-              <div className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 border ${dashboard.trendText.startsWith('+') ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'}`}>
-                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={dashboard.trendText.startsWith('+') ? "M7 17L17 7M17 7H7M17 7V17" : "M17 7L7 17M7 17H17M7 17V7"}/>
+              <div className={`px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${dashboard.trendText.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d={dashboard.trendText.startsWith('+') ? "M7 17L17 7M17 7H7M17 7V17" : "M17 7L7 17M7 17H17M7 17V7"}/>
                  </svg>
                  {dashboard.trendText.split(' ')[0]}
               </div>
             )}
           </div>
           <div>
-            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{formatRp(dashboard.totalOmset)}</h3>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Total Omset</p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{formatRp(dashboard.totalOmset)}</h3>
+            <p className="text-sm font-bold text-slate-500 mb-1">Total Omset</p>
+            <p className="text-xs text-slate-400 truncate">
                {dashboard.trendText ? dashboard.trendText.substring(dashboard.trendText.indexOf(' ') + 1) : 'Total pendapatan kotor hari ini'}
             </p>
           </div>
           <div className="mt-6">
-            <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 dark:bg-blue-500 rounded-full" style={{ width: '75%' }}></div>
+            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full" style={{ width: '75%' }}></div>
             </div>
           </div>
         </div>
 
         {/* Card 2: Jumlah Transaksi */}
-        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 rounded-lg bg-violet-500/10 dark:bg-violet-500/20 flex items-center justify-center text-violet-600 dark:text-violet-400 border border-violet-500/20">
-               <ShoppingBag className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-[14px] bg-violet-100 flex items-center justify-center text-violet-600">
+               <ShoppingBag className="w-5 h-5" />
             </div>
             {dashboard.activeProductionOrders > 0 && (
-              <div className="px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
-                <span className="relative flex h-1.5 w-1.5">
+              <div className="px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-emerald-50 text-emerald-600">
+                <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
                 {dashboard.activeProductionOrders} Active
               </div>
             )}
           </div>
           <div>
-            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{dashboard.totalOrders}</h3>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Jumlah Transaksi</p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{dashboard.totalOrders}</h3>
+            <p className="text-sm font-bold text-slate-500 mb-1">Jumlah Transaksi</p>
+            <p className="text-xs text-slate-400 truncate">
                Pesanan yang diproses hari ini
             </p>
           </div>
           <div className="mt-6">
-            <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-violet-500 dark:bg-violet-500 rounded-full" style={{ width: dashboard.totalOrders > 0 ? '100%' : '0%' }}></div>
+            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-violet-500 rounded-full" style={{ width: dashboard.totalOrders > 0 ? '100%' : '0%' }}></div>
             </div>
           </div>
         </div>
 
         {/* Card 3: Total Produk */}
-        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-               <Package className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-[14px] bg-emerald-100 flex items-center justify-center text-emerald-600">
+               <Package className="w-5 h-5" />
             </div>
           </div>
           <div>
-            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{dashboard.totalPcs}</h3>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Total Produk</p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{dashboard.totalPcs}</h3>
+            <p className="text-sm font-bold text-slate-500 mb-1">Total Produk</p>
+            <p className="text-xs text-slate-400 truncate">
                Rasio Croissant vs Cake
             </p>
           </div>
@@ -165,9 +165,9 @@ export function DashboardAnalytics({
               const croissantPct = total > 0 ? (croissant / total) * 100 : 60;
 
               return (
-                <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-emerald-500 dark:bg-emerald-500 rounded-l-full" style={{ width: `${croissantPct}%` }}></div>
-                  <div className="h-full bg-amber-500 dark:bg-amber-500 rounded-r-full" style={{ width: `${100 - croissantPct}%` }}></div>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${croissantPct}%` }}></div>
+                  <div className="h-full bg-amber-500 rounded-r-full" style={{ width: `${100 - croissantPct}%` }}></div>
                 </div>
               );
             })()}
@@ -175,27 +175,27 @@ export function DashboardAnalytics({
         </div>
 
         {/* Card 4: Customer Aktif */}
-        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 dark:bg-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
-               <Users className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-[14px] bg-cyan-100 flex items-center justify-center text-cyan-600">
+               <Users className="w-5 h-5" />
             </div>
             {dashboard.newCustomersThisMonth > 0 && (
-              <div className="px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 border bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20">
+              <div className="px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 bg-cyan-50 text-cyan-600">
                  +{dashboard.newCustomersThisMonth} Baru
               </div>
             )}
           </div>
           <div>
-            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{dashboard.uniqueCustomers.length}</h3>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Aktif</p>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{dashboard.uniqueCustomers.length}</h3>
+            <p className="text-sm font-bold text-slate-500 mb-1">Customer Aktif</p>
+            <p className="text-xs text-slate-400 truncate">
                Total pelanggan unik hari ini
             </p>
           </div>
           <div className="mt-6">
-            <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-cyan-500 dark:bg-cyan-500 rounded-full" style={{ width: '40%' }}></div>
+            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-cyan-500 rounded-full" style={{ width: '40%' }}></div>
             </div>
           </div>
         </div>
@@ -203,10 +203,10 @@ export function DashboardAnalytics({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Variant Performance */}
-        <Card className="shadow-sm border-border/50 dark:glass-panel dark:border-white/10 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+        <Card className="glass-panel p-0">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-gradient-to-b from-blue-600 to-cyan-500 rounded-full"></span>
+            <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
+              <span className="w-1.5 h-6 bg-primary rounded-full"></span>
               Performa Varian Terlaris
             </CardTitle>
           </CardHeader>
@@ -244,7 +244,7 @@ export function DashboardAnalytics({
         </Card>
 
         {/* Bottlenecks Panel */}
-        <Card className="shadow-sm border-border/50 lg:col-span-2 dark:glass-panel dark:border-white/10 dark:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+        <Card className="glass-panel p-0 lg:col-span-2">
           <CardHeader className="pb-3 border-b border-border/50">
             <CardTitle className="text-lg flex items-center gap-2 text-red-600">
               <AlertCircle className="w-5 h-5" />
@@ -358,11 +358,11 @@ export function DashboardAnalytics({
         </Card>
 
         {/* Customer Leaderboard */}
-        <Card className="shadow-sm border-border/50 flex flex-col lg:col-span-2">
-          <CardHeader className="pb-3 border-b border-border/50">
+        <Card className="glass-panel p-0 flex flex-col lg:col-span-2">
+          <CardHeader className="pb-3 border-b border-slate-100">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span className="w-1.5 h-6 bg-gradient-to-b from-violet-600 to-fuchsia-500 rounded-full"></span>
+              <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
+                <span className="w-1.5 h-6 bg-violet-500 rounded-full"></span>
                 Top Customer
               </CardTitle>
               <div className="relative">

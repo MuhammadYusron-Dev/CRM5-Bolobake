@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ChefHat, LayoutDashboard, ShoppingCart, Clock, Search, X, ChevronLeft, ChevronRight, User, LogOut, Pencil, PackageCheck, Gift, BarChart3, PackageSearch, Factory, ShieldAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { ThemeToggle } from '@/components/features/ThemeToggle';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -126,29 +125,28 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       )}
 
       <aside 
-        className={`fixed md:static inset-y-0 left-0 z-50 bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500 dark:bg-none dark:bg-card/40 dark:backdrop-blur-xl dark:border-r dark:border-white/10 text-white flex flex-col h-full min-h-0 transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
+        className={`fixed md:static inset-y-0 left-0 z-50 bg-background md:bg-transparent border-r border-border/50 md:border-0 flex flex-col h-full min-h-0 transition-all duration-300 ease-in-out shadow-xl md:shadow-none ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{ width: isCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
       >
-        <div className="p-4 flex items-center h-16 shrink-0 mt-2">
+        <div className="p-4 flex items-center h-16 shrink-0 mt-4 md:mt-6 mb-2">
           <div className="flex items-center overflow-hidden w-full px-2">
-            <ChefHat className={`w-8 h-8 text-white flex-shrink-0 drop-shadow-sm transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
+            <ChefHat className={`w-8 h-8 text-primary flex-shrink-0 transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
             <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
-              <span className="font-serif font-bold leading-tight" style={{ fontSize: 'var(--text-2xl)' }}>Bolobake</span>
-              <span className="text-white/60 tracking-widest font-bold uppercase mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>Powered by Yusron</span>
+              <span className="font-sans font-extrabold leading-tight tracking-tight text-slate-900" style={{ fontSize: 'var(--text-xl)' }}>Bolobake.</span>
             </div>
           </div>
-          <button className="md:hidden p-1 rounded-md hover:bg-white/20" onClick={() => setIsMobileOpen(false)}>
-            <X className="w-5 h-5 text-white" />
+          <button className="md:hidden p-1 rounded-md hover:bg-slate-100 text-slate-500" onClick={() => setIsMobileOpen(false)}>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-6 px-0 custom-scrollbar min-h-0">
+        <div className="flex-1 overflow-y-auto py-2 flex flex-col gap-6 px-4 custom-scrollbar min-h-0">
           {menuGroups.map((group, gIdx) => (
-            <div key={gIdx} className="flex flex-col gap-1">
+            <div key={gIdx} className="flex flex-col gap-1.5">
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0' : 'max-h-8 opacity-100'}`}>
-                <span className="uppercase font-bold text-white/70 tracking-widest px-6 block whitespace-nowrap" style={{ fontSize: 'var(--text-3xs)' }}>
+                <span className="uppercase font-bold text-slate-400 tracking-wider px-4 block whitespace-nowrap" style={{ fontSize: 'var(--text-3xs)' }}>
                   {group.title}
                 </span>
               </div>
@@ -160,13 +158,13 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                     key={item.id}
                     onClick={() => handleMenuClick(item)}
                     title={isCollapsed ? item.label : undefined}
-                    className={`flex items-center py-2.5 transition-all duration-300 group relative ${
+                    className={`flex items-center py-3 rounded-2xl transition-all duration-300 group relative ${
                       isActive 
-                        ? 'bg-white/20 dark:bg-primary/20 text-white font-bold border-l-4 border-white dark:border-primary border-r-4 border-r-transparent dark:shadow-[inset_20px_0_40px_-20px_rgba(0,89,255,0.5)]' 
-                        : 'text-white/80 hover:bg-white/10 dark:hover:bg-white/5 hover:text-white border-l-4 border-transparent border-r-4 border-r-transparent'
-                    } ${isCollapsed ? 'justify-center px-0' : 'px-5'}`}
+                        ? 'bg-white text-slate-900 font-bold shadow-[0_8px_20px_rgba(0,0,0,0.04)]' 
+                        : 'text-slate-500 hover:bg-white/50 hover:text-slate-800'
+                    } ${isCollapsed ? 'justify-center px-0' : 'px-4'}`}
                   >
-                    <Icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isActive ? 'text-white dark:text-primary dark:drop-shadow-[0_0_8px_rgba(0,89,255,0.8)]' : 'group-hover:scale-110'}`} />
+                    <Icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isActive ? 'text-primary' : 'group-hover:scale-110'}`} />
                     <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'max-w-[200px] opacity-100 ml-3'}`} style={{ fontSize: 'var(--text-sm)' }}>
                       {item.label}
                     </span>
@@ -177,44 +175,38 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           ))}
         </div>
 
-        <div className="mt-auto px-4 pb-4 flex flex-col gap-4 shrink-0">
-          <div className="flex justify-center w-full">
-            <ThemeToggle isCollapsed={isCollapsed} />
-          </div>
+        <div className="mt-auto px-6 pb-6 flex flex-col gap-4 shrink-0">
 
-          <div className={`flex items-center transition-all duration-300 ease-in-out w-full gap-1 ${isCollapsed ? 'flex-col justify-center' : ''}`}>
+          <div className={`flex items-center transition-all duration-300 ease-in-out w-full gap-2 ${isCollapsed ? 'flex-col justify-center' : ''}`}>
             <button 
               onClick={() => setIsSettingsOpen(true)}
-              className="flex-1 flex items-center hover:bg-white/10 p-2 rounded-xl transition-all min-w-0 text-left group"
+              className="flex-1 flex items-center hover:bg-white/50 p-2 rounded-2xl transition-all min-w-0 text-left group"
               title="Pengaturan Profil"
             >
-              <div className={`w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden transition-all duration-300 ${isCollapsed ? 'mx-auto' : ''}`}>
+              <div className={`w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center shrink-0 overflow-hidden transition-all duration-300 ${isCollapsed ? 'mx-auto' : ''}`}>
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-white font-bold text-lg">{user?.username?.[0]?.toUpperCase() || 'A'}</span>
+                  <span className="text-slate-600 font-bold text-lg">{user?.username?.[0]?.toUpperCase() || 'A'}</span>
                 )}
               </div>
               <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'opacity-100 ml-3'}`}>
-                <span className="font-bold truncate leading-tight block" style={{ fontSize: 'var(--text-sm)' }}>{user?.fullName || user?.username || 'Admin'}</span>
-                <span className="text-white/90 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>{user?.email || user?.username}</span>
-                <div className="flex items-center mt-1.5">
-                  <span className="bg-white/20 px-2 py-0.5 rounded-md font-medium text-white shadow-sm shrink-0" style={{ fontSize: 'var(--text-3xs)' }}>{user?.role || 'ADMIN'}</span>
-                </div>
+                <span className="font-bold text-slate-900 truncate leading-tight block" style={{ fontSize: 'var(--text-sm)' }}>{user?.fullName || user?.username || 'Admin'}</span>
+                <span className="text-slate-500 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>Premium plan</span>
               </div>
             </button>
             <div className={`overflow-hidden shrink-0 flex items-center transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 max-h-0' : 'max-w-[40px] opacity-100'}`}>
-              <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-xl text-white hover:text-white transition-colors shrink-0 flex items-center justify-center" title="Keluar">
+              <button onClick={handleLogout} className="p-2 hover:bg-slate-200 rounded-xl text-slate-500 hover:text-slate-800 transition-colors shrink-0 flex items-center justify-center" title="Keluar">
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="hidden md:flex p-3 border-t border-white/10 justify-end shrink-0 items-center">
+        <div className="hidden md:flex p-3 justify-end shrink-0 items-center">
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors w-full flex justify-center"
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition-colors w-full flex justify-center"
           >
             {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </button>

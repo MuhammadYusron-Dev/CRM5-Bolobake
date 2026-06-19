@@ -651,19 +651,19 @@ export function OrderManager({
       </div>
 
       <main className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden bg-transparent relative z-10">
-        <header className="relative flex items-center justify-between shrink-0 z-10 shadow-sm md:shadow-none bg-card border-b border-border" style={{ minHeight: 'var(--header-height)', padding: '0 var(--content-padding)' }}>
+        <header className="relative flex items-center justify-between shrink-0 z-10 bg-transparent pt-6 pb-4" style={{ minHeight: 'var(--header-height)', paddingLeft: 'var(--content-padding)', paddingRight: 'var(--content-padding)' }}>
 
           {/* Left Content */}
           <div className="relative z-10 flex items-center gap-3">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className={`md:hidden p-2 -ml-2 rounded-lg transition-colors ${menuIconColor}`}
+              className="md:hidden p-2 -ml-2 rounded-lg transition-colors text-slate-500 hover:bg-white/50"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex flex-col min-w-0">
-              <h1 className={`font-medium transition-colors duration-1000 ${headerTextColor}`} style={{ fontSize: 'var(--text-xl)' }}>
-                {activeMenu === 'dashboard' ? 'Dashboard' : 
+              <h1 className="font-bold text-slate-900 tracking-tight transition-colors duration-500" style={{ fontSize: 'var(--text-3xl)' }}>
+                {activeMenu === 'dashboard' ? 'Home' : 
                  activeMenu === 'history' ? 'Riwayat Pesanan' : 
                  activeMenu === 'catalog' ? 'Katalog Manager' :
                  activeMenu === 'produksi' ? 'Divisi Produksi' :
@@ -672,8 +672,8 @@ export function OrderManager({
                  activeMenu === 'sales' ? 'Sales CRM' :
                  'Buat Pesanan Baru'}
               </h1>
-              {activeMenu === 'dashboard' && currentDateString && (
-                <span className={`mt-0 transition-colors duration-1000 ${subTextColor}`} style={{ fontSize: 'var(--text-xs)' }}>{currentDateString}</span>
+              {activeMenu === 'dashboard' && (
+                <span className="mt-1 text-slate-500 font-medium" style={{ fontSize: 'var(--text-sm)' }}>Welcome back!</span>
               )}
             </div>
           </div>
@@ -688,13 +688,32 @@ export function OrderManager({
           </div>
           
           {/* Right Content */}
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="hidden sm:flex px-3 py-1.5 rounded-full font-medium items-center gap-1.5 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" style={{ fontSize: 'var(--text-2xs)' }}>
-              <span className="relative flex h-2 w-2 mr-0.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              System Online
+          <div className="relative z-10 flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-6 mr-4">
+              <div className="flex flex-col items-end">
+                <span className="text-slate-900 font-bold flex items-center gap-2"><div className="w-4 h-4 rounded bg-slate-200"></div> $ 323</span>
+                <span className="text-slate-400 text-xs font-medium">My Balance</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-slate-900 font-bold flex items-center gap-2"><div className="w-4 h-4 rounded bg-slate-200"></div> 5 lesson</span>
+                <span className="text-slate-400 text-xs font-medium">Deposit</span>
+              </div>
+            </div>
+            
+            {/* Search Bar matching reference image */}
+            <div className="hidden md:flex relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input type="text" placeholder="Search" className="bg-white/50 border-0 rounded-full pl-9 pr-4 py-2 text-sm text-slate-700 w-48 focus:ring-2 focus:ring-primary/20 focus:bg-white outline-none transition-all placeholder:text-slate-400" />
+            </div>
+
+            <div className="flex items-center gap-3 ml-2">
+               <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+               </button>
+               <button className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors shadow-sm relative">
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                 <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+               </button>
             </div>
             <SalesTutorial />
           </div>

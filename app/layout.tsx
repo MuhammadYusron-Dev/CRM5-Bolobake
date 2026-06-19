@@ -37,17 +37,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-500" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange={false}
+          defaultTheme="light"
+          forcedTheme="light"
+          disableTransitionOnChange={true}
         >
-          <div id="main-app" className="flex flex-col flex-1 relative z-10">
-            {/* Dark Mode Ambient Blobs - Global */}
-            <div className="hidden dark:block fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
-              <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-[#0059FF]/20 blur-[120px] animate-blob mix-blend-screen"></div>
-              <div className="absolute top-[20%] right-[-10%] w-[35vw] h-[35vw] rounded-full bg-[#8b5cf6]/20 blur-[100px] animate-blob animation-delay-2000 mix-blend-screen"></div>
-              <div className="absolute bottom-[-20%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#0ea5e9]/15 blur-[150px] animate-blob animation-delay-4000 mix-blend-screen"></div>
-            </div>
+          <div id="main-app" className="flex flex-col flex-1 relative z-10 min-h-screen">
+
             {children}
             <InternalChat />
           </div>

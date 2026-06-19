@@ -1,27 +1,28 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: light-dark(#FAF8F5, #030923);
-  --color-foreground: light-dark(#2C1810, #ffffff);
-  --color-card: light-dark(#FFFFFF, #041A53);
-  --color-card-foreground: light-dark(#2C1810, #ffffff);
-  --color-popover: light-dark(#FFFFFF, #041A53);
-  --color-popover-foreground: light-dark(#2C1810, #ffffff);
-  --color-primary: light-dark(#2563eb, #0059FF);
+  --color-background: #E8EEF2;
+  --color-foreground: #1E293B;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1E293B;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1E293B;
+  --color-primary: #5A57FF;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: light-dark(#F3F4F6, #0b2158);
-  --color-secondary-foreground: light-dark(#111827, #ffffff);
-  --color-muted: light-dark(#F3F4F6, #0b2158);
-  --color-muted-foreground: light-dark(#6B7280, #889cbd);
-  --color-accent: light-dark(#2563eb, #0059FF);
+  --color-secondary: #F8FAFC;
+  --color-secondary-foreground: #475569;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+  --color-accent: #5A57FF;
   --color-accent-foreground: #FFFFFF;
   --color-destructive: #ef4444;
-  --color-destructive-foreground: light-dark(#FFFFFF, #ffffff);
-  --color-border: light-dark(#E5E7EB, #1e3a8a);
-  --color-input: light-dark(#E5E7EB, #1e3a8a);
-  --color-ring: light-dark(#2563eb, #0059FF);
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #5A57FF;
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-serif: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
+
   
   --animate-blob: blob 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
   @keyframes blob {
@@ -101,24 +102,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Deep Space Starry Background for Dark Mode */
-.dark body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: -2;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 130px 80px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 160px 120px, #ffffff, rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.3;
-  pointer-events: none;
-}
+/* Deep Space Starry Background for Dark Mode - REMOVED */
 
 /* ============================
    ENTERPRISE COMPONENT CLASSES
@@ -126,16 +110,16 @@ body {
 
 @layer components {
   .glass-panel {
-    @apply dark:!bg-none dark:bg-[var(--color-card)]/10 dark:backdrop-blur-2xl dark:border dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+    @apply bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-transparent transition-all duration-300;
   }
   .glass-panel-warning {
-    @apply dark:!bg-none dark:bg-orange-500/10 dark:backdrop-blur-xl dark:border dark:border-orange-500/20 dark:shadow-[inset_0_0_20px_rgba(249,115,22,0.1)];
+    @apply bg-orange-50/50 rounded-[20px] shadow-[0_8px_30px_rgb(249,115,22,0.05)] border border-orange-100/50 transition-all duration-300;
   }
   .glass-panel-danger {
-    @apply dark:!bg-none dark:bg-red-500/10 dark:backdrop-blur-xl dark:border dark:border-red-500/20 dark:shadow-[inset_0_0_20px_rgba(239,68,68,0.1)];
+    @apply bg-red-50/50 rounded-[20px] shadow-[0_8px_30px_rgb(239,68,68,0.05)] border border-red-100/50 transition-all duration-300;
   }
-  .neon-glow {
-    @apply dark:shadow-[0_0_15px_rgba(0,89,255,0.4)];
+  .soft-shadow {
+    @apply shadow-[0_10px_40px_rgba(0,0,0,0.03)];
   }
 }
 
