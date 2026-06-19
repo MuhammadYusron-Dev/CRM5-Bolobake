@@ -68,34 +68,31 @@ export default function LoginPage() {
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
       <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
         {/* Left Side: Illustration */}
-        <div className="hidden md:flex flex-col w-1/2 bg-white text-slate-800 relative overflow-hidden items-center justify-center p-8 lg:p-12">
+        <div className="hidden md:flex flex-col w-1/2 bg-white text-slate-800 relative overflow-hidden items-center pt-24 lg:pt-32">
           {/* Logo */}
-          <div className="absolute top-8 left-8 flex items-center gap-3 z-20 text-blue-600">
+          <div className="absolute top-8 left-8 flex items-center gap-3 z-30 text-blue-600">
             <ChefHat className="w-8 h-8" />
             <span className="text-2xl font-bold font-serif tracking-wide text-slate-900">Bolobake</span>
           </div>
 
-          {/* Illustration */}
-          <div className="w-full max-w-xl mt-12 z-10 flex justify-center">
-            <img 
-              src="/outlet_bolobake.png" 
-              alt="Bolobake Outlet" 
-              className="w-full h-auto object-contain animate-float drop-shadow-xl" 
-              style={{
-                WebkitMaskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)',
-                maskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)'
-              }}
-            />
-          </div>
-          
-          {/* Text Content */}
-          <div className="mt-12 text-center max-w-md z-10">
-            <h1 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-slate-900">
+          {/* Text Content (Layer Belakang) */}
+          <div className="text-center max-w-md z-0 px-8 relative">
+            <h1 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-slate-900 leading-tight">
               Sistem Manajemen <br/><span className="text-blue-600">Terpadu Bolobake</span>
             </h1>
             <p className="text-slate-500 font-medium leading-relaxed">
               Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
             </p>
+          </div>
+
+          {/* Illustration (Layer Depan, Full Width, Anchor Bottom) */}
+          <div className="absolute bottom-0 left-0 w-full z-10 flex items-end justify-center pointer-events-none">
+            <img 
+              src="/outlet_no_sky.png" 
+              alt="Bolobake Outlet" 
+              className="w-full h-auto object-cover object-bottom drop-shadow-[0_-10px_25px_rgba(0,0,0,0.15)] animate-float" 
+              style={{ maxHeight: '72vh' }}
+            />
           </div>
         </div>
 
