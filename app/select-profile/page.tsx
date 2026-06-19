@@ -137,7 +137,7 @@ export default function SelectProfilePage() {
                     autoFocus
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ''))}
-                    className={\`w-full bg-black/40 border \${error ? 'border-red-500 focus:ring-red-500/20' : 'border-white/20 focus:border-white focus:ring-white/20'} rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none focus:ring-2 transition-all text-center tracking-[0.5em] text-lg font-mono\`}
+                    className={`w-full bg-black/40 border ${error ? 'border-red-500 focus:ring-red-500/20' : 'border-white/20 focus:border-white focus:ring-white/20'} rounded-xl py-3 pl-10 pr-4 text-white placeholder-slate-500 outline-none focus:ring-2 transition-all text-center tracking-[0.5em] text-lg font-mono`}
                     placeholder="••••"
                     required
                     disabled={isLoading}
