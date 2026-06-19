@@ -70,9 +70,9 @@ export default function LoginPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans relative overflow-hidden px-4">
         
         {/* Logo at Top Left */}
-        <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-30 text-blue-600">
-          <ChefHat className="w-8 h-8" />
-          <span className="text-2xl font-bold font-serif tracking-wide text-slate-900">Bolobake</span>
+        <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-30">
+          <ChefHat className="w-8 h-8 text-indigo-500" />
+          <span className="text-2xl font-extrabold tracking-tight text-slate-900">Bolobake.</span>
         </div>
 
         <div className="relative grid place-items-center w-full max-w-4xl mt-12 md:mt-0">

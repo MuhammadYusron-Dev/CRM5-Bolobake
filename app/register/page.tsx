@@ -123,9 +123,9 @@ export default function RegisterPage() {
         {/* Left Side: Blue Banner */}
         <div className="hidden md:flex flex-col w-1/2 bg-gradient-to-tr from-blue-700 to-cyan-500 text-white p-8 lg:p-12 relative overflow-hidden">
           {/* Logo */}
-          <div className="absolute top-8 left-8 flex items-center gap-3 z-20">
-            <ChefHat className="w-8 h-8" />
-            <span className="text-2xl font-bold font-serif tracking-wide">Bolobake</span>
+          <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-20 bg-white/95 backdrop-blur-sm px-5 py-2.5 rounded-2xl shadow-lg border border-white/20">
+            <ChefHat className="w-8 h-8 text-indigo-500" />
+            <span className="text-2xl font-extrabold tracking-tight text-slate-900">Bolobake.</span>
           </div>
 
           {/* Center Content: Title, Subtitle, and Carousel Image */}
