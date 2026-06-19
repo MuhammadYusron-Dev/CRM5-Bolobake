@@ -331,6 +331,81 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
+        {/* Customer Leaderboard */}
+        <Card className="glass-panel p-0 flex flex-col ">
+          <CardHeader className="pb-3 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
+                <span className="w-1.5 h-6 bg-violet-500 rounded-full"></span>
+                Top Customer
+              </CardTitle>
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input 
+                  placeholder="Cari customer..." 
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  className="pl-9 h-9 text-sm w-full sm:w-64"
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 flex-1">
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table className="w-full text-left border-collapse min-w-[300px]">
+                <thead className="bg-muted/50 dark:bg-black/40 sticky top-0 z-10 backdrop-blur-sm">
+                  <tr className="text-xs uppercase tracking-wider text-muted-foreground dark:text-slate-300">
+                    <th className="py-3 px-4 font-semibold">Nama Outlet / Customer</th>
+                    <th className="py-3 px-4 font-semibold text-center">Freq</th>
+                    <th className="py-3 px-4 font-semibold text-right">Total Belanja</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLeaderboard.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="py-8 text-center text-muted-foreground text-sm">
+                        {customerSearch ? 'Customer tidak ditemukan.' : 'Belum ada order masuk.'}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLeaderboard.map(([cust, data], idx) => (
+                        <tr key={cust} className="border-b border-secondary dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                          <td className="py-3 px-4 text-sm font-semibold">
+                            <div className="flex items-center gap-4">
+                              <div className={`rounded-full flex items-center justify-center font-extrabold shrink-0 relative transition-all duration-300 ${
+                                idx === 0 ? 'w-8 h-8 text-base bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-white shadow-[0_0_10px_rgba(251,191,36,0.6)] border border-yellow-200 z-10' :
+                                idx === 1 ? 'w-7 h-7 text-sm bg-gradient-to-br from-slate-100 via-slate-300 to-slate-400 text-slate-700 shadow-md border border-white z-10' :
+                                idx === 2 ? 'w-6 h-6 text-xs bg-gradient-to-br from-orange-100 via-orange-300 to-orange-400 text-orange-900 shadow-sm border border-white z-10' :
+                                'w-6 h-6 text-xs bg-secondary text-muted-foreground'
+                              }`}>
+                                <span className={idx <= 2 ? 'drop-shadow-md' : ''}>{idx + 1}</span>
+                                {idx === 0 && (
+                                  <>
+                                    <span className="absolute -top-2.5 -right-1.5 text-base drop-shadow-md animate-bounce">👑</span>
+                                    <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-yellow-400"></span>
+                                  </>
+                                )}
+                                {idx === 1 && <span className="absolute -top-1 -right-1 text-[10px] drop-shadow-sm">🥈</span>}
+                                {idx === 2 && <span className="absolute -top-0.5 -right-0.5 text-[8px] drop-shadow-sm">🥉</span>}
+                              </div>
+                              <span className="truncate">{cust}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-center">
+                            <span className="bg-secondary px-2 py-1 rounded-md text-xs font-bold text-muted-foreground">{data.freq}x</span>
+                          </td>
+                          <td className="py-3 px-4 text-sm font-bold text-primary text-right whitespace-nowrap">
+                            {formatRp(data.totalBelanja)}
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Bottlenecks Panel */}
         <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm lg:col-span-2">
           <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-800">
@@ -465,80 +540,6 @@ export function DashboardAnalytics({
           </CardContent>
         </Card>
 
-        {/* Customer Leaderboard */}
-        <Card className="glass-panel p-0 flex flex-col lg:col-span-2">
-          <CardHeader className="pb-3 border-b border-slate-100">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
-                <span className="w-1.5 h-6 bg-violet-500 rounded-full"></span>
-                Top Customer
-              </CardTitle>
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input 
-                  placeholder="Cari customer..." 
-                  value={customerSearch}
-                  onChange={(e) => setCustomerSearch(e.target.value)}
-                  className="pl-9 h-9 text-sm w-full sm:w-64"
-                />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 flex-1">
-            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-              <table className="w-full text-left border-collapse min-w-[300px]">
-                <thead className="bg-muted/50 dark:bg-black/40 sticky top-0 z-10 backdrop-blur-sm">
-                  <tr className="text-xs uppercase tracking-wider text-muted-foreground dark:text-slate-300">
-                    <th className="py-3 px-4 font-semibold">Nama Outlet / Customer</th>
-                    <th className="py-3 px-4 font-semibold text-center">Freq</th>
-                    <th className="py-3 px-4 font-semibold text-right">Total Belanja</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLeaderboard.length === 0 ? (
-                    <tr>
-                      <td colSpan={3} className="py-8 text-center text-muted-foreground text-sm">
-                        {customerSearch ? 'Customer tidak ditemukan.' : 'Belum ada order masuk.'}
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredLeaderboard.map(([cust, data], idx) => (
-                        <tr key={cust} className="border-b border-secondary dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
-                          <td className="py-3 px-4 text-sm font-semibold">
-                            <div className="flex items-center gap-4">
-                              <div className={`rounded-full flex items-center justify-center font-extrabold shrink-0 relative transition-all duration-300 ${
-                                idx === 0 ? 'w-8 h-8 text-base bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-white shadow-[0_0_10px_rgba(251,191,36,0.6)] border border-yellow-200 z-10' :
-                                idx === 1 ? 'w-7 h-7 text-sm bg-gradient-to-br from-slate-100 via-slate-300 to-slate-400 text-slate-700 shadow-md border border-white z-10' :
-                                idx === 2 ? 'w-6 h-6 text-xs bg-gradient-to-br from-orange-100 via-orange-300 to-orange-400 text-orange-900 shadow-sm border border-white z-10' :
-                                'w-6 h-6 text-xs bg-secondary text-muted-foreground'
-                              }`}>
-                                <span className={idx <= 2 ? 'drop-shadow-md' : ''}>{idx + 1}</span>
-                                {idx === 0 && (
-                                  <>
-                                    <span className="absolute -top-2.5 -right-1.5 text-base drop-shadow-md animate-bounce">👑</span>
-                                    <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-yellow-400"></span>
-                                  </>
-                                )}
-                                {idx === 1 && <span className="absolute -top-1 -right-1 text-[10px] drop-shadow-sm">🥈</span>}
-                                {idx === 2 && <span className="absolute -top-0.5 -right-0.5 text-[8px] drop-shadow-sm">🥉</span>}
-                              </div>
-                              <span className="truncate">{cust}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-sm text-center">
-                            <span className="bg-secondary px-2 py-1 rounded-md text-xs font-bold text-muted-foreground">{data.freq}x</span>
-                          </td>
-                          <td className="py-3 px-4 text-sm font-bold text-primary text-right whitespace-nowrap">
-                            {formatRp(data.totalBelanja)}
-                          </td>
-                        </tr>
-                      ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
