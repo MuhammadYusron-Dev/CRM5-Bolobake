@@ -81,6 +81,10 @@ export default function LoginPage() {
               src="/outlet_bolobake.png" 
               alt="Bolobake Outlet" 
               className="w-full h-auto object-contain animate-float drop-shadow-xl" 
+              style={{
+                WebkitMaskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)',
+                maskImage: 'linear-gradient(to bottom, black 75%, transparent 100%)'
+              }}
             />
           </div>
           
