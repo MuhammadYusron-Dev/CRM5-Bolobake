@@ -16,6 +16,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showLoginForm, setShowLoginForm] = useState(false);
+  const [isLoginView, setIsLoginView] = useState(true);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [agreeTos, setAgreeTos] = useState(false);
 
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
@@ -57,6 +61,51 @@ export default function LoginPage() {
         router.push('/');
       } else {
         setError(data.message || 'Login gagal.');
+      }
+    } catch (err) {
+      setError('Terjadi kesalahan jaringan.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreeTos) {
+      setError('Anda harus menyetujui Terms of Service dan Privacy Policy.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('firstName', firstName);
+      formData.append('lastName', lastName);
+      formData.append('email', email);
+      formData.append('password', password);
+
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        // Auto login after register
+        const loginRes = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const loginData = await loginRes.json();
+        if (loginData.success) {
+          router.push('/');
+        } else {
+          setIsLoginView(true);
+        }
+      } else {
+        setError(data.message || 'Pendaftaran gagal.');
       }
     } catch (err) {
       setError('Terjadi kesalahan jaringan.');
@@ -114,9 +163,13 @@ export default function LoginPage() {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
             
-            <div className="text-center mb-8 mt-2">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Masuk ke akun</h2>
-              <p className="text-slate-500 text-sm">Selamat datang kembali! Masuk untuk melanjutkan</p>
+            <div className="text-center mb-8 mt-2 transition-all duration-300">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                {isLoginView ? 'Masuk ke akun' : 'Buat akun baru'}
+              </h2>
+              <p className="text-slate-500 text-sm">
+                {isLoginView ? 'Selamat datang kembali! Masuk untuk melanjutkan' : 'Selamat datang! Isi data Anda untuk mulai'}
+              </p>
             </div>
 
             {error && (
@@ -131,7 +184,7 @@ export default function LoginPage() {
                 onError={() => setError('Google Login Gagal.')}
                 useOneTap
                 theme="outline"
-                text="signin_with"
+                text={isLoginView ? "signin_with" : "continue_with"}
                 shape="rectangular"
               />
             </div>
@@ -142,7 +195,34 @@ export default function LoginPage() {
               <div className="flex-grow border-t border-slate-100"></div>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={isLoginView ? handleLogin : handleRegister} className="space-y-5 transition-all duration-300">
+              {!isLoginView && (
+                <div className="flex gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div className="space-y-1.5 flex-1">
+                    <label className="text-xs font-bold text-slate-700">Nama depan</label>
+                    <Input 
+                      required
+                      type="text"
+                      placeholder="Nama depan"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5 flex-1">
+                    <label className="text-xs font-bold text-slate-700">Nama belakang</label>
+                    <Input 
+                      required
+                      type="text"
+                      placeholder="Nama belakang"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">Alamat email</label>
                 <Input 
@@ -176,6 +256,21 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {!isLoginView && (
+                <div className="flex items-start gap-2 pt-1 animate-in fade-in duration-500">
+                  <input 
+                    type="checkbox" 
+                    id="tos" 
+                    checked={agreeTos}
+                    onChange={(e) => setAgreeTos(e.target.checked)}
+                    className="mt-1 border-slate-300 rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="tos" className="text-xs text-slate-500 leading-snug cursor-pointer">
+                    I agree to the <Link href="#" className="underline hover:text-slate-800">Terms of Service</Link> and <Link href="#" className="underline hover:text-slate-800">Privacy Policy</Link>
+                  </label>
+                </div>
+              )}
+
               <Button 
                 type="submit" 
                 disabled={loading}
@@ -186,12 +281,16 @@ export default function LoginPage() {
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Memproses...
                   </span>
-                ) : 'Masuk Sekarang'}
+                ) : (isLoginView ? 'Masuk Sekarang' : 'Buat Akun')}
               </Button>
             </form>
 
             <div className="mt-8 text-center text-sm text-slate-500">
-              Belum punya akun? <Link href="/register" className="text-blue-600 hover:underline font-bold">Daftar sekarang</Link>
+              {isLoginView ? (
+                <>Belum punya akun? <button type="button" onClick={() => setIsLoginView(false)} className="text-blue-600 hover:underline font-bold transition-colors">Daftar sekarang</button></>
+              ) : (
+                <>Sudah punya akun? <button type="button" onClick={() => setIsLoginView(true)} className="text-blue-600 hover:underline font-bold transition-colors">Masuk</button></>
+              )}
             </div>
 
             <div className="mt-8 pt-4 border-t border-slate-50 flex justify-center items-center">
