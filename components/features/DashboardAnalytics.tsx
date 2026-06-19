@@ -4,7 +4,7 @@ import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Searc
 import { Input } from '@/components/ui/input';
 
 const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: string }) => {
-  const pathData = "M0,80 C60,80 90,60 120,65 C150,70 180,40 210,45 C240,50 270,20 300,25";
+  const pathData = "M0,90 C30,90 40,40 70,40 C100,40 110,85 140,85 C170,85 180,30 210,30 C240,30 250,60 270,60 C285,60 290,15 300,15";
   return (
     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-80 flex items-end">
       <svg className={`w-full h-24 ${colorClass}`} preserveAspectRatio="none" viewBox="0 0 300 100">
