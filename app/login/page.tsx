@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showLoginForm, setShowLoginForm] = useState(false);
 
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
@@ -66,31 +67,43 @@ export default function LoginPage() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
-      <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 font-sans">
-        {/* Left Side: Illustration */}
-        <div className="hidden md:flex flex-col w-1/2 bg-white text-slate-800 relative overflow-hidden items-center pt-24 lg:pt-32">
-          {/* Logo */}
-          <div className="absolute top-8 left-8 flex items-center gap-3 z-30 text-blue-600">
-            <ChefHat className="w-8 h-8" />
-            <span className="text-2xl font-bold font-serif tracking-wide text-slate-900">Bolobake</span>
-          </div>
-
-          {/* Text Content (Layer Belakang) */}
-          <div className="text-center max-w-md z-0 px-8 relative">
-            <h1 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-slate-900 leading-tight">
-              Sistem Manajemen <br/><span className="text-blue-600">Terpadu Bolobake</span>
-            </h1>
-            <p className="text-slate-500 font-medium leading-relaxed">
-              Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
-            </p>
-          </div>
-
-
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans relative overflow-hidden px-4">
+        
+        {/* Logo at Top Left */}
+        <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-30 text-blue-600">
+          <ChefHat className="w-8 h-8" />
+          <span className="text-2xl font-bold font-serif tracking-wide text-slate-900">Bolobake</span>
         </div>
 
-        {/* Right Side: Auth Form */}
-        <div className="w-full md:w-1/2 flex items-center justify-center p-4 sm:p-8 relative bg-slate-50">
-          <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col">
+        {!showLoginForm ? (
+          <div className="flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out max-w-4xl z-10">
+            <span className="text-slate-500 font-medium mb-4 tracking-wide text-sm md:text-base">Welcome to Bolobake</span>
+            <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black mb-6 tracking-tight text-slate-900 leading-[1.1]">
+              Sistem Manajemen <br className="hidden md:block" />
+              <span className="text-blue-600">Terpadu Bolobake</span>
+            </h1>
+            <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mb-12">
+              Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Button 
+                onClick={() => setShowLoginForm(true)}
+                className="h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-full shadow-lg transition-all hover:scale-105 flex items-center gap-2"
+              >
+                <ChefHat className="w-5 h-5" />
+                Masuk ke Akun
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 flex flex-col animate-in fade-in zoom-in-95 duration-500 z-10 relative">
+            <button 
+              onClick={() => setShowLoginForm(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+              title="Kembali"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
             
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Masuk ke akun</h2>
@@ -129,7 +142,7 @@ export default function LoginPage() {
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 rounded-lg border-slate-300 focus-visible:ring-1 focus-visible:ring-orange-500"
+                  className="h-11 rounded-lg border-slate-300 focus-visible:ring-1 focus-visible:ring-blue-500"
                 />
               </div>
 
@@ -142,7 +155,7 @@ export default function LoginPage() {
                     placeholder="Masukkan kata sandi Anda"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-lg border-slate-300 pr-10 focus-visible:ring-1 focus-visible:ring-orange-500"
+                    className="h-11 rounded-lg border-slate-300 pr-10 focus-visible:ring-1 focus-visible:ring-blue-500"
                   />
                   <button 
                     type="button"
@@ -157,7 +170,7 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full h-11 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold text-sm mt-4 rounded-lg shadow-md transition-all"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm mt-4 rounded-lg shadow-md transition-all"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -168,8 +181,8 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
-              Belum punya akun? <Link href="/register" className="text-blue-600 dark:text-cyan-400 hover:underline font-bold">Daftar sekarang</Link>
+            <div className="mt-8 text-center text-sm text-slate-500">
+              Belum punya akun? <Link href="/register" className="text-blue-600 hover:underline font-bold">Daftar sekarang</Link>
             </div>
 
             <div className="mt-8 pt-4 border-t border-slate-100 flex justify-center items-center">
@@ -178,7 +191,7 @@ export default function LoginPage() {
               </span>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </GoogleOAuthProvider>
   );
