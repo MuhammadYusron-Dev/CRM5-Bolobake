@@ -291,17 +291,18 @@ export function DashboardAnalytics({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Variant Performance */}
-        <Card className="glass-panel p-0">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
-              <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+        {/* Variant Performance */}
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-800">
+            <CardTitle className="text-lg flex items-center gap-2 text-slate-900 dark:text-white">
+              <Package className="w-5 h-5 text-slate-700 dark:text-slate-300" />
               Performa Varian Terlaris
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4 flex-1">
             <div className="space-y-5">
               {Object.entries(dashboard.variantPerformance).length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-border rounded-xl">
+                <div className="text-center py-8 text-slate-500 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
                   <Package className="w-8 h-8 mx-auto mb-2 opacity-20" />
                   <p className="text-sm">Belum ada data penjualan hari ini.</p>
                 </div>
@@ -314,13 +315,13 @@ export function DashboardAnalytics({
                     return (
                       <div key={sku} className="group">
                         <div className="flex justify-between text-sm mb-2">
-                          <span className="font-semibold">{sku} <span className="text-muted-foreground font-normal ml-1">({data.qty} pcs)</span></span>
-                          <span className="font-medium text-primary">{percentage}% <span className="text-muted-foreground text-xs font-normal ml-1">({formatRp(data.omset)})</span></span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">{sku} <span className="text-slate-500 font-normal ml-1">({data.qty} pcs)</span></span>
+                          <span className="font-medium text-slate-700 dark:text-slate-300">{percentage}% <span className="text-slate-500 text-xs font-normal ml-1">({formatRp(data.omset)})</span></span>
                         </div>
-                        <div className={`w-full bg-secondary rounded-full h-2.5 overflow-hidden ${idx === 0 ? 'shimmer-bar' : ''}`}>
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
                           <AnimatedProgressBar 
                             percentage={percentage} 
-                            colorClass={idx === 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-500' : idx === 1 ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500' : 'bg-gradient-to-r from-orange-500 to-red-500'} 
+                            colorClass="bg-slate-800 dark:bg-slate-300" 
                           />
                         </div>
                       </div>
@@ -332,20 +333,20 @@ export function DashboardAnalytics({
         </Card>
 
         {/* Customer Leaderboard */}
-        <Card className="glass-panel p-0 flex flex-col ">
-          <CardHeader className="pb-3 border-b border-slate-100">
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
-                <span className="w-1.5 h-6 bg-violet-500 rounded-full"></span>
+              <CardTitle className="text-lg flex items-center gap-2 text-slate-900 dark:text-white">
+                <Users className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 Top Customer
               </CardTitle>
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <Input 
                   placeholder="Cari customer..." 
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
-                  className="pl-9 h-9 text-sm w-full sm:w-64"
+                  className="pl-9 h-9 text-sm w-full sm:w-64 border-slate-200 dark:border-slate-800 bg-transparent"
                 />
               </div>
             </div>
@@ -353,48 +354,40 @@ export function DashboardAnalytics({
           <CardContent className="p-0 flex-1">
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
               <table className="w-full text-left border-collapse min-w-[300px]">
-                <thead className="bg-muted/50 dark:bg-black/40 sticky top-0 z-10 backdrop-blur-sm">
-                  <tr className="text-xs uppercase tracking-wider text-muted-foreground dark:text-slate-300">
-                    <th className="py-3 px-4 font-semibold">Nama Outlet / Customer</th>
-                    <th className="py-3 px-4 font-semibold text-center">Freq</th>
-                    <th className="py-3 px-4 font-semibold text-right">Total Belanja</th>
+                <thead className="bg-slate-50 dark:bg-slate-800 sticky top-0 z-10">
+                  <tr className="text-xs uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                    <th className="py-3 px-4 font-semibold border-b border-slate-200 dark:border-slate-800">Nama Outlet / Customer</th>
+                    <th className="py-3 px-4 font-semibold text-center border-b border-slate-200 dark:border-slate-800">Freq</th>
+                    <th className="py-3 px-4 font-semibold text-right border-b border-slate-200 dark:border-slate-800">Total Belanja</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredLeaderboard.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="py-8 text-center text-muted-foreground text-sm">
+                      <td colSpan={3} className="py-8 text-center text-slate-500 text-sm border-b border-slate-100 dark:border-slate-800/50">
                         {customerSearch ? 'Customer tidak ditemukan.' : 'Belum ada order masuk.'}
                       </td>
                     </tr>
                   ) : (
                     filteredLeaderboard.map(([cust, data], idx) => (
-                        <tr key={cust} className="border-b border-secondary dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
-                          <td className="py-3 px-4 text-sm font-semibold">
-                            <div className="flex items-center gap-4">
-                              <div className={`rounded-full flex items-center justify-center font-extrabold shrink-0 relative transition-all duration-300 ${
-                                idx === 0 ? 'w-8 h-8 text-base bg-gradient-to-br from-yellow-300 via-amber-400 to-yellow-600 text-white shadow-[0_0_10px_rgba(251,191,36,0.6)] border border-yellow-200 z-10' :
-                                idx === 1 ? 'w-7 h-7 text-sm bg-gradient-to-br from-slate-100 via-slate-300 to-slate-400 text-slate-700 shadow-md border border-white z-10' :
-                                idx === 2 ? 'w-6 h-6 text-xs bg-gradient-to-br from-orange-100 via-orange-300 to-orange-400 text-orange-900 shadow-sm border border-white z-10' :
-                                'w-6 h-6 text-xs bg-secondary text-muted-foreground'
+                        <tr key={cust} className="border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer">
+                          <td className="py-3 px-4 text-sm font-semibold text-slate-900 dark:text-slate-200">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-6 h-6 rounded flex items-center justify-center font-bold text-xs shrink-0 border ${
+                                idx === 0 ? 'bg-slate-800 text-white border-slate-900 dark:bg-slate-200 dark:text-slate-900 dark:border-slate-200' :
+                                idx === 1 ? 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600' :
+                                idx === 2 ? 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
+                                'bg-transparent text-slate-500 border-transparent'
                               }`}>
-                                <span className={idx <= 2 ? 'drop-shadow-md' : ''}>{idx + 1}</span>
-                                {idx === 0 && (
-                                  <>
-                                    <span className="absolute -top-2.5 -right-1.5 text-base drop-shadow-md animate-bounce">👑</span>
-                                    <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-yellow-400"></span>
-                                  </>
-                                )}
-                                {idx === 1 && <span className="absolute -top-1 -right-1 text-[10px] drop-shadow-sm">🥈</span>}
-                                {idx === 2 && <span className="absolute -top-0.5 -right-0.5 text-[8px] drop-shadow-sm">🥉</span>}
+                                {idx + 1}
                               </div>
                               <span className="truncate">{cust}</span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-sm text-center">
-                            <span className="bg-secondary px-2 py-1 rounded-md text-xs font-bold text-muted-foreground">{data.freq}x</span>
+                            <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded text-xs font-semibold text-slate-600 dark:text-slate-300">{data.freq}x</span>
                           </td>
-                          <td className="py-3 px-4 text-sm font-bold text-primary text-right whitespace-nowrap">
+                          <td className="py-3 px-4 text-sm font-bold text-slate-900 dark:text-slate-200 text-right whitespace-nowrap">
                             {formatRp(data.totalBelanja)}
                           </td>
                         </tr>
