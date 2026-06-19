@@ -5,12 +5,14 @@ import { jwtVerify } from 'jose';
 export async function proxy(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register');
+  const isSelectProfilePage = request.nextUrl.pathname.startsWith('/select-profile');
   const isApiRoute = request.nextUrl.pathname.startsWith('/api');
 
   // Allow public assets and Next.js internals
   if (
     request.nextUrl.pathname.startsWith('/_next') ||
-    request.nextUrl.pathname.startsWith('/favicon.ico')
+    request.nextUrl.pathname.startsWith('/favicon.ico') ||
+    request.nextUrl.pathname.match(/\.(.*)$/)
   ) {
     return NextResponse.next();
   }
@@ -29,10 +31,27 @@ export async function proxy(request: NextRequest) {
 
   try {
     const secret = process.env.JWT_SECRET || 'super-secret-jwt-key-2026-bolobake';
-    await jwtVerify(token, new TextEncoder().encode(secret));
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+    const role = payload.role as string;
     
-    // If token is valid and user is on login/register page, redirect to dashboard
+    // If token is valid and user is on login/register page, redirect appropriately
     if (isAuthPage) {
+      if (role === 'WORKSPACE') {
+        return NextResponse.redirect(new URL('/select-profile', request.url));
+      }
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // Role-based routing
+    if (role === 'WORKSPACE') {
+      if (!isSelectProfilePage) {
+        return NextResponse.redirect(new URL('/select-profile', request.url));
+      }
+      return NextResponse.next();
+    }
+
+    // If fully authenticated user tries to go to select-profile, redirect them to dashboard
+    if (isSelectProfilePage) {
       return NextResponse.redirect(new URL('/', request.url));
     }
     

@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       firstName: admin.firstName,
       lastName: admin.lastName,
       avatarUrl: admin.avatarUrl,
-      role: admin.role,
+      role: 'WORKSPACE',
       issuedAt: new Date().toISOString()
     });
 

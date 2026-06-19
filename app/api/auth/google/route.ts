@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       firstName: admin.firstName,
       lastName: admin.lastName,
       avatarUrl: admin.avatarUrl || picture,
-      role: admin.role
+      role: 'WORKSPACE'
     });
 
     // Set cookie
