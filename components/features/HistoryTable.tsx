@@ -259,7 +259,7 @@ export function HistoryTable({
         const renderOrderCard = (order: Order) => {
             const isHighlighted = highlightedOutlet && order.customer.toLowerCase().includes(highlightedOutlet.toLowerCase());
             return (
-              <Card key={order.id} className={`transition-all duration-300 dark:glass-panel ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 dark:bg-blue-900/50 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-primary bg-primary/5 dark:bg-primary/20 shadow-md ring-2 ring-primary/40 scale-[1.01] z-10 relative' : 'hover:border-primary/50 hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(0,89,255,0.4)]'}`}>
+              <Card key={order.id} className={`transition-all duration-300 dark:glass-panel dark:!border-transparent dark:!bg-white/5 ${editingOrderId === order.id ? 'border-blue-300 bg-blue-50/30 dark:!bg-blue-900/50 shadow-md transform scale-[1.02]' : isHighlighted && !searchHistoryInput ? 'border-primary bg-primary/5 dark:!bg-primary/20 shadow-md ring-2 ring-primary/40 scale-[1.01] z-10 relative' : 'hover:border-primary/50 hover:shadow-md dark:hover:shadow-[0_0_15px_rgba(0,89,255,0.4)]'}`}>
                 <CardContent className="p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -327,7 +327,7 @@ export function HistoryTable({
                     </div>
                   </div>
                   
-                  <div className="bg-muted rounded-lg space-y-1 mb-3 border border-border" style={{ padding: 'var(--card-padding)', fontSize: 'var(--text-sm)' }}>
+                  <div className="bg-muted dark:bg-white/5 rounded-lg space-y-1 mb-3 border border-border dark:border-transparent" style={{ padding: 'var(--card-padding)', fontSize: 'var(--text-sm)' }}>
                     {(order.items || []).map((item, idx) => (
                       <div key={idx} className="flex justify-between">
                         <span>
@@ -347,13 +347,13 @@ export function HistoryTable({
                     )}
                   </div>
                   {order.notes && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded mb-3 border border-red-200 dark:border-red-800/50" style={{ fontSize: 'var(--text-2xs)' }}>
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-2 rounded mb-3 border border-red-200 dark:border-transparent" style={{ fontSize: 'var(--text-2xs)' }}>
                       <span className="font-bold block mb-0.5">Catatan Produksi:</span>
                       {order.notes}
                     </div>
                   )}
                   {order.deliveryNotes && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded mb-3 border border-blue-200 dark:border-blue-800/50" style={{ fontSize: 'var(--text-2xs)' }}>
+                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded mb-3 border border-blue-200 dark:border-transparent" style={{ fontSize: 'var(--text-2xs)' }}>
                       <span className="font-bold block mb-0.5">Catatan Pengiriman:</span>
                       {order.deliveryNotes}
                     </div>
@@ -398,7 +398,7 @@ export function HistoryTable({
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
                 <div className="space-y-4">
-                  <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-black/20 p-3 rounded-lg border dark:border-white/10 flex items-center justify-between shadow-sm">
+                  <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-white/5 p-3 rounded-lg border dark:border-transparent flex items-center justify-between shadow-sm">
                   <span>Hari Ini & Sebelumnya</span>
                   <span className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[10px] px-2 py-0.5 rounded border dark:border-white/10 font-bold shadow-sm">{leftOrders.length} Pesanan</span>
                 </h4>
@@ -412,7 +412,7 @@ export function HistoryTable({
                 </div>
               </div>
               <div className="space-y-4">
-                <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-black/20 p-3 rounded-lg border dark:border-white/10 flex items-center justify-between shadow-sm">
+                <h4 className="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-white/5 p-3 rounded-lg border dark:border-transparent flex items-center justify-between shadow-sm">
                   <span>Besok & Selanjutnya</span>
                   <span className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-[10px] px-2 py-0.5 rounded border dark:border-white/10 font-bold shadow-sm">{rightOrders.length} Pesanan</span>
                 </h4>
