@@ -75,8 +75,13 @@ export default function LoginPage() {
           <span className="text-2xl font-bold font-serif tracking-wide text-slate-900">Bolobake</span>
         </div>
 
-        {!showLoginForm ? (
-          <div className="flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out max-w-4xl z-10">
+        <div className="relative grid place-items-center w-full max-w-4xl mt-12 md:mt-0">
+          
+          {/* Landing Page Content */}
+          <div 
+            className={`col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col items-center text-center z-10 w-full px-4 
+              ${showLoginForm ? 'opacity-0 scale-90 blur-sm pointer-events-none translate-y-4' : 'opacity-100 scale-100 blur-0 translate-y-0 delay-150'}`}
+          >
             <span className="text-slate-500 font-medium mb-4 tracking-wide text-sm md:text-base">Welcome to Bolobake</span>
             <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black mb-6 tracking-tight text-slate-900 leading-[1.1]">
               Sistem Manajemen <br className="hidden md:block" />
@@ -85,27 +90,31 @@ export default function LoginPage() {
             <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mb-12">
               Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
             </p>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 pb-8 md:pb-0">
               <Button 
                 onClick={() => setShowLoginForm(true)}
-                className="h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-full shadow-lg transition-all hover:scale-105 flex items-center gap-2"
+                className="h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 border-0"
               >
                 <ChefHat className="w-5 h-5" />
                 Masuk ke Akun
               </Button>
             </div>
           </div>
-        ) : (
-          <div className="w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 flex flex-col animate-in fade-in zoom-in-95 duration-500 z-10 relative">
+
+          {/* Login Form Content */}
+          <div 
+            className={`col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.08)] border border-slate-100/50 flex flex-col z-20 
+              ${showLoginForm ? 'opacity-100 scale-100 blur-0 translate-y-0 delay-150' : 'opacity-0 scale-90 blur-sm pointer-events-none translate-y-4'}`}
+          >
             <button 
               onClick={() => setShowLoginForm(false)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition-colors bg-slate-50 hover:bg-slate-100 p-2 rounded-full outline-none focus:outline-none"
               title="Kembali"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
             
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 mt-2">
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Masuk ke akun</h2>
               <p className="text-slate-500 text-sm">Selamat datang kembali! Masuk untuk melanjutkan</p>
             </div>
@@ -128,9 +137,9 @@ export default function LoginPage() {
             </div>
 
             <div className="relative flex items-center py-2 mb-6">
-              <div className="flex-grow border-t border-slate-200"></div>
+              <div className="flex-grow border-t border-slate-100"></div>
               <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium">atau</span>
-              <div className="flex-grow border-t border-slate-200"></div>
+              <div className="flex-grow border-t border-slate-100"></div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
@@ -142,7 +151,7 @@ export default function LoginPage() {
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 rounded-lg border-slate-300 focus-visible:ring-1 focus-visible:ring-blue-500"
+                  className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
                 />
               </div>
 
@@ -155,12 +164,12 @@ export default function LoginPage() {
                     placeholder="Masukkan kata sandi Anda"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-lg border-slate-300 pr-10 focus-visible:ring-1 focus-visible:ring-blue-500"
+                    className="h-11 rounded-lg border-slate-200 pr-10 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 outline-none focus:outline-none"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -170,7 +179,7 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm mt-4 rounded-lg shadow-md transition-all"
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm mt-4 rounded-xl shadow-md shadow-blue-600/20 transition-all hover:translate-y-[-1px] active:translate-y-[1px] outline-none"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -185,13 +194,13 @@ export default function LoginPage() {
               Belum punya akun? <Link href="/register" className="text-blue-600 hover:underline font-bold">Daftar sekarang</Link>
             </div>
 
-            <div className="mt-8 pt-4 border-t border-slate-100 flex justify-center items-center">
+            <div className="mt-8 pt-4 border-t border-slate-50 flex justify-center items-center">
               <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
                 Secured by <ChefHat className="w-3 h-3" /> Bolobake
               </span>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </GoogleOAuthProvider>
   );
