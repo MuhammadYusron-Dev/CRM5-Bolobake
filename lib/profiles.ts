@@ -5,7 +5,7 @@ export const TEAM_PROFILES = [
     roleTitle: 'Sales Marketing', 
     role: 'ADMIN', 
     pin: '1111', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Yusron&backgroundColor=b6e3f4' 
+    avatar: '/avatars/yusron.png' 
   },
   { 
     id: 'lia', 
@@ -13,7 +13,7 @@ export const TEAM_PROFILES = [
     roleTitle: 'Admin', 
     role: 'ADMIN', 
     pin: '2222', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lia&backgroundColor=c0aede' 
+    avatar: '/avatars/lia.png' 
   },
   { 
     id: 'yunita', 
@@ -21,7 +21,7 @@ export const TEAM_PROFILES = [
     roleTitle: 'Admin', 
     role: 'ADMIN', 
     pin: '3333', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Yunita&backgroundColor=ffdfbf' 
+    avatar: '/avatars/yunita.png' 
   },
   { 
     id: 'fara', 
@@ -29,7 +29,7 @@ export const TEAM_PROFILES = [
     roleTitle: 'Admin', 
     role: 'ADMIN', 
     pin: '4444', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fara&backgroundColor=ffd5dc' 
+    avatar: '/avatars/fara.png' 
   },
   { 
     id: 'maria', 
@@ -37,7 +37,7 @@ export const TEAM_PROFILES = [
     roleTitle: 'Kepala Produksi', 
     role: 'PRODUCTION', 
     pin: '5555', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria&backgroundColor=d1d4f9' 
+    avatar: '/avatars/maria.png' 
   },
   { 
     id: 'siti', 
@@ -45,7 +45,7 @@ export const TEAM_PROFILES = [
     roleTitle: 'Packing & Delivery', 
     role: 'PACKING', 
     pin: '6666', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Siti&backgroundColor=c0aede' 
+    avatar: '/avatars/siti.png' 
   },
   { 
     id: 'juliana', 
@@ -53,6 +53,6 @@ export const TEAM_PROFILES = [
     roleTitle: 'Owner', 
     role: 'SUPER_ADMIN', 
     pin: '7777', 
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Juliana&backgroundColor=ffdfbf' 
+    avatar: '/avatars/juliana.png' 
   },
 ];

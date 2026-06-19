@@ -64,25 +64,26 @@ export default function SelectProfilePage() {
         <h1 className="text-3xl md:text-5xl font-medium mb-12 tracking-tight">Siapa yang sedang bertugas?</h1>
         
         <div className="flex flex-wrap justify-center gap-6 md:gap-10">
-          {TEAM_PROFILES.map((profile) => (
+          {TEAM_PROFILES.map((profile, index) => (
             <button
               key={profile.id}
               onClick={() => setSelectedProfile(profile)}
-              className="group flex flex-col items-center gap-4 transition-all duration-300"
+              className="group flex flex-col items-center gap-4 transition-all duration-500 animate-float hover:animate-none"
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-md overflow-hidden ring-4 ring-transparent group-hover:ring-white transition-all duration-300 transform group-hover:scale-105">
+              <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-2xl overflow-hidden shadow-lg ring-4 ring-transparent group-hover:ring-primary/80 group-hover:shadow-[0_0_30px_rgba(90,87,255,0.4)] transition-all duration-500 transform group-hover:-translate-y-2 group-hover:scale-110">
                 <img 
                   src={profile.avatar} 
                   alt={profile.name} 
-                  className="w-full h-full object-cover bg-slate-800"
+                  className="w-full h-full object-cover bg-slate-800/50 backdrop-blur-sm"
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors duration-500"></div>
               </div>
               <div className="flex flex-col items-center text-center">
-                <span className="text-slate-300 group-hover:text-white font-medium text-lg md:text-xl transition-colors">
+                <span className="text-slate-300 group-hover:text-white font-medium text-lg md:text-xl transition-colors duration-300">
                   {profile.name}
                 </span>
-                <span className="text-slate-500 group-hover:text-slate-400 text-xs md:text-sm transition-colors mt-1">
+                <span className="text-slate-500 group-hover:text-primary-foreground/80 text-xs md:text-sm transition-colors duration-300 mt-1">
                   {profile.roleTitle}
                 </span>
               </div>
