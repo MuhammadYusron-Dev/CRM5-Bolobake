@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { MessageCircle, X, Send, Paperclip, Reply, Smile, Download, StickyNote } from 'lucide-react';
 
 interface ChatMessage {
@@ -22,6 +23,7 @@ const getDivisionColor = (division: string) => {
     case 'Admin / Sales': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200';
     case 'Produksi': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border-purple-200';
     case 'Packing': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300 border-orange-200';
+    case 'Logistik': return 'bg-E0F2FE text-0369A1 dark:bg-sky-900/50 dark:text-sky-300 border-sky-200';
     default: return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-200';
   }
 };
@@ -38,6 +40,7 @@ const getDivisionAvatar = (division: string) => {
 };
 
 export function InternalChat() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -215,6 +218,12 @@ export function InternalChat() {
     });
     setShowEmojiPickerFor(null);
   };
+
+  const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/select-profile';
+
+  if (isAuthPage) {
+    return null;
+  }
 
   return (
     <>
