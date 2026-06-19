@@ -16,14 +16,14 @@ const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: stri
             }
             .path-draw-${id} {
               stroke-dasharray: 100;
-              animation: drawLine-${id} 3s linear forwards;
+              animation: drawLine-${id} 4s ease-in-out infinite alternate;
             }
             @keyframes fadeFill-${id} {
               0% { opacity: 0; }
               100% { opacity: 1; }
             }
             .fill-fade-${id} {
-              animation: fadeFill-${id} 3s linear forwards;
+              animation: fadeFill-${id} 4s ease-in-out infinite alternate;
             }
           `}
         </style>
@@ -68,11 +68,6 @@ const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: stri
           pathLength="100"
           className={`path-draw-${id}`}
         />
-        <circle r="4" fill="#ffffff" filter={`url(#glow-${id})`}>
-          <animateMotion dur="3s" fill="freeze" calcMode="linear">
-            <mpath href={`#linePath-${id}`} />
-          </animateMotion>
-        </circle>
       </svg>
     </div>
   );
