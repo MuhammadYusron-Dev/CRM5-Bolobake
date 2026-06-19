@@ -85,15 +85,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Illustration (Layer Depan, Full Width, Anchor Bottom) */}
-          <div className="absolute bottom-0 left-0 w-full z-10 flex items-end justify-center pointer-events-none">
-            <img 
-              src="/outlet_no_sky.png" 
-              alt="Bolobake Outlet" 
-              className="w-full h-auto object-cover object-bottom drop-shadow-[0_-10px_25px_rgba(0,0,0,0.15)] animate-float" 
-              style={{ maxHeight: '72vh' }}
-            />
-          </div>
+
         </div>
 
         {/* Right Side: Auth Form */}
