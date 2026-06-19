@@ -85,13 +85,13 @@ export function DashboardAnalytics({
     <div className="space-y-6 animate-in fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Total Omset */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-slate-900/80 !border-slate-700/50 shadow-2xl">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 rounded-[14px] bg-primary/10 flex items-center justify-center text-primary">
+            <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <TrendingUp className="w-5 h-5" />
             </div>
             {dashboard.trendText && (
-              <div className={`px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${dashboard.trendText.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+              <div className={`px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${dashboard.trendText.startsWith('+') ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'}`}>
                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d={dashboard.trendText.startsWith('+') ? "M7 17L17 7M17 7H7M17 7V17" : "M17 7L7 17M7 17H17M7 17V7"}/>
                  </svg>
@@ -100,27 +100,27 @@ export function DashboardAnalytics({
             )}
           </div>
           <div>
-            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{formatRp(dashboard.totalOmset)}</h3>
-            <p className="text-sm font-bold text-slate-500 mb-1">Total Omset</p>
-            <p className="text-xs text-slate-400 truncate">
+            <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{formatRp(dashboard.totalOmset)}</h3>
+            <p className="text-sm font-bold text-slate-300 mb-1">Total Omset</p>
+            <p className="text-xs text-slate-500 truncate">
                {dashboard.trendText ? dashboard.trendText.substring(dashboard.trendText.indexOf(' ') + 1) : 'Total pendapatan kotor hari ini'}
             </p>
           </div>
           <div className="mt-6">
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
               <div className="h-full bg-primary rounded-full" style={{ width: '75%' }}></div>
             </div>
           </div>
         </div>
 
         {/* Card 2: Jumlah Transaksi */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-slate-900/80 !border-slate-700/50 shadow-2xl">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 rounded-[14px] bg-violet-100 flex items-center justify-center text-violet-600">
+            <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <ShoppingBag className="w-5 h-5" />
             </div>
             {dashboard.activeProductionOrders > 0 && (
-              <div className="px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-emerald-50 text-emerald-600">
+              <div className="px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -130,30 +130,30 @@ export function DashboardAnalytics({
             )}
           </div>
           <div>
-            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{dashboard.totalOrders}</h3>
-            <p className="text-sm font-bold text-slate-500 mb-1">Jumlah Transaksi</p>
-            <p className="text-xs text-slate-400 truncate">
+            <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{dashboard.totalOrders}</h3>
+            <p className="text-sm font-bold text-slate-300 mb-1">Jumlah Transaksi</p>
+            <p className="text-xs text-slate-500 truncate">
                Pesanan yang diproses hari ini
             </p>
           </div>
           <div className="mt-6">
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
               <div className="h-full bg-violet-500 rounded-full" style={{ width: dashboard.totalOrders > 0 ? '100%' : '0%' }}></div>
             </div>
           </div>
         </div>
 
         {/* Card 3: Total Produk */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-slate-900/80 !border-slate-700/50 shadow-2xl">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 rounded-[14px] bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Package className="w-5 h-5" />
             </div>
           </div>
           <div>
-            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{dashboard.totalPcs}</h3>
-            <p className="text-sm font-bold text-slate-500 mb-1">Total Produk</p>
-            <p className="text-xs text-slate-400 truncate">
+            <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{dashboard.totalPcs}</h3>
+            <p className="text-sm font-bold text-slate-300 mb-1">Total Produk</p>
+            <p className="text-xs text-slate-500 truncate">
                Rasio Croissant vs Cake
             </p>
           </div>
@@ -165,7 +165,7 @@ export function DashboardAnalytics({
               const croissantPct = total > 0 ? (croissant / total) * 100 : 60;
 
               return (
-                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
+                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
                   <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${croissantPct}%` }}></div>
                   <div className="h-full bg-amber-500 rounded-r-full" style={{ width: `${100 - croissantPct}%` }}></div>
                 </div>
@@ -175,26 +175,26 @@ export function DashboardAnalytics({
         </div>
 
         {/* Card 4: Customer Aktif */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-slate-900/80 !border-slate-700/50 shadow-2xl">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-10 h-10 rounded-[14px] bg-cyan-100 flex items-center justify-center text-cyan-600">
+            <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Users className="w-5 h-5" />
             </div>
             {dashboard.newCustomersThisMonth > 0 && (
-              <div className="px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 bg-cyan-50 text-cyan-600">
+              <div className="px-2 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 bg-cyan-500/20 text-cyan-300">
                  +{dashboard.newCustomersThisMonth} Baru
               </div>
             )}
           </div>
           <div>
-            <h3 className="text-[28px] font-extrabold text-slate-900 mb-1 leading-tight">{dashboard.uniqueCustomers.length}</h3>
-            <p className="text-sm font-bold text-slate-500 mb-1">Customer Aktif</p>
-            <p className="text-xs text-slate-400 truncate">
+            <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{dashboard.uniqueCustomers.length}</h3>
+            <p className="text-sm font-bold text-slate-300 mb-1">Customer Aktif</p>
+            <p className="text-xs text-slate-500 truncate">
                Total pelanggan unik hari ini
             </p>
           </div>
           <div className="mt-6">
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
               <div className="h-full bg-cyan-500 rounded-full" style={{ width: '40%' }}></div>
             </div>
           </div>
