@@ -4,10 +4,10 @@ import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Searc
 import { Input } from '@/components/ui/input';
 
 const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: string }) => {
-  const pathData = "M0,80 C20,80 30,60 40,65 C50,70 60,40 70,45 C80,50 90,20 100,25";
+  const pathData = "M0,80 C60,80 90,60 120,65 C150,70 180,40 210,45 C240,50 270,20 300,25";
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-60 flex items-end">
-      <svg className={`w-full h-24 ${colorClass}`} preserveAspectRatio="none" viewBox="0 0 100 100">
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-80 flex items-end">
+      <svg className={`w-full h-24 ${colorClass}`} preserveAspectRatio="none" viewBox="0 0 300 100">
         <style>
           {`
             @keyframes drawLine-${id} {
@@ -29,16 +29,21 @@ const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: stri
         </style>
         <defs>
           <linearGradient id={`grad-${id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.4" />
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.5" />
             <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
           </linearGradient>
-          <filter id={`glow-${id}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          <filter id={`glow-${id}`} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="blur1" />
+            <feGaussianBlur stdDeviation="2" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur1" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
         <path 
-          d={`${pathData} L100,100 L0,100 Z`} 
+          d={`${pathData} L300,100 L0,100 Z`} 
           fill={`url(#grad-${id})`} 
           className={`fill-fade-${id}`}
         />
@@ -47,7 +52,7 @@ const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: stri
           d={pathData} 
           fill="none" 
           stroke="currentColor" 
-          strokeWidth="3" 
+          strokeWidth="4" 
           strokeLinecap="round"
           pathLength="100"
           className={`path-draw-${id} opacity-50`}
@@ -58,12 +63,12 @@ const AnimatedStockChartBg = ({ colorClass, id }: { colorClass: string, id: stri
           d={pathData} 
           fill="none" 
           stroke="currentColor" 
-          strokeWidth="1.5" 
+          strokeWidth="2" 
           strokeLinecap="round"
           pathLength="100"
           className={`path-draw-${id}`}
         />
-        <circle r="1.5" fill="#fff" filter={`url(#glow-${id})`}>
+        <circle r="4" fill="#ffffff" filter={`url(#glow-${id})`}>
           <animateMotion dur="3s" fill="freeze" calcMode="linear">
             <mpath href={`#linePath-${id}`} />
           </animateMotion>
