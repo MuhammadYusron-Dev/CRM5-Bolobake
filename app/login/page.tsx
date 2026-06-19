@@ -7,9 +7,11 @@ import { ChefHat, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { FloatingPastry } from '@/components/ui/FloatingPastry';
 
 export default function LoginPage() {
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -116,30 +118,39 @@ export default function LoginPage() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "MOCK_CLIENT_ID"}>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white font-sans relative overflow-hidden px-4">
+      <div ref={containerRef} className="min-h-screen flex flex-col items-center justify-center bg-white/50 font-sans relative overflow-hidden px-4">
         
+        {/* Floating Pastries Background */}
+        <div className="absolute inset-0 z-0 pointer-events-auto">
+           <FloatingPastry src="/assets/pastries/croissant.png" size={160} speed={1.5} rotationSpeed={0.5} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/bagel.png" size={140} speed={1.2} rotationSpeed={-0.4} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/donut.png" size={130} speed={1.8} rotationSpeed={0.6} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/croissant.png" size={150} speed={1.1} rotationSpeed={-0.5} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/bagel.png" size={120} speed={1.4} rotationSpeed={0.3} containerRef={containerRef} />
+        </div>
+
         {/* Logo at Top Left */}
-        <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-30">
+        <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-30 pointer-events-none">
           <ChefHat className="w-8 h-8 text-indigo-500" />
           <span className="text-2xl font-extrabold tracking-tight text-slate-900">Bolobake.</span>
         </div>
 
-        <div className="relative grid place-items-center w-full max-w-4xl mt-12 md:mt-0">
+        <div className="relative grid place-items-center w-full max-w-4xl mt-12 md:mt-0 pointer-events-none">
           
           {/* Landing Page Content */}
           <div 
-            className={`col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col items-center text-center z-10 w-full px-4 
-              ${showLoginForm ? 'opacity-0 scale-90 blur-sm pointer-events-none translate-y-4' : 'opacity-100 scale-100 blur-0 translate-y-0 delay-150'}`}
+            className={`col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col items-center text-center z-10 w-full px-4 pointer-events-none
+              ${showLoginForm ? 'opacity-0 scale-90 blur-sm translate-y-4' : 'opacity-100 scale-100 blur-0 translate-y-0 delay-150'}`}
           >
             <span className="text-slate-500 font-medium mb-4 tracking-wide text-sm md:text-base">Welcome to Bolobake</span>
             <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black mb-6 tracking-tight text-slate-900 leading-[1.1]">
               Sistem Manajemen <br className="hidden md:block" />
               <span className="text-blue-600">Terpadu Bolobake</span>
             </h1>
-            <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mb-12">
+            <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mb-12 select-none">
               Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
             </p>
-            <div className="flex flex-col sm:flex-row items-center gap-4 pb-8 md:pb-0">
+            <div className="flex flex-col sm:flex-row items-center gap-4 pb-8 md:pb-0 pointer-events-auto">
               <Button 
                 onClick={() => setShowLoginForm(true)}
                 className="h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-full shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 border-0"
@@ -152,7 +163,7 @@ export default function LoginPage() {
 
           {/* Login Form Content */}
           <div 
-            className={`col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] w-full max-w-[420px] bg-white p-8 sm:p-10 rounded-3xl shadow-[0_20px_60px_rgb(0,0,0,0.08)] border border-slate-100/50 flex flex-col z-20 
+            className={`col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] w-full max-w-[420px] bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-[0_30px_80px_rgb(0,0,0,0.12)] border border-slate-100/50 flex flex-col z-20 pointer-events-auto
               ${showLoginForm ? 'opacity-100 scale-100 blur-0 translate-y-0 delay-150' : 'opacity-0 scale-90 blur-sm pointer-events-none translate-y-4'}`}
           >
             <button 
