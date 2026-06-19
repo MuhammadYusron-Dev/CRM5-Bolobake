@@ -232,7 +232,7 @@ export function DashboardAnalytics({
                         <div className={`w-full bg-secondary rounded-full h-2.5 overflow-hidden ${idx === 0 ? 'shimmer-bar' : ''}`}>
                           <AnimatedProgressBar 
                             percentage={percentage} 
-                            colorClass={idx === 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-500 progress-striped relative' : idx === 1 ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500' : 'bg-gradient-to-r from-orange-500 to-red-500'} 
+                            colorClass={idx === 0 ? 'bg-gradient-to-r from-blue-600 to-cyan-500' : idx === 1 ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500' : 'bg-gradient-to-r from-orange-500 to-red-500'} 
                           />
                         </div>
                       </div>
