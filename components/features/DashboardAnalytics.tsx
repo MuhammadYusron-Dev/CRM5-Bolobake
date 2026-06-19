@@ -3,6 +3,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, ShoppingBag, Package, Users, User, Hand, AlertCircle, Search, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
+const AnimatedChartBg = ({ colorClass, id, d }: { colorClass: string, id: string, d: string }) => (
+  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px] opacity-30 flex items-end">
+    <svg className={`w-full h-24 ${colorClass} animate-float`} preserveAspectRatio="none" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id={`grad-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path 
+        d={`${d} L100,100 L0,100 Z`} 
+        fill={`url(#grad-${id})`} 
+      />
+      <path 
+        d={d} 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="3" 
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  </div>
+);
+
 interface DashboardData {
   totalOmset: number;
   totalOrders: number;
