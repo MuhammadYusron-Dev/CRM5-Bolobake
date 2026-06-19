@@ -332,50 +332,65 @@ export function DashboardAnalytics({
         </Card>
 
         {/* Bottlenecks Panel */}
-        <Card className="glass-panel p-0 lg:col-span-2">
-          <CardHeader className="pb-3 border-b border-border/50">
-            <CardTitle className="text-lg flex items-center gap-2 text-red-600">
-              <AlertCircle className="w-5 h-5" />
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm lg:col-span-2">
+          <CardHeader className="pb-3 border-b border-slate-200 dark:border-slate-800">
+            <CardTitle className="text-lg flex items-center gap-2 text-slate-900 dark:text-white">
+              <AlertCircle className="w-5 h-5 text-red-600" />
               Operational Bottlenecks & SLA
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="p-3 bg-orange-50 dark:glass-panel-warning border border-orange-100 dark:border-transparent rounded-lg text-center transition-all">
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{dashboard.bottlenecks?.atRiskCount || 0}</p>
-                <p className="text-xs font-semibold text-orange-800 dark:text-orange-300">AT RISK</p>
+              <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm flex items-center justify-between relative overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div>
+                <div className="flex flex-col ml-2">
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white leading-none">{dashboard.bottlenecks?.atRiskCount || 0}</p>
+                  <p className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">At Risk</p>
+                </div>
+                <AlertTriangle className="w-6 h-6 text-amber-500 opacity-80" />
               </div>
-              <div className="p-3 bg-red-50 dark:glass-panel-danger border border-red-100 dark:border-transparent rounded-lg text-center transition-all">
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">{dashboard.bottlenecks?.blockedCount || 0}</p>
-                <p className="text-xs font-semibold text-red-800 dark:text-red-300">BLOCKED</p>
+              <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm flex items-center justify-between relative overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-600"></div>
+                <div className="flex flex-col ml-2">
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white leading-none">{dashboard.bottlenecks?.blockedCount || 0}</p>
+                  <p className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">Blocked</p>
+                </div>
+                <Hand className="w-6 h-6 text-red-600 opacity-80" />
               </div>
-              <div className="p-3 bg-red-100 dark:glass-panel-danger border border-red-200 dark:border-transparent rounded-lg text-center transition-all">
-                <p className="text-2xl font-bold text-red-700 dark:text-red-400">{dashboard.bottlenecks?.overdueCount || 0}</p>
-                <p className="text-xs font-semibold text-red-900 dark:text-red-300">OVERDUE</p>
+              <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm flex items-center justify-between relative overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-700"></div>
+                <div className="flex flex-col ml-2">
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white leading-none">{dashboard.bottlenecks?.overdueCount || 0}</p>
+                  <p className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">Overdue</p>
+                </div>
+                <AlertCircle className="w-6 h-6 text-red-700 opacity-80" />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h5 className="font-bold text-sm mb-3">Menunggu Diterima (Handover Waiting)</h5>
-                <div className="overflow-x-auto border dark:border-white/10 rounded-md max-h-64 overflow-y-auto">
+                <h5 className="font-bold text-sm mb-3 text-slate-900 dark:text-slate-100">Menunggu Diterima (Handover Waiting)</h5>
+                <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-md max-h-64 overflow-y-auto">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead className="bg-slate-50 dark:bg-black/40 dark:backdrop-blur-md sticky top-0 z-10">
+                    <thead className="bg-slate-50 dark:bg-slate-800 sticky top-0 z-10">
                       <tr>
-                        <th className="py-2 px-3 font-semibold text-slate-600 dark:text-slate-300">Pelanggan</th>
-                        <th className="py-2 px-3 font-semibold text-slate-600 dark:text-slate-300">Divisi</th>
-                        <th className="py-2 px-3 font-semibold text-slate-600 dark:text-slate-300">Durasi Menunggu</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Pelanggan</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Divisi</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Durasi</th>
                       </tr>
                     </thead>
                     <tbody>
                       {!dashboard.bottlenecks?.waiting || dashboard.bottlenecks.waiting.length === 0 ? (
-                        <tr><td colSpan={3} className="py-4 text-center text-slate-500">Tidak ada antrian.</td></tr>
+                        <tr><td colSpan={3} className="py-4 px-4 text-center text-slate-500">Tidak ada antrian.</td></tr>
                       ) : (
                         dashboard.bottlenecks.waiting.map(w => (
-                          <tr key={`w-${w.orderId}`} className="border-b dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                            <td className="py-2 px-3 font-medium">{w.customer}</td>
-                            <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{w.stage}</td>
-                            <td className="py-2 px-3 text-red-600 dark:text-red-400 font-medium">{w.durationMin} Menit</td>
+                          <tr key={`w-${w.orderId}`} className="border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="py-2.5 px-4 font-medium text-slate-900 dark:text-slate-200">{w.customer}</td>
+                            <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">{w.stage}</td>
+                            <td className="py-2.5 px-4 font-medium flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${w.durationMin > 60 ? 'bg-red-600' : w.durationMin > 30 ? 'bg-amber-500' : 'bg-slate-300'}`}></span>
+                              <span className="text-slate-700 dark:text-slate-300">{w.durationMin} mnt</span>
+                            </td>
                           </tr>
                         ))
                       )}
@@ -385,25 +400,28 @@ export function DashboardAnalytics({
               </div>
 
               <div>
-                <h5 className="font-bold text-sm mb-3 text-cyan-700 dark:text-cyan-400">Antrian Verifikasi QC (QC Pending)</h5>
-                <div className="overflow-x-auto border dark:border-white/10 rounded-md max-h-64 overflow-y-auto">
+                <h5 className="font-bold text-sm mb-3 text-slate-900 dark:text-slate-100">Antrian Verifikasi QC (QC Pending)</h5>
+                <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-md max-h-64 overflow-y-auto">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead className="bg-cyan-50 dark:bg-black/40 dark:backdrop-blur-md sticky top-0 z-10">
+                    <thead className="bg-slate-50 dark:bg-slate-800 sticky top-0 z-10">
                       <tr>
-                        <th className="py-2 px-3 font-semibold text-cyan-800 dark:text-cyan-300">Pelanggan</th>
-                        <th className="py-2 px-3 font-semibold text-cyan-800 dark:text-cyan-300">Sumber QC</th>
-                        <th className="py-2 px-3 font-semibold text-cyan-800 dark:text-cyan-300">Durasi Menunggu</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Pelanggan</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Sumber QC</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Durasi</th>
                       </tr>
                     </thead>
                     <tbody>
                       {!dashboard.bottlenecks?.qcPendingList || dashboard.bottlenecks.qcPendingList.length === 0 ? (
-                        <tr><td colSpan={3} className="py-4 text-center text-slate-500">Semua QC Tuntas.</td></tr>
+                        <tr><td colSpan={3} className="py-4 px-4 text-center text-slate-500">Semua QC Tuntas.</td></tr>
                       ) : (
                         dashboard.bottlenecks.qcPendingList.map(w => (
-                          <tr key={`qc-${w.orderId}`} className="border-b dark:border-white/5 last:border-0 hover:bg-cyan-50/30 dark:hover:bg-white/5 transition-colors">
-                            <td className="py-2 px-3 font-medium">{w.customer}</td>
-                            <td className="py-2 px-3 text-slate-600 dark:text-slate-400">{w.stage}</td>
-                            <td className="py-2 px-3 text-red-600 dark:text-red-400 font-medium">{w.durationMin} Menit</td>
+                          <tr key={`qc-${w.orderId}`} className="border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="py-2.5 px-4 font-medium text-slate-900 dark:text-slate-200">{w.customer}</td>
+                            <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">{w.stage}</td>
+                            <td className="py-2.5 px-4 font-medium flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${w.durationMin > 60 ? 'bg-red-600' : w.durationMin > 30 ? 'bg-amber-500' : 'bg-slate-300'}`}></span>
+                              <span className="text-slate-700 dark:text-slate-300">{w.durationMin} mnt</span>
+                            </td>
                           </tr>
                         ))
                       )}
@@ -415,25 +433,27 @@ export function DashboardAnalytics({
 
             {dashboard.bottlenecks?.ncrList && dashboard.bottlenecks.ncrList.length > 0 && (
               <div className="mt-6">
-                <h5 className="font-bold text-sm mb-3 text-red-700 dark:text-red-400 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Non-Conformance Report (Unresolved NCR)</h5>
-                <div className="overflow-x-auto border border-red-200 dark:border-white/10 rounded-md">
+                <h5 className="font-bold text-sm mb-3 text-slate-900 dark:text-slate-100 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4 text-red-600" /> Non-Conformance Report (Unresolved NCR)</h5>
+                <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-md">
                   <table className="w-full text-left border-collapse text-sm">
-                    <thead className="bg-red-50 dark:bg-black/40">
+                    <thead className="bg-slate-50 dark:bg-slate-800">
                       <tr>
-                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Pelanggan</th>
-                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Divisi Rework</th>
-                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Isu QC</th>
-                        <th className="py-2 px-3 font-semibold text-red-800 dark:text-red-300">Tingkat (Severity)</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Pelanggan</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Divisi Rework</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Isu QC</th>
+                        <th className="py-2.5 px-4 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">Tingkat (Severity)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {dashboard.bottlenecks.ncrList.map(n => (
-                        <tr key={`ncr-${n.orderId}`} className="border-b border-red-100 dark:border-white/5 last:border-0 hover:bg-red-50/50 dark:hover:bg-white/5 transition-colors">
-                          <td className="py-2 px-3 font-medium text-red-900 dark:text-red-300">{n.customer}</td>
-                          <td className="py-2 px-3 text-red-700 dark:text-red-400">{n.stage}</td>
-                          <td className="py-2 px-3 text-red-700 dark:text-red-400">{n.issue}</td>
-                          <td className="py-2 px-3">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${n.severity === 'HIGH' ? 'bg-red-600 text-white' : n.severity === 'MEDIUM' ? 'bg-orange-500 text-white' : 'bg-yellow-400 text-yellow-900'}`}>{n.severity}</span>
+                        <tr key={`ncr-${n.orderId}`} className="border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="py-2.5 px-4 font-medium text-slate-900 dark:text-slate-200">{n.customer}</td>
+                          <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">{n.stage}</td>
+                          <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">{n.issue}</td>
+                          <td className="py-2.5 px-4">
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${n.severity === 'HIGH' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:border-red-800 dark:text-red-300' : n.severity === 'MEDIUM' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-300' : 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'}`}>
+                              {n.severity}
+                            </span>
                           </td>
                         </tr>
                       ))}
