@@ -8,7 +8,7 @@ export const RBAC_CONFIG = {
     defaultMenu: 'dashboard',
   },
   ADMIN: {
-    allowedMenus: ['dashboard', 'sales', 'samples', 'catalog', 'new_order', 'history', 'inventory'],
+    allowedMenus: ['dashboard', 'samples', 'catalog', 'new_order', 'history', 'inventory'],
     defaultMenu: 'dashboard',
   },
   PRODUCTION: {

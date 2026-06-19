@@ -17,7 +17,7 @@ export interface OrderItem {
   sampleStatus?: string;
 }
 
-export type Role = 'SYSTEM_ADMIN' | 'OWNER' | 'ADMIN' | 'SALES' | 'PRODUCTION' | 'PACKING' | 'DELIVERY';
+export type Role = 'SYSTEM_ADMIN' | 'OWNER' | 'ADMIN' | 'PRODUCTION' | 'PACKING';
 
 export interface Actor {
   userId: string;
