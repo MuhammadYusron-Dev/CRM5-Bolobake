@@ -657,14 +657,14 @@ export function OrderManager({
         </div>
       </div>
 
-      <main className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden bg-transparent relative z-10">
-        <header className="relative flex items-center justify-between shrink-0 z-10 bg-transparent pt-6 pb-4" style={{ minHeight: 'var(--header-height)', paddingLeft: 'var(--content-padding)', paddingRight: 'var(--content-padding)' }}>
+      <main className="flex-1 flex flex-col h-[100dvh] min-w-0 overflow-hidden bg-transparent relative z-10">
+        <header className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shrink-0 z-10 bg-transparent pt-6 pb-4" style={{ minHeight: 'var(--header-height)', paddingLeft: 'var(--content-padding)', paddingRight: 'var(--content-padding)' }}>
 
           {/* Left Content */}
-          <div className="relative z-10 flex items-center gap-3">
+          <div className="relative z-10 flex items-center gap-3 w-full md:w-auto">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-2 rounded-lg transition-colors text-slate-500 hover:bg-white/50"
+              className="md:hidden p-2 -ml-2 rounded-lg transition-colors text-slate-500 hover:bg-white/50 shrink-0"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -689,7 +689,7 @@ export function OrderManager({
           </div>
           
           {/* Right Content */}
-          <div className="relative z-10 flex items-center gap-6">
+          <div className="relative z-10 flex items-center justify-end gap-4 w-full md:w-auto">
 
             
             {/* Search Bar matching reference image */}

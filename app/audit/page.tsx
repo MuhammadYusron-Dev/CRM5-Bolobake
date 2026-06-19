@@ -300,7 +300,7 @@ export default function AuditLogsPage() {
   const activeFilterCount = (filterModule !== 'Semua' ? 1 : 0) + (filterAction !== 'Semua' ? 1 : 0);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex h-[100dvh] bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Sidebar activeMenu="audit" setActiveMenu={() => {}} isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
       
       <main className="flex-1 overflow-hidden flex flex-col relative">

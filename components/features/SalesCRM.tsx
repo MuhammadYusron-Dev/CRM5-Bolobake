@@ -387,7 +387,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6 min-w-0">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-indigo-500" />

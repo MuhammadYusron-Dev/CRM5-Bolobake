@@ -50,10 +50,10 @@ export default function SelectProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#141414] text-white flex flex-col items-center justify-center p-4 selection:bg-primary/30">
+    <div className="min-h-screen bg-[#141414] text-white flex flex-col items-center justify-center p-4 pt-24 selection:bg-primary/30 relative">
       
       {/* Brand */}
-      <div className="absolute top-6 left-8 flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+      <div className="absolute top-6 left-6 md:left-8 flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
         <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
           <span className="font-serif font-bold text-white text-xl">B</span>
         </div>
@@ -61,7 +61,7 @@ export default function SelectProfilePage() {
       </div>
 
       <div className="w-full max-w-5xl mx-auto flex flex-col items-center animate-in fade-in duration-1000 zoom-in-95">
-        <h1 className="text-3xl md:text-5xl font-medium mb-12 tracking-tight">Siapa yang sedang bertugas?</h1>
+        <h1 className="text-3xl md:text-5xl text-center font-medium mb-12 tracking-tight">Siapa yang sedang bertugas?</h1>
         
         <div className="flex flex-wrap justify-center gap-6 md:gap-10">
           {TEAM_PROFILES.map((profile, index) => (

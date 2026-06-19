@@ -238,7 +238,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 print:p-0 print:space-y-0 print:block">
+    <div className="w-full max-w-7xl mx-auto space-y-6 print:p-0 print:space-y-0 print:block min-w-0">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
           <div className="flex items-center gap-2">
             <Gift className="w-6 h-6 text-purple-500" />

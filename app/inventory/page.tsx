@@ -107,7 +107,7 @@ export default function InventoryPage() {
   const reservedTotal = inventory.reduce((acc, curr) => acc + curr.reservedStock, 0);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex h-[100dvh] bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Sidebar activeMenu="inventory" setActiveMenu={() => {}} isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
       <main className="flex-1 overflow-hidden flex flex-col relative">
         <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center sticky top-0 z-10 transition-colors duration-300">
