@@ -636,7 +636,7 @@ export function OrderManager({
   const menuIconColor = 'text-foreground hover:bg-accent';
 
   return (
-    <div className="grid grid-cols-[auto_1fr] h-[100dvh] bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
+    <div className="flex w-screen h-[100dvh] bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground overflow-hidden relative">
       <Sidebar 
         activeMenu={activeMenu} 
         setActiveMenu={setActiveMenu} 
@@ -711,7 +711,7 @@ export function OrderManager({
           </div>
         </header>
 
-        <div className={`flex-1 overflow-y-auto overflow-x-hidden relative z-0`} style={{ padding: ['dashboard', 'history', 'new_order', 'sales', 'samples', 'catalog'].includes(activeMenu) ? 'var(--content-padding)' : undefined }}>
+        <div className={`flex-1 overflow-y-auto overflow-x-auto relative z-0`} style={{ padding: ['dashboard', 'history', 'new_order', 'sales', 'samples', 'catalog'].includes(activeMenu) ? 'var(--content-padding)' : undefined }}>
           {renderContent()}
         </div>
       </main>

@@ -219,7 +219,7 @@ export function InternalChat() {
     setShowEmojiPickerFor(null);
   };
 
-  const isAuthPage = pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/select-profile';
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/select-profile';
 
   if (isAuthPage) {
     return null;
