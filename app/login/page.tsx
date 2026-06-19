@@ -123,10 +123,10 @@ export default function LoginPage() {
         {/* Floating Pastries Background */}
         <div className="absolute inset-0 z-0 pointer-events-auto">
            <FloatingPastry src="/assets/pastries/user_croissant.png" size={160} speed={1.5} rotationSpeed={0.5} containerRef={containerRef} />
-           <FloatingPastry src="/assets/pastries/user_bagel.jpg" size={140} speed={1.2} rotationSpeed={-0.4} containerRef={containerRef} />
-           <FloatingPastry src="/assets/pastries/user_donut.jpg" size={130} speed={1.8} rotationSpeed={0.6} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/user_bagel.png" size={140} speed={1.2} rotationSpeed={-0.4} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/user_donut.png" size={130} speed={1.8} rotationSpeed={0.6} containerRef={containerRef} />
            <FloatingPastry src="/assets/pastries/user_croissant.png" size={150} speed={1.1} rotationSpeed={-0.5} containerRef={containerRef} />
-           <FloatingPastry src="/assets/pastries/user_bagel.jpg" size={120} speed={1.4} rotationSpeed={0.3} containerRef={containerRef} />
+           <FloatingPastry src="/assets/pastries/user_bagel.png" size={120} speed={1.4} rotationSpeed={0.3} containerRef={containerRef} />
         </div>
 
         {/* Logo at Top Left */}
