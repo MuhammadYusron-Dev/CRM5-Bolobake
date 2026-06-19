@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, AlertTriangle, CalendarRange, Search } from 'lucide-react';
+import { ChefHat, CheckCircle2, ScanLine, Menu, XCircle, RotateCcw, Trash2, AlertTriangle, CalendarRange, Search, Sun, CloudSun, Sunset, Moon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -616,12 +616,12 @@ export function OrderManager({
     }
   };
 
-  const getGreeting = () => {
-    if (currentHour >= 5 && currentHour < 12) return 'Selamat Pagi, Admin ☀️';
-    if (currentHour >= 12 && currentHour < 15) return 'Selamat Siang, Admin 🌤️';
-    if (currentHour >= 15 && currentHour < 18) return 'Selamat Sore, Admin 🌅';
-    if (currentHour >= 18 && currentHour < 19) return 'Selamat Petang, Admin 🌇';
-    return 'Selamat Malam, Admin 🌙';
+  const getGreetingInfo = () => {
+    if (currentHour >= 5 && currentHour < 12) return { text: 'Selamat Pagi, Admin', Icon: Sun, colorClass: 'text-amber-500' };
+    if (currentHour >= 12 && currentHour < 15) return { text: 'Selamat Siang, Admin', Icon: CloudSun, colorClass: 'text-orange-500' };
+    if (currentHour >= 15 && currentHour < 18) return { text: 'Selamat Sore, Admin', Icon: Sunset, colorClass: 'text-rose-500' };
+    if (currentHour >= 18 && currentHour < 19) return { text: 'Selamat Petang, Admin', Icon: Sunset, colorClass: 'text-indigo-500' };
+    return { text: 'Selamat Malam, Admin', Icon: Moon, colorClass: 'text-slate-600' };
   };
 
   const headerTextColor = 'text-foreground';
@@ -672,33 +672,18 @@ export function OrderManager({
                  activeMenu === 'sales' ? 'Sales CRM' :
                  'Buat Pesanan Baru'}
               </h1>
-              {activeMenu === 'dashboard' && (
-                <span className="mt-1 text-slate-500 font-medium" style={{ fontSize: 'var(--text-sm)' }}>Welcome back!</span>
+              {activeMenu === 'dashboard' && isMounted && (
+                <div className="flex items-center gap-1.5 mt-1 text-slate-500 font-medium" style={{ fontSize: 'var(--text-sm)' }}>
+                  <span>{getGreetingInfo().text}</span>
+                  {React.createElement(getGreetingInfo().Icon, { className: `w-4 h-4 ${getGreetingInfo().colorClass}` })}
+                </div>
               )}
             </div>
-          </div>
-
-          {/* Middle Content - Centered Greeting */}
-          <div className="absolute left-1/2 -translate-x-1/2 z-10 hidden sm:flex items-center justify-center pointer-events-none">
-            {activeMenu === 'dashboard' && isMounted && (
-              <span className="text-sm font-medium px-3 py-1 rounded-full bg-accent/50 text-foreground">
-                {getGreeting()}
-              </span>
-            )}
           </div>
           
           {/* Right Content */}
           <div className="relative z-10 flex items-center gap-6">
-            <div className="hidden sm:flex items-center gap-6 mr-4">
-              <div className="flex flex-col items-end">
-                <span className="text-slate-900 font-bold flex items-center gap-2"><div className="w-4 h-4 rounded bg-slate-200"></div> $ 323</span>
-                <span className="text-slate-400 text-xs font-medium">My Balance</span>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-slate-900 font-bold flex items-center gap-2"><div className="w-4 h-4 rounded bg-slate-200"></div> 5 lesson</span>
-                <span className="text-slate-400 text-xs font-medium">Deposit</span>
-              </div>
-            </div>
+
             
             {/* Search Bar matching reference image */}
             <div className="hidden md:flex relative">
