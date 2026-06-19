@@ -84,124 +84,121 @@ export function DashboardAnalytics({
   return (
     <div className="space-y-6 animate-in fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-600 to-blue-400 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(0,89,255,0.6)]">
-          <div className="absolute -right-4 -top-4 opacity-15 group-hover:scale-110 transition-transform duration-500">
-            <TrendingUp className="w-24 h-24" />
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
-            </svg>
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-20 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
-            </svg>
-          </div>
-          <CardHeader className="pb-2 relative z-10">
-            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Total Omset</CardTitle>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold">{formatRp(dashboard.totalOmset)}</div>
+        {/* Card 1: Total Omset */}
+        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-500/20">
+               <TrendingUp className="w-4 h-4" />
+            </div>
             {dashboard.trendText && (
-              <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-white/25 backdrop-blur-sm border border-white/30 mt-2 shadow-sm ${dashboard.trendText.startsWith('+') ? 'text-white' : 'text-rose-100'}`}>
-                {dashboard.trendText.startsWith('+') ? (
-                  <svg className="w-3.5 h-3.5 animate-float-up" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M7 17L17 7M17 7H7M17 7V17"/>
-                  </svg>
-                ) : (
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 7L7 17M7 17H17M7 17V7"/>
-                  </svg>
-                )}
-                <span>{dashboard.trendText}</span>
+              <div className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 border ${dashboard.trendText.startsWith('+') ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'}`}>
+                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={dashboard.trendText.startsWith('+') ? "M7 17L17 7M17 7H7M17 7V17" : "M17 7L7 17M7 17H17M7 17V7"}/>
+                 </svg>
+                 {dashboard.trendText.split(' ')[0]}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-500 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(139,92,246,0.6)]">
-          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
-            </svg>
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-15 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
-            </svg>
           </div>
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Jumlah Transaksi</CardTitle>
-            <div className="p-3 bg-white/15 rounded-xl text-white group-hover:-translate-y-1 transition-transform shadow-sm backdrop-blur-sm">
-              <ShoppingBag className="w-5 h-5" />
-            </div>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold">{dashboard.totalOrders}</div>
-            <div className="flex items-center mt-1">
-              <span className="relative flex h-2 w-2 mr-2">
-                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-300' : 'bg-white/50'}`}></span>
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${dashboard.activeProductionOrders > 0 ? 'bg-emerald-400' : 'bg-white/60'}`}></span>
-              </span>
-              <p className="text-xs text-white/80">{dashboard.activeProductionOrders} pesanan sedang diproduksi</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-500 to-red-500 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(249,115,22,0.6)]">
-          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-full opacity-10 animate-wave origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C20,80 40,90 60,70 C80,50 90,60 100,40 L100,100 L0,100 Z" fill="currentColor"/>
-            </svg>
+          <div>
+            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{formatRp(dashboard.totalOmset)}</h3>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Total Omset</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+               {dashboard.trendText ? dashboard.trendText.substring(dashboard.trendText.indexOf(' ') + 1) : 'Total pendapatan kotor hari ini'}
+            </p>
           </div>
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Total Produk</CardTitle>
-            <div className="p-3 bg-white/15 rounded-xl text-white group-hover:rotate-12 transition-transform shadow-sm backdrop-blur-sm">
-              <Package className="w-5 h-5" />
+          <div className="mt-6">
+            <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 dark:bg-blue-500 rounded-full" style={{ width: '75%' }}></div>
             </div>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold">{dashboard.totalPcs}</div>
-            <p className="text-xs text-white/80 mt-1 mb-1">Rasio Croissant vs Cake</p>
+          </div>
+        </div>
+
+        {/* Card 2: Jumlah Transaksi */}
+        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-8 h-8 rounded-lg bg-violet-500/10 dark:bg-violet-500/20 flex items-center justify-center text-violet-600 dark:text-violet-400 border border-violet-500/20">
+               <ShoppingBag className="w-4 h-4" />
+            </div>
+            {dashboard.activeProductionOrders > 0 && (
+              <div className="px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                </span>
+                {dashboard.activeProductionOrders} Active
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{dashboard.totalOrders}</h3>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Jumlah Transaksi</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+               Pesanan yang diproses hari ini
+            </p>
+          </div>
+          <div className="mt-6">
+            <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-violet-500 dark:bg-violet-500 rounded-full" style={{ width: dashboard.totalOrders > 0 ? '100%' : '0%' }}></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Total Produk */}
+        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+               <Package className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{dashboard.totalPcs}</h3>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Total Produk</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+               Rasio Croissant vs Cake
+            </p>
+          </div>
+          <div className="mt-6">
             {(() => {
               const croissant = dashboard.categorySales?.croissant || 0;
               const cake = dashboard.categorySales?.cake || 0;
               const total = croissant + cake;
               const croissantPct = total > 0 ? (croissant / total) * 100 : 60;
-              const cakePct = total > 0 ? (cake / total) * 100 : 40;
 
               return (
-                <div className="w-full bg-white/10 rounded-full h-2 mt-3 flex relative items-center shadow-inner">
-                   {/* Background Glow Effect */}
-                   <div className="absolute top-1/2 -translate-y-1/2 left-0 h-4 bg-white/40 blur-[8px] rounded-full transition-all duration-1000" style={{ width: `${croissantPct}%` }}></div>
-
-                   {/* Main Filled Bar */}
-                   <div className="bg-gradient-to-r from-white/60 via-white/90 to-white h-2 rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(255,255,255,0.8)] z-10" style={{ width: `${croissantPct}%` }}></div>
-                   
-                   {/* Neon Glowing Thumb / Indicator */}
-                   <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 transition-all duration-1000" style={{ left: `${croissantPct}%` }}>
-                     <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_15px_6px_rgba(255,255,255,0.9),0_0_30px_10px_rgba(255,230,150,0.6)] animate-pulse"></div>
-                   </div>
+                <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-emerald-500 dark:bg-emerald-500 rounded-l-full" style={{ width: `${croissantPct}%` }}></div>
+                  <div className="h-full bg-amber-500 dark:bg-amber-500 rounded-r-full" style={{ width: `${100 - croissantPct}%` }}></div>
                 </div>
               );
             })()}
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-400 dark:glass-panel text-white relative overflow-hidden group border-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-[0_0_25px_rgba(34,211,238,0.6)]">
-          <div className="absolute bottom-0 left-0 right-0 w-full h-[60%] overflow-hidden pointer-events-none rounded-b-xl">
-            <svg className="absolute bottom-0 -left-[10%] w-[120%] h-[80%] opacity-15 animate-wave-reverse origin-bottom text-white" preserveAspectRatio="none" viewBox="0 0 100 100">
-               <path d="M0,100 C30,90 50,70 70,80 C90,90 95,60 100,50 L100,100 L0,100 Z" fill="currentColor"/>
-            </svg>
           </div>
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10">
-            <CardTitle className="text-[11px] font-bold text-white/90 uppercase tracking-wider">Customer Aktif</CardTitle>
-            <div className="p-3 bg-white/15 rounded-xl text-white group-hover:scale-110 transition-transform duration-300 shadow-sm backdrop-blur-sm">
-              <Users className="w-5 h-5" />
+        </div>
+
+        {/* Card 4: Customer Aktif */}
+        <div className="dark:glass-panel dark:bg-[#1a1b3b]/60 dark:border-white/5 bg-white border border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg rounded-[20px] p-5 flex flex-col relative overflow-hidden group">
+          <div className="flex justify-between items-start mb-6">
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 dark:bg-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+               <Users className="w-4 h-4" />
             </div>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-2xl font-bold">{dashboard.uniqueCustomers.length}</div>
-            <p className="text-xs text-white/80 mt-1">{dashboard.newCustomersThisMonth} outlet baru bulan ini</p>
-          </CardContent>
-        </Card>
+            {dashboard.newCustomersThisMonth > 0 && (
+              <div className="px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 border bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20">
+                 +{dashboard.newCustomersThisMonth} Baru
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="text-[26px] font-bold text-slate-900 dark:text-white mb-1 leading-tight">{dashboard.uniqueCustomers.length}</h3>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Customer Aktif</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400/70 truncate">
+               Total pelanggan unik hari ini
+            </p>
+          </div>
+          <div className="mt-6">
+            <div className="w-full h-1 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-cyan-500 dark:bg-cyan-500 rounded-full" style={{ width: '40%' }}></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
