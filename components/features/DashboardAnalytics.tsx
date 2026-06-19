@@ -85,7 +85,7 @@ export function DashboardAnalytics({
     <div className="space-y-6 animate-in fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Total Omset */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-[#22252A]/90 backdrop-blur-3xl !border-[#383C47]/50 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
           <div className="flex justify-between items-start mb-6">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <TrendingUp className="w-5 h-5" />
@@ -114,7 +114,7 @@ export function DashboardAnalytics({
         </div>
 
         {/* Card 2: Jumlah Transaksi */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-[#22252A]/90 backdrop-blur-3xl !border-[#383C47]/50 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
           <div className="flex justify-between items-start mb-6">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <ShoppingBag className="w-5 h-5" />
@@ -144,7 +144,7 @@ export function DashboardAnalytics({
         </div>
 
         {/* Card 3: Total Produk */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-[#22252A]/90 backdrop-blur-3xl !border-[#383C47]/50 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
           <div className="flex justify-between items-start mb-6">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Package className="w-5 h-5" />
@@ -175,7 +175,7 @@ export function DashboardAnalytics({
         </div>
 
         {/* Card 4: Customer Aktif */}
-        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-[#22252A]/90 backdrop-blur-3xl !border-[#383C47]/50 shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+        <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
           <div className="flex justify-between items-start mb-6">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Users className="w-5 h-5" />
