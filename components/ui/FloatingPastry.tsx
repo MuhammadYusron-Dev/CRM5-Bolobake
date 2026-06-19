@@ -96,7 +96,8 @@ export function FloatingPastry({ src, size, speed, rotationSpeed, containerRef }
         cursor: "grab",
         touchAction: "none",
         filter: "drop-shadow(0px 20px 30px rgba(0,0,0,0.25))",
-        userSelect: "none"
+        userSelect: "none",
+        mixBlendMode: "multiply"
       }}
       whileTap={{ cursor: "grabbing", scale: 1.1 }}
     />
