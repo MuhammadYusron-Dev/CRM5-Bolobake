@@ -192,7 +192,16 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               </div>
               <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'opacity-100 ml-3'}`}>
                 <span className="font-bold text-slate-900 truncate leading-tight block" style={{ fontSize: 'var(--text-sm)' }}>{user?.fullName || user?.username || 'Admin'}</span>
-                <span className="text-slate-500 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>Premium plan</span>
+                <span className="text-slate-500 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>
+                  {user?.role ? (
+                    user.role === 'SUPER_ADMIN' ? 'Super Admin' :
+                    user.role === 'ADMIN' ? 'Admin Sales' :
+                    user.role === 'PRODUCTION' ? 'Kepala Produksi' :
+                    user.role === 'PACKING' ? 'Divisi Packing' :
+                    user.role === 'DELIVERY' ? 'Logistik & Pengiriman' :
+                    user.role.replace('_', ' ')
+                  ) : 'User Profile'}
+                </span>
               </div>
             </button>
             <div className={`overflow-hidden shrink-0 flex items-center transition-all duration-300 ease-in-out ${isCollapsed ? 'max-w-0 opacity-0 max-h-0' : 'max-w-[40px] opacity-100'}`}>
