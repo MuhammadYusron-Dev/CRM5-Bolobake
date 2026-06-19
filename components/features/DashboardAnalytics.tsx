@@ -86,7 +86,8 @@ export function DashboardAnalytics({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Total Omset */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <div className="flex justify-between items-start mb-6">
+          <AnimatedChartBg colorClass="text-emerald-400" id="chart1" d="M0,80 Q20,50 40,70 T80,30 T100,40" />
+          <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <TrendingUp className="w-5 h-5" />
             </div>
@@ -99,23 +100,19 @@ export function DashboardAnalytics({
               </div>
             )}
           </div>
-          <div>
+          <div className="z-10 mt-auto">
             <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{formatRp(dashboard.totalOmset)}</h3>
             <p className="text-sm font-bold text-slate-300 mb-1">Total Omset</p>
             <p className="text-xs text-slate-500 truncate">
                {dashboard.trendText ? dashboard.trendText.substring(dashboard.trendText.indexOf(' ') + 1) : 'Total pendapatan kotor hari ini'}
             </p>
           </div>
-          <div className="mt-6">
-            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full" style={{ width: '75%' }}></div>
-            </div>
-          </div>
         </div>
 
         {/* Card 2: Jumlah Transaksi */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <div className="flex justify-between items-start mb-6">
+          <AnimatedChartBg colorClass="text-violet-400" id="chart2" d="M0,60 Q20,80 45,40 T80,50 T100,20" />
+          <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <ShoppingBag className="w-5 h-5" />
             </div>
@@ -129,54 +126,36 @@ export function DashboardAnalytics({
               </div>
             )}
           </div>
-          <div>
+          <div className="z-10 mt-auto">
             <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{dashboard.totalOrders}</h3>
             <p className="text-sm font-bold text-slate-300 mb-1">Jumlah Transaksi</p>
             <p className="text-xs text-slate-500 truncate">
                Pesanan yang diproses hari ini
             </p>
           </div>
-          <div className="mt-6">
-            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full bg-violet-500 rounded-full" style={{ width: dashboard.totalOrders > 0 ? '100%' : '0%' }}></div>
-            </div>
-          </div>
         </div>
 
         {/* Card 3: Total Produk */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <div className="flex justify-between items-start mb-6">
+          <AnimatedChartBg colorClass="text-amber-400" id="chart3" d="M0,40 Q30,70 50,30 T80,60 T100,20" />
+          <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Package className="w-5 h-5" />
             </div>
           </div>
-          <div>
+          <div className="z-10 mt-auto">
             <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{dashboard.totalPcs}</h3>
             <p className="text-sm font-bold text-slate-300 mb-1">Total Produk</p>
             <p className="text-xs text-slate-500 truncate">
                Rasio Croissant vs Cake
             </p>
           </div>
-          <div className="mt-6">
-            {(() => {
-              const croissant = dashboard.categorySales?.croissant || 0;
-              const cake = dashboard.categorySales?.cake || 0;
-              const total = croissant + cake;
-              const croissantPct = total > 0 ? (croissant / total) * 100 : 60;
-
-              return (
-                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-emerald-500 rounded-l-full" style={{ width: `${croissantPct}%` }}></div>
-                  <div className="h-full bg-amber-500 rounded-r-full" style={{ width: `${100 - croissantPct}%` }}></div>
-                </div>
-              );
-            })()}
-          </div>
         </div>
 
         {/* Card 4: Customer Aktif */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <div className="flex justify-between items-start mb-6">
+          <AnimatedChartBg colorClass="text-cyan-400" id="chart4" d="M0,70 Q20,30 40,60 T70,40 T100,50" />
+          <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <Users className="w-5 h-5" />
             </div>
@@ -186,17 +165,12 @@ export function DashboardAnalytics({
               </div>
             )}
           </div>
-          <div>
+          <div className="z-10 mt-auto">
             <h3 className="text-[28px] font-extrabold text-white mb-1 leading-tight">{dashboard.uniqueCustomers.length}</h3>
             <p className="text-sm font-bold text-slate-300 mb-1">Customer Aktif</p>
             <p className="text-xs text-slate-500 truncate">
                Total pelanggan unik hari ini
             </p>
-          </div>
-          <div className="mt-6">
-            <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full bg-cyan-500 rounded-full" style={{ width: '40%' }}></div>
-            </div>
           </div>
         </div>
       </div>
