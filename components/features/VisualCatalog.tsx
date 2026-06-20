@@ -152,24 +152,24 @@ export function VisualCatalog() {
             <div key={category} className="flex flex-col md:flex-row border-b border-slate-200 pb-16 last:border-0 relative">
               
               {/* Left Column: Category Label */}
-              <div className="md:w-32 flex-shrink-0 flex md:flex-col items-center md:items-start mb-8 md:mb-0 relative">
-                <div className="flex items-center md:items-start w-full gap-4 md:gap-0">
-                  <span className="text-6xl md:text-8xl font-black text-slate-900 leading-none">
+              <div className="md:w-32 flex-shrink-0 flex items-center mb-8 md:mb-0 relative min-h-[200px]">
+                <div className="flex items-center w-full justify-start h-full">
+                  <span className="text-6xl md:text-8xl font-black text-slate-900 leading-none z-10 bg-[#FAFAFA] pr-4">
                     {index + 1}
                   </span>
                   
                   {/* Desktop Vertical Text */}
-                  <div className="hidden md:flex flex-col items-center absolute left-16 top-0 bottom-0 h-full">
-                     <div className="w-px bg-slate-300 h-full absolute left-4"></div>
+                  <div className="hidden md:flex flex-col items-center justify-center absolute left-20 top-0 bottom-0 h-full">
+                     <div className="w-px bg-slate-300/80 h-full absolute left-0"></div>
                      <span 
-                       className="uppercase tracking-[0.2em] font-bold text-slate-800 text-lg md:text-xl absolute top-10 left-10 origin-top-left -rotate-90 whitespace-nowrap"
+                       className="uppercase tracking-[0.2em] font-bold text-slate-800 text-lg md:text-xl absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap origin-center"
                      >
                        {category}
                      </span>
                   </div>
 
                   {/* Mobile Horizontal Text */}
-                  <div className="md:hidden flex items-center border-l-2 border-slate-300 pl-4 h-12">
+                  <div className="md:hidden flex items-center border-l-2 border-slate-300 pl-4 h-12 ml-4">
                      <span className="uppercase tracking-[0.2em] font-bold text-slate-800 text-xl">
                        {category}
                      </span>
@@ -179,26 +179,26 @@ export function VisualCatalog() {
 
               {/* Right Column: Product Grid */}
               <div className="flex-1 md:pl-20">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
-                  {products.map((product) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-y-10">
+                  {products.map((product, pIndex) => (
                     <div 
                       key={product.id} 
-                      className="group relative flex flex-col items-center text-center"
+                      className={`group relative flex flex-col items-center text-center px-4 ${pIndex !== products.length - 1 || isEditMode ? 'md:border-r border-slate-300/60' : ''}`}
                     >
                       {/* Image Container */}
                       <div 
-                        className="w-full aspect-square mb-4 overflow-hidden rounded-xl bg-white shadow-sm border border-slate-100 relative group-hover:shadow-md transition-all duration-300 cursor-pointer"
+                        className="w-full aspect-square mb-4 relative flex items-center justify-center cursor-pointer"
                         onClick={() => !isEditMode ? setSelectedProduct(product) : setEditingProduct(product)}
                       >
                         <img 
                           src={product.gambar} 
                           alt={product.nama} 
-                          className={`w-full h-full object-cover transition-transform duration-700 ${!isEditMode ? 'group-hover:scale-110' : 'group-hover:brightness-50'}`}
+                          className={`w-full max-w-[85%] h-auto object-contain transition-transform duration-700 drop-shadow-2xl ${!isEditMode ? 'group-hover:scale-110' : 'group-hover:brightness-50'}`}
                         />
                         
                         {/* Overlay: View Details */}
                         {!isEditMode && (
-                          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-xl">
                              <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-bold text-slate-800 shadow-sm translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                                Lihat Detail
                              </div>
@@ -207,7 +207,7 @@ export function VisualCatalog() {
 
                         {/* Overlay: Edit Mode */}
                         {isEditMode && (
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl backdrop-blur-[1px]">
                              <div className="bg-primary text-white p-3 rounded-full shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-200">
                                <Edit3 className="w-6 h-6" />
                              </div>
@@ -233,14 +233,14 @@ export function VisualCatalog() {
                   {isEditMode && (
                     <div 
                       onClick={() => handleAddNewProduct(category)}
-                      className="group relative flex flex-col items-center justify-center text-center cursor-pointer"
+                      className="group relative flex flex-col items-center justify-center text-center cursor-pointer px-4"
                     >
-                      <div className="w-full aspect-square mb-4 overflow-hidden rounded-xl bg-white/50 border-2 border-dashed border-slate-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
+                      <div className="w-full aspect-square mb-4 overflow-hidden rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
                         <div className="flex flex-col items-center gap-2 text-slate-400 group-hover:text-primary transition-colors">
                           <div className="p-4 rounded-full bg-slate-100 group-hover:bg-primary/10">
                             <Plus className="w-8 h-8" />
                           </div>
-                          <span className="font-bold text-sm tracking-wide">TAMBAH PRODUK</span>
+                          <span className="font-bold text-xs tracking-wide">TAMBAH</span>
                         </div>
                       </div>
                       <div className="px-2 w-full invisible">
