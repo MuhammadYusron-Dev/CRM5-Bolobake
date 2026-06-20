@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { TEAM_PROFILES } from '@/lib/profiles';
 import { useRouter } from 'next/navigation';
-import { X, Lock, Loader2, KeyRound } from 'lucide-react';
+import { X, Lock, Loader2, KeyRound, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function SelectProfilePage() {
@@ -53,11 +53,9 @@ export default function SelectProfilePage() {
     <div className="min-h-screen bg-[#141414] text-white flex flex-col items-center justify-center p-4 pt-24 selection:bg-primary/30 relative">
       
       {/* Brand */}
-      <div className="absolute top-6 left-6 md:left-8 flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-        <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
-          <span className="font-serif font-bold text-white text-xl">B</span>
-        </div>
-        <span className="font-serif text-xl font-bold tracking-tight">Bolobake.</span>
+      <div className="absolute top-6 left-6 md:left-8 flex items-center opacity-80 hover:opacity-100 transition-opacity">
+        <ChefHat className="w-8 h-8 text-indigo-500 flex-shrink-0 mr-3" />
+        <span className="font-sans font-extrabold text-white text-2xl leading-tight tracking-tight">Bolobake.</span>
       </div>
 
       <div className="w-full max-w-5xl mx-auto flex flex-col items-center animate-in fade-in duration-1000 zoom-in-95">
