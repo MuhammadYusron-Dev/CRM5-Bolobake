@@ -10,7 +10,7 @@ export const TEAM_PROFILES = [
   { 
     id: 'lia', 
     name: 'Lia', 
-    roleTitle: 'Admin', 
+    roleTitle: 'Customer Service', 
     role: 'ADMIN', 
     pin: '2222', 
     avatar: '/avatars/lia.png' 
@@ -18,7 +18,7 @@ export const TEAM_PROFILES = [
   { 
     id: 'yunita', 
     name: 'Yunita', 
-    roleTitle: 'Admin', 
+    roleTitle: 'Customer Service', 
     role: 'ADMIN', 
     pin: '3333', 
     avatar: '/avatars/yunita.png' 
@@ -26,7 +26,7 @@ export const TEAM_PROFILES = [
   { 
     id: 'fara', 
     name: 'Fara', 
-    roleTitle: 'Admin', 
+    roleTitle: 'Customer Service', 
     role: 'ADMIN', 
     pin: '4444', 
     avatar: '/avatars/fara.png' 
@@ -34,7 +34,7 @@ export const TEAM_PROFILES = [
   { 
     id: 'maria', 
     name: 'Maria', 
-    roleTitle: 'Kepala Produksi', 
+    roleTitle: 'Divisi Produksi', 
     role: 'PRODUCTION', 
     pin: '5555', 
     avatar: '/avatars/maria.png' 
@@ -42,7 +42,7 @@ export const TEAM_PROFILES = [
   { 
     id: 'siti', 
     name: 'Siti', 
-    roleTitle: 'Packing & Delivery', 
+    roleTitle: 'Divisi Packing', 
     role: 'PACKING', 
     pin: '6666', 
     avatar: '/avatars/siti.png' 
@@ -50,7 +50,7 @@ export const TEAM_PROFILES = [
   { 
     id: 'juliana', 
     name: 'Juliana', 
-    roleTitle: 'Owner', 
+    roleTitle: 'Owner / Management', 
     role: 'OWNER', 
     pin: '7777', 
     avatar: '/avatars/juliana.png' 
