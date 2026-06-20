@@ -54,7 +54,7 @@ export default function SelectProfilePage() {
       
       {/* Brand */}
       <div className="absolute top-6 left-6 md:left-8 flex items-center opacity-80 hover:opacity-100 transition-opacity">
-        <ChefHat className="w-8 h-8 text-indigo-500 flex-shrink-0 mr-3" />
+        <ChefHat className="w-8 h-8 text-brand-green-dark flex-shrink-0 mr-3" />
         <span className="font-sans font-extrabold text-white text-2xl leading-tight tracking-tight">Bolobake.</span>
       </div>
 
@@ -69,7 +69,7 @@ export default function SelectProfilePage() {
               className="group flex flex-col items-center gap-4 transition-all duration-500 animate-float hover:animate-none"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-2xl overflow-hidden shadow-lg ring-4 ring-transparent group-hover:ring-primary/80 group-hover:shadow-[0_0_30px_rgba(90,87,255,0.4)] transition-all duration-500 transform group-hover:-translate-y-2 group-hover:scale-110">
+              <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-2xl overflow-hidden shadow-lg ring-4 ring-transparent group-hover:ring-primary/80 group-hover:shadow-[0_0_30px_rgba(51,106,41,0.6)] transition-all duration-500 transform group-hover:-translate-y-2 group-hover:scale-110">
                 <img 
                   src={profile.avatar} 
                   alt={profile.name} 

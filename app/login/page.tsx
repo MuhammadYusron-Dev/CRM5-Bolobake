@@ -131,7 +131,7 @@ export default function LoginPage() {
 
         {/* Logo at Top Left */}
         <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-3 z-30 pointer-events-none">
-          <ChefHat className="w-8 h-8 text-indigo-500" />
+          <ChefHat className="w-8 h-8 text-brand-green-dark" />
           <span className="text-2xl font-extrabold tracking-tight text-slate-900">Bolobake.</span>
         </div>
 
@@ -145,7 +145,7 @@ export default function LoginPage() {
             <span className="text-slate-500 font-medium mb-4 tracking-wide text-sm md:text-base">Welcome to Bolobake</span>
             <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-black mb-6 tracking-tight text-slate-900 leading-[1.1]">
               Sistem Manajemen <br className="hidden md:block" />
-              <span className="text-blue-600">Terpadu Bolobake</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green-dark to-brand-green-light">Terpadu Bolobake</span>
             </h1>
             <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mb-12 select-none">
               Pantau analitik, proses pesanan, dan kelola CRM pelanggan Anda dari satu tempat yang efisien.
@@ -217,7 +217,7 @@ export default function LoginPage() {
                       placeholder="Nama depan"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
+                      className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-brand-green-light/50 focus-visible:border-brand-green-dark transition-all outline-none"
                     />
                   </div>
                   <div className="space-y-1.5 flex-1">
@@ -228,7 +228,7 @@ export default function LoginPage() {
                       placeholder="Nama belakang"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
+                      className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-brand-green-light/50 focus-visible:border-brand-green-dark transition-all outline-none"
                     />
                   </div>
                 </div>
@@ -242,7 +242,7 @@ export default function LoginPage() {
                   placeholder="nama@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
+                  className="h-11 rounded-lg border-slate-200 focus-visible:ring-2 focus-visible:ring-brand-green-light/50 focus-visible:border-brand-green-dark transition-all outline-none"
                 />
               </div>
 
@@ -255,7 +255,7 @@ export default function LoginPage() {
                     placeholder="Masukkan kata sandi Anda"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-lg border-slate-200 pr-10 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all outline-none"
+                    className="h-11 rounded-lg border-slate-200 pr-10 focus-visible:ring-2 focus-visible:ring-brand-green-light/50 focus-visible:border-brand-green-dark transition-all outline-none"
                   />
                   <button 
                     type="button"
@@ -274,7 +274,7 @@ export default function LoginPage() {
                     id="tos" 
                     checked={agreeTos}
                     onChange={(e) => setAgreeTos(e.target.checked)}
-                    className="mt-1 border-slate-300 rounded text-blue-600 focus:ring-blue-500"
+                    className="mt-1 border-slate-300 rounded text-brand-green-dark focus:ring-brand-green-dark"
                   />
                   <label htmlFor="tos" className="text-xs text-slate-500 leading-snug cursor-pointer">
                     I agree to the <Link href="#" className="underline hover:text-slate-800">Terms of Service</Link> and <Link href="#" className="underline hover:text-slate-800">Privacy Policy</Link>
@@ -285,7 +285,7 @@ export default function LoginPage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm mt-4 rounded-xl shadow-md shadow-blue-600/20 transition-all hover:translate-y-[-1px] active:translate-y-[1px] outline-none"
+                className="w-full h-11 bg-brand-green-dark hover:bg-brand-green-dark/80 text-white font-bold text-sm mt-4 rounded-xl shadow-md shadow-brand-green-dark/20 transition-all hover:translate-y-[-1px] active:translate-y-[1px] outline-none"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -298,9 +298,9 @@ export default function LoginPage() {
 
             <div className="mt-8 text-center text-sm text-slate-500">
               {isLoginView ? (
-                <>Belum punya akun? <button type="button" onClick={() => setIsLoginView(false)} className="text-blue-600 hover:underline font-bold transition-colors">Daftar sekarang</button></>
+                <>Belum punya akun? <button type="button" onClick={() => setIsLoginView(false)} className="text-brand-green-dark hover:underline font-bold transition-colors">Daftar sekarang</button></>
               ) : (
-                <>Sudah punya akun? <button type="button" onClick={() => setIsLoginView(true)} className="text-blue-600 hover:underline font-bold transition-colors">Masuk</button></>
+                <>Sudah punya akun? <button type="button" onClick={() => setIsLoginView(true)} className="text-brand-green-dark hover:underline font-bold transition-colors">Masuk</button></>
               )}
             </div>
 
