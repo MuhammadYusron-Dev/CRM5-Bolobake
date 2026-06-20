@@ -283,9 +283,9 @@ export function HistoryTable({
               <td className="px-4 py-4 align-top text-center text-slate-500 font-medium border-b border-slate-100 dark:border-slate-800/60">{idx + 1}</td>
               <td className="px-4 py-4 align-top border-b border-slate-100 dark:border-slate-800/60">
                 <div className="flex flex-col gap-1.5 items-start">
-                  <div className="flex flex-col gap-1 w-full">
+                  <div className="flex items-center gap-2 w-full">
                     <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-normal">{order.customer}</span>
-                    <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} iconOnly={false} />
+                    <StatusBadge stage={order.currentStage} state={order.currentState} health={order.health} iconOnly={true} />
                   </div>
                   
                   {order.deliveryDate && (
