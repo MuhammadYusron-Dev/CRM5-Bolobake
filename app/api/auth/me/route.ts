@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { cookies } from 'next/headers';
 import { verifyToken, signToken } from '@/lib/jwt';
 import { updateAdmin, uploadImage, getProfilePinHash, updateProfilePin } from '@/lib/google-sheets';
 import { TEAM_PROFILES } from '@/lib/profiles';

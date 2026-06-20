@@ -4,7 +4,6 @@ import { signToken, verifyToken } from '@/lib/jwt';
 import { getProfilePinHash } from '@/lib/google-sheets';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
-import { cookies } from 'next/headers';
 import { getAdmins } from '@/lib/google-sheets';
 
 export async function POST(request: Request) {
