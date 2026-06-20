@@ -272,3 +272,56 @@ export async function updateAdminRole(email: string, newRole: string) {
     return false;
   }
 }
+
+let visualCatalogSheetVerified = false;
+
+export async function ensureVisualCatalogSheet() {
+  if (visualCatalogSheetVerified) return;
+  try {
+    const spreadsheet = await sheets.spreadsheets.get({
+      spreadsheetId: SPREADSHEET_ID,
+    });
+    const sheetExists = spreadsheet.data.sheets?.some(s => s.properties?.title === 'Visual Catalog');
+    
+    if (!sheetExists) {
+      // Create the sheet
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        requestBody: { requests: [{ addSheet: { properties: { title: 'Visual Catalog' } } }] }
+      });
+      // Set headers
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: "'Visual Catalog'!A1:H1",
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [['ID', 'Nama', 'Kategori', 'Harga', 'Gambar', 'Spesifikasi', 'Masa Simpan', 'Saran Penyajian']] }
+      });
+      
+      // Seed with initial JSON data if available
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const dataPath = path.join(process.cwd(), 'data', 'visual-catalog.json');
+        if (fs.existsSync(dataPath)) {
+          const rawData = fs.readFileSync(dataPath, 'utf8');
+          const jsonData = JSON.parse(rawData);
+          const rows = jsonData.map((item: any) => [
+            item.id, item.nama, item.kategori, item.harga.toString(), item.gambar, item.spesifikasi, item.masaSimpan, item.saranPenyajian
+          ]);
+          await sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: "'Visual Catalog'!A2:H",
+            valueInputOption: 'USER_ENTERED',
+            requestBody: { values: rows }
+          });
+        }
+      } catch (seedError) {
+        console.error('Failed to seed Visual Catalog sheet:', seedError);
+      }
+    }
+    visualCatalogSheetVerified = true;
+  } catch (error) {
+    console.error('Error ensuring Visual Catalog sheet:', error);
+  }
+}
+
