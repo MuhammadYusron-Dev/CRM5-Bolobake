@@ -325,3 +325,93 @@ export async function ensureVisualCatalogSheet() {
   }
 }
 
+let profilePinsSheetVerified = false;
+
+export async function ensureProfilePinsSheet() {
+  if (profilePinsSheetVerified) return;
+  try {
+    const spreadsheet = await sheets.spreadsheets.get({
+      spreadsheetId: SPREADSHEET_ID,
+    });
+    const sheetExists = spreadsheet.data.sheets?.some(s => s.properties?.title === 'ProfilePins');
+    
+    if (!sheetExists) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        requestBody: { requests: [{ addSheet: { properties: { title: 'ProfilePins' } } }] }
+      });
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'ProfilePins!A1:B1',
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [['ProfileId', 'PinHash']] }
+      });
+    }
+    profilePinsSheetVerified = true;
+  } catch (error) {
+    console.error('Error ensuring ProfilePins sheet:', error);
+  }
+}
+
+export async function getProfilePinHash(profileId: string): Promise<string | null> {
+  await ensureProfilePinsSheet();
+  try {
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'ProfilePins!A2:B',
+    });
+    const rows = res.data.values;
+    if (!rows || rows.length === 0) return null;
+    
+    for (const row of rows) {
+      if (row[0] === profileId) {
+        return row[1] || null;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting profile pin:', error);
+    return null;
+  }
+}
+
+export async function updateProfilePin(profileId: string, pinHash: string): Promise<boolean> {
+  await ensureProfilePinsSheet();
+  try {
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'ProfilePins!A2:A',
+    });
+    const rows = res.data.values || [];
+    
+    let rowIndex = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][0] === profileId) {
+        rowIndex = i + 2; // +2 because array is 0-indexed and data starts at row 2
+        break;
+      }
+    }
+    
+    if (rowIndex === -1) {
+      // Append new row
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'ProfilePins!A2:B',
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [[profileId, pinHash]] }
+      });
+    } else {
+      // Update existing row
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `ProfilePins!A${rowIndex}:B${rowIndex}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [[profileId, pinHash]] }
+      });
+    }
+    return true;
+  } catch (error) {
+    console.error('Error updating profile pin:', error);
+    return false;
+  }
+}

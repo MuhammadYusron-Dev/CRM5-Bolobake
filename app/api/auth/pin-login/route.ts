@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { TEAM_PROFILES } from '@/lib/profiles';
 import { signToken, verifyToken } from '@/lib/jwt';
+import { getProfilePinHash } from '@/lib/google-sheets';
+import { cookies } from 'next/headers';
+import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { getAdmins } from '@/lib/google-sheets';
 
@@ -31,7 +34,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Profil tidak ditemukan.' }, { status: 404 });
     }
 
-    if (profile.pin !== pin) {
+    const overriddenPinHash = await getProfilePinHash(profileId);
+    let isPinValid = false;
+    
+    if (overriddenPinHash) {
+      isPinValid = await bcrypt.compare(pin, overriddenPinHash);
+    } else {
+      isPinValid = profile.pin === pin;
+    }
+
+    if (!isPinValid) {
       return NextResponse.json({ success: false, message: 'PIN salah.' }, { status: 401 });
     }
 

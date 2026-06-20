@@ -17,9 +17,10 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [user, setUser] = useState<{username: string, avatarUrl: string, email?: string, fullName?: string, role?: string} | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [oldPasswordInput, setOldPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
-  const [passwordInput, setPasswordInput] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAccessDeniedOpen, setIsAccessDeniedOpen] = useState(false);
   const router = useRouter();
@@ -55,10 +56,11 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   };
 
   const handleUpdateProfile = async () => {
-    setIsUpdating(true);
     try {
+      setIsUpdating(true);
       const formData = new FormData();
-      if (passwordInput) formData.append('password', passwordInput);
+      if (oldPasswordInput) formData.append('oldPassword', oldPasswordInput);
+      if (newPasswordInput) formData.append('newPassword', newPasswordInput);
       if (avatarFile) formData.append('avatarFile', avatarFile);
 
       const res = await fetch('/api/auth/me', {
@@ -66,11 +68,13 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
         body: formData
       });
       const data = await res.json();
-      if (data.success && data.user) {
-        setUser(data.user);
+      if (data.success) {
+        toast.success('Profil berhasil diperbarui!');
+        setUser({ ...user, ...data.user } as any);
         setIsSettingsOpen(false);
-        setPasswordInput('');
-        // We do not alert because it's intrusive, we just close dialog and let it visually update
+        setOldPasswordInput('');
+        setNewPasswordInput('');
+        setAvatarFile(null);
       } else {
         alert(data.message || 'Gagal update profil');
       }
@@ -265,7 +269,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
                 />
               </label>
             </div>
-            <h2 className="text-primary-foreground font-bold text-xl mt-4">{user?.username}</h2>
+            <h2 className="text-primary-foreground font-bold text-xl mt-4">{user?.fullName || user?.username}</h2>
             <p className="text-primary-foreground/80 text-sm font-medium">{getRoleDisplayName(user?.role)}</p>
           </div>
           
@@ -279,11 +283,21 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               />
             </div>
             <div className="grid gap-2">
-              <label className="text-xs font-bold text-foreground/70 ml-1 uppercase tracking-wider">Password Baru</label>
+              <label className="text-xs font-bold text-foreground/70 ml-1 uppercase tracking-wider">PIN / Password Lama</label>
               <Input 
                 type="password"
-                value={passwordInput} 
-                onChange={e => setPasswordInput(e.target.value)} 
+                value={oldPasswordInput} 
+                onChange={e => setOldPasswordInput(e.target.value)} 
+                placeholder="Masukkan PIN lama (jika ingin mengubah)"
+                className="bg-muted/50 border-0 rounded-2xl h-14 font-medium px-4 focus-visible:ring-1 focus-visible:ring-primary"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-xs font-bold text-foreground/70 ml-1 uppercase tracking-wider">PIN / Password Baru</label>
+              <Input 
+                type="password"
+                value={newPasswordInput} 
+                onChange={e => setNewPasswordInput(e.target.value)} 
                 placeholder="Kosongkan jika tidak diubah"
                 className="bg-muted/50 border-0 rounded-2xl h-14 font-medium px-4 focus-visible:ring-1 focus-visible:ring-primary"
               />
