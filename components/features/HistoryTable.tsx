@@ -302,9 +302,9 @@ export function HistoryTable({
               <td className="px-4 py-4 align-top whitespace-normal text-xs text-slate-600 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/60">
                 <div className="flex flex-col gap-2 min-w-[200px]">
                   {order.notes && (
-                    <div className="text-red-700 dark:text-red-400 flex flex-col gap-0.5">
-                      <span className="font-bold text-[10px] uppercase">Catatan Dapur:</span>
-                      <span className="text-[10px] leading-tight">{order.notes}</span>
+                    <div className="text-red-700 dark:text-red-400 flex items-start gap-1">
+                      <span className="font-bold text-[10px] uppercase shrink-0 mt-[1px]">Catatan Dapur:</span>
+                      <span className="text-[10px] font-medium mt-[1px] leading-tight">{order.notes}</span>
                     </div>
                   )}
                   
