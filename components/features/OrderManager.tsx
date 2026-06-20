@@ -636,7 +636,7 @@ export function OrderManager({
   };
 
   const getGreetingInfo = () => {
-    const name = currentUser?.fullName || currentUser?.username || 'Admin';
+    const name = currentUser?.name || currentUser?.fullName || currentUser?.username || 'Admin';
     const greetingName = name;
     
     if (currentHour >= 5 && currentHour < 12) return { text: `Selamat Pagi, ${greetingName}`, Icon: Sun, colorClass: 'text-amber-500' };
