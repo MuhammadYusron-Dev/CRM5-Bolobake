@@ -47,7 +47,7 @@ interface CatalogItem {
 }
 
 export function CatalogManager() {
-  const [activeTab, setActiveTab] = useState<"visual" | "scanner" | "manual" | "database">("database");
+  const [activeTab, setActiveTab] = useState<"visual" | "scanner" | "manual" | "database">("visual");
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
 
   useEffect(() => {
@@ -556,18 +556,18 @@ export function CatalogManager() {
         {/* Tab Navigation */}
         <div className="flex overflow-x-auto hide-scrollbar bg-muted p-1 rounded-xl w-full sm:w-max mb-6 sm:mb-8">
           <button
-            onClick={() => setActiveTab("database")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "database" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            <Package className="w-4 h-4" />
-            Database Katalog
-          </button>
-          <button
             onClick={() => setActiveTab("visual")}
             className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "visual" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             <FileText className="w-4 h-4" />
             Katalog Visual
+          </button>
+          <button
+            onClick={() => setActiveTab("database")}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "database" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <Package className="w-4 h-4" />
+            Database Katalog
           </button>
           <button
             onClick={() => setActiveTab("scanner")}
