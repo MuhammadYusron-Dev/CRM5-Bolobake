@@ -960,8 +960,8 @@ export function OrderForm({
               </label>
               <textarea 
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full p-3 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background mb-4"
+                onChange={(e) => setNotes(e.target.value.toUpperCase())}
+                className="w-full p-3 text-sm border border-border rounded-lg focus:ring-2 focus:ring-primary outline-none resize-none bg-background mb-4 uppercase"
                 rows={3}
                 placeholder="Misal: Panggang setengah matang, tanpa topping..."
               />
