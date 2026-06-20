@@ -295,7 +295,7 @@ export function HistoryTable({
                   )}
                   
                   <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${batch.color} mt-0.5`}>
-                    ${batch.label}
+                    {batch.label}
                   </span>
                 </div>
               </td>
