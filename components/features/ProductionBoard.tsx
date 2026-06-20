@@ -41,8 +41,35 @@ export function ProductionBoard({ initialOrders, currentUser }: { initialOrders:
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 overflow-hidden print:h-auto print:overflow-visible print:bg-white">
       {/* Header with View Switcher */}
-      <header className="py-3 flex flex-col sm:flex-row items-end sm:items-center justify-between px-4 sm:px-6 shrink-0 z-10 gap-3 print:hidden">
-        <div className="w-full sm:w-auto">
+      <div className="space-y-4 mb-2 px-4 sm:px-6 pt-4 shrink-0 z-10 print:hidden">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="font-serif flex items-center gap-2" style={{ fontSize: 'var(--text-lg)' }}>
+            <ChefHat className="w-5 h-5 text-primary" />
+            Divisi Produksi
+          </h3>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex-1 sm:flex-none justify-between sm:justify-start">
+              <button 
+                onClick={() => setActiveView('board')}
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${activeView === 'board' ? 'bg-white shadow-sm text-primary dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}
+              >
+                Papan Antrean
+              </button>
+              <button 
+                onClick={() => setActiveView('schedule')}
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${activeView === 'schedule' ? 'bg-white shadow-sm text-primary dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}
+              >
+                Rekap Target
+              </button>
+            </div>
+            <div className="shrink-0 flex-1 sm:flex-none text-right sm:text-left">
+              <ProductionTutorial />
+            </div>
+          </div>
+        </div>
+
+        {/* Horizontal Date Filter */}
+        <div className="relative z-50 mt-4 mb-6">
           <HorizontalDateFilter 
             startDate={filterStart}
             endDate={filterEnd}
@@ -50,26 +77,7 @@ export function ProductionBoard({ initialOrders, currentUser }: { initialOrders:
             orderDates={orderDates}
           />
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 w-full sm:w-auto">
-          <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex-1 sm:flex-none justify-between sm:justify-start">
-            <button 
-              onClick={() => setActiveView('board')}
-              className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${activeView === 'board' ? 'bg-white shadow-sm text-primary dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}
-            >
-              Papan Antrean
-            </button>
-            <button 
-              onClick={() => setActiveView('schedule')}
-              className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${activeView === 'schedule' ? 'bg-white shadow-sm text-primary dark:bg-slate-700 dark:text-slate-100' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}
-            >
-              Rekap Target
-            </button>
-          </div>
-          <div className="shrink-0 flex-1 sm:flex-none">
-            <ProductionTutorial />
-          </div>
-        </div>
-      </header>
+      </div>
 
       {/* Main Content Area */}
       {activeView === 'schedule' ? (
