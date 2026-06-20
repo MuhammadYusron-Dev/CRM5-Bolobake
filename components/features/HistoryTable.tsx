@@ -427,16 +427,63 @@ export function HistoryTable({
 
         const renderTableSection = (title: string, icon: React.ReactNode, orderList: Order[], isPriority: boolean = false) => {
           if (orderList.length === 0) return null;
+
+          let totalOmset = 0;
+          let totalQty = 0;
+          let croissantQty = 0;
+          let cakeQty = 0;
+
+          orderList.forEach(order => {
+            totalOmset += order.grandTotal || 0;
+            if (order.items) {
+              order.items.forEach(item => {
+                totalQty += item.qty;
+                if (isCakeOrOther(item.sku)) {
+                  cakeQty += item.qty;
+                } else {
+                  croissantQty += item.qty;
+                }
+              });
+            }
+          });
+
+          const croissantRatio = totalQty > 0 ? Math.round((croissantQty / totalQty) * 100) : 0;
+          const cakeRatio = totalQty > 0 ? Math.round((cakeQty / totalQty) * 100) : 0;
+          
+          const maxCapacity = 1000;
+          const capacityStatus = totalQty > maxCapacity ? 'Over Capacity' : totalQty > (maxCapacity * 0.8) ? 'Hampir Penuh' : 'Aman';
+          const capacityColor = totalQty > maxCapacity ? 'text-red-600 dark:text-red-400' : totalQty > (maxCapacity * 0.8) ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400';
+
           return (
             <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mb-8">
-              <div className={`px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between ${isPriority ? 'bg-red-50 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'}`}>
-                <h3 className={`font-bold flex items-center gap-2 ${isPriority ? 'text-red-800 dark:text-red-300' : 'text-slate-800 dark:text-slate-200'}`}>
-                  {icon}
-                  {title}
-                </h3>
-                <span className={`text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm ${isPriority ? 'bg-red-600 text-white border-red-700' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600'}`}>
-                  {orderList.length} Pesanan
-                </span>
+              <div className={`px-4 py-3 border-b border-slate-200 dark:border-slate-700 ${isPriority ? 'bg-red-50 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                <div className="flex items-center justify-between">
+                  <h3 className={`font-bold flex items-center gap-2 ${isPriority ? 'text-red-800 dark:text-red-300' : 'text-slate-800 dark:text-slate-200'}`}>
+                    {icon}
+                    {title}
+                  </h3>
+                  <span className={`text-[10px] px-2 py-0.5 rounded border font-bold shadow-sm ${isPriority ? 'bg-red-600 text-white border-red-700' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600'}`}>
+                    {orderList.length} Pesanan
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-[11px] font-medium text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700/50 pt-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="opacity-70">Omset:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">Rp {formatRp(totalOmset).replace('Rp', '').trim()}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="opacity-70">Produk:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{totalQty} pcs</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="opacity-70">Rasio:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">Croissant {croissantRatio}% / Cake {cakeRatio}%</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="opacity-70">Kapasitas:</span>
+                    <span className={`font-bold ${capacityColor}`}>{capacityStatus} ({totalQty}/{maxCapacity})</span>
+                  </div>
+                </div>
               </div>
               
               <div className="overflow-x-auto">
