@@ -183,17 +183,17 @@ export function VisualCatalog() {
                   {products.map((product, pIndex) => (
                     <div 
                       key={product.id} 
-                      className={`group relative flex flex-col items-center text-center px-4 ${pIndex !== products.length - 1 || isEditMode ? 'md:border-r border-slate-300/60' : ''}`}
+                      className={`group relative flex flex-col items-center text-center px-4 h-full ${pIndex !== products.length - 1 || isEditMode ? 'md:border-r border-slate-300/60' : ''}`}
                     >
                       {/* Image Container */}
                       <div 
-                        className="w-full aspect-square mb-4 relative flex items-center justify-center cursor-pointer"
+                        className="w-full flex-1 relative flex items-end justify-center cursor-pointer mb-6"
                         onClick={() => !isEditMode ? setSelectedProduct(product) : setEditingProduct(product)}
                       >
                         <img 
                           src={product.gambar} 
                           alt={product.nama} 
-                          className={`w-full max-w-[85%] h-auto object-contain transition-transform duration-700 drop-shadow-2xl ${!isEditMode ? 'group-hover:scale-110' : 'group-hover:brightness-50'}`}
+                          className={`w-auto max-w-[90%] h-auto max-h-[220px] object-contain transition-transform duration-700 drop-shadow-2xl origin-bottom ${!isEditMode ? 'group-hover:scale-110' : 'group-hover:brightness-50'}`}
                         />
                         
                         {/* Overlay: View Details */}
@@ -233,9 +233,9 @@ export function VisualCatalog() {
                   {isEditMode && (
                     <div 
                       onClick={() => handleAddNewProduct(category)}
-                      className="group relative flex flex-col items-center justify-center text-center cursor-pointer px-4"
+                      className="group relative flex flex-col items-center justify-center text-center cursor-pointer px-4 h-full"
                     >
-                      <div className="w-full aspect-square mb-4 overflow-hidden rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
+                      <div className="w-full flex-1 min-h-[200px] mb-6 overflow-hidden rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
                         <div className="flex flex-col items-center gap-2 text-slate-400 group-hover:text-primary transition-colors">
                           <div className="p-4 rounded-full bg-slate-100 group-hover:bg-primary/10">
                             <Plus className="w-8 h-8" />
