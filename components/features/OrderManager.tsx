@@ -685,7 +685,7 @@ export function OrderManager({
             </button>
             <div className="flex flex-col min-w-0">
               <h1 className="font-bold text-slate-900 tracking-tight transition-colors duration-500" style={{ fontSize: 'var(--text-3xl)' }}>
-                {activeMenu === 'dashboard' ? 'Home' : 
+                {activeMenu === 'dashboard' ? 'Hello...' : 
                  activeMenu === 'history' ? 'Riwayat Pesanan' : 
                  activeMenu === 'catalog' ? 'Katalog Manager' :
                  activeMenu === 'produksi' ? 'Divisi Produksi' :
