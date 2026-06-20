@@ -309,9 +309,9 @@ export function HistoryTable({
                   )}
                   
                   {order.deliveryNotes && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-100 dark:border-blue-900/30">
-                      <span className="font-bold block mb-0.5 text-[10px] uppercase">Pengiriman:</span>
-                      {order.deliveryNotes}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-2 rounded border border-blue-100 dark:border-blue-900/30 flex items-start gap-1">
+                      <span className="font-bold text-[10px] uppercase shrink-0">Pengiriman:</span>
+                      <span className="text-[10px] font-medium mt-[1px] leading-tight">{order.deliveryNotes.replace(/\[Delivery:\s*([^\]]+)\]/i, '$1')}</span>
                     </div>
                   )}
                 </div>
