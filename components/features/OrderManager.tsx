@@ -623,12 +623,28 @@ export function OrderManager({
     }
   };
 
+  const getRoleDisplayName = (role?: string) => {
+    switch (role) {
+      case 'SYSTEM_ADMIN': return 'Developer & Admin';
+      case 'OWNER': return 'Owner / Management';
+      case 'ADMIN': return 'Customer Service';
+      case 'PRODUCTION': return 'Divisi Produksi';
+      case 'PACKING': return 'Divisi Packing';
+      case 'DELIVERY': return 'Logistik & Pengiriman';
+      default: return role ? role.replace('_', ' ') : 'Admin';
+    }
+  };
+
   const getGreetingInfo = () => {
-    if (currentHour >= 5 && currentHour < 12) return { text: 'Selamat Pagi, Admin', Icon: Sun, colorClass: 'text-amber-500' };
-    if (currentHour >= 12 && currentHour < 15) return { text: 'Selamat Siang, Admin', Icon: CloudSun, colorClass: 'text-orange-500' };
-    if (currentHour >= 15 && currentHour < 18) return { text: 'Selamat Sore, Admin', Icon: Sunset, colorClass: 'text-rose-500' };
-    if (currentHour >= 18 && currentHour < 19) return { text: 'Selamat Petang, Admin', Icon: Sunset, colorClass: 'text-indigo-500' };
-    return { text: 'Selamat Malam, Admin', Icon: Moon, colorClass: 'text-slate-600' };
+    const name = currentUser?.fullName || currentUser?.username || 'Admin';
+    const role = currentUser?.role ? ` (${getRoleDisplayName(currentUser.role)})` : '';
+    const greetingName = `${name}${role}`;
+    
+    if (currentHour >= 5 && currentHour < 12) return { text: `Selamat Pagi, ${greetingName}`, Icon: Sun, colorClass: 'text-amber-500' };
+    if (currentHour >= 12 && currentHour < 15) return { text: `Selamat Siang, ${greetingName}`, Icon: CloudSun, colorClass: 'text-orange-500' };
+    if (currentHour >= 15 && currentHour < 18) return { text: `Selamat Sore, ${greetingName}`, Icon: Sunset, colorClass: 'text-rose-500' };
+    if (currentHour >= 18 && currentHour < 19) return { text: `Selamat Petang, ${greetingName}`, Icon: Sunset, colorClass: 'text-indigo-500' };
+    return { text: `Selamat Malam, ${greetingName}`, Icon: Moon, colorClass: 'text-slate-600' };
   };
 
   const headerTextColor = 'text-foreground';
