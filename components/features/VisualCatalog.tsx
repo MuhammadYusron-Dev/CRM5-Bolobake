@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { X, Info, Clock, Utensils, Tag, Edit3, Settings2, Save, Loader2 } from 'lucide-react';
+import { X, Info, Clock, Utensils, Tag, Edit3, Settings2, Save, Loader2, Plus } from 'lucide-react';
 import Image from 'next/image';
 
 export interface VisualProduct {
@@ -63,14 +63,38 @@ export function VisualCatalog() {
   const formatRp = (num: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num);
 
+  const handleAddNewProduct = (category: string) => {
+    setEditingProduct({
+      id: '', // Empty ID signifies a new product
+      nama: '',
+      kategori: category,
+      harga: 0,
+      gambar: '',
+      spesifikasi: '',
+      masaSimpan: '',
+      saranPenyajian: ''
+    });
+  };
+
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
 
     setIsSaving(true);
     try {
-      // Optimistic update
-      const newProductsData = productsData.map(p => p.id === editingProduct.id ? editingProduct : p);
+      let newProductsData = [...productsData];
+      
+      if (!editingProduct.id) {
+        // It's a new product
+        const newProduct = {
+          ...editingProduct,
+          id: `VC-${Date.now().toString().slice(-6)}`
+        };
+        newProductsData.push(newProduct);
+      } else {
+        // It's an existing product
+        newProductsData = productsData.map(p => p.id === editingProduct.id ? editingProduct : p);
+      }
       
       const res = await fetch('/api/visual-catalog', {
         method: 'PUT',
@@ -204,6 +228,27 @@ export function VisualCatalog() {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Add Product Card (Only in Edit Mode) */}
+                  {isEditMode && (
+                    <div 
+                      onClick={() => handleAddNewProduct(category)}
+                      className="group relative flex flex-col items-center justify-center text-center cursor-pointer"
+                    >
+                      <div className="w-full aspect-square mb-4 overflow-hidden rounded-xl bg-white/50 border-2 border-dashed border-slate-300 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
+                        <div className="flex flex-col items-center gap-2 text-slate-400 group-hover:text-primary transition-colors">
+                          <div className="p-4 rounded-full bg-slate-100 group-hover:bg-primary/10">
+                            <Plus className="w-8 h-8" />
+                          </div>
+                          <span className="font-bold text-sm tracking-wide">TAMBAH PRODUK</span>
+                        </div>
+                      </div>
+                      <div className="px-2 w-full invisible">
+                        <h3 className="font-serif italic text-lg mb-1 leading-tight">Placeholder</h3>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
 
