@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { CatalogTutorial } from "@/components/features/CatalogTutorial";
 import { writeAuditLog, generateDiffDescription } from '@/lib/audit';
+import { VisualCatalog } from './VisualCatalog';
 
 // --- MOCK: Existing catalog data ---
 // Data sekarang di-fetch dari API (Google Sheets)
@@ -46,7 +47,7 @@ interface CatalogItem {
 }
 
 export function CatalogManager() {
-  const [activeTab, setActiveTab] = useState<"scanner" | "manual" | "database">("database");
+  const [activeTab, setActiveTab] = useState<"visual" | "scanner" | "manual" | "database">("database");
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
 
   useEffect(() => {
@@ -562,6 +563,13 @@ export function CatalogManager() {
             Database Katalog
           </button>
           <button
+            onClick={() => setActiveTab("visual")}
+            className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "visual" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <FileText className="w-4 h-4" />
+            Katalog Visual
+          </button>
+          <button
             onClick={() => setActiveTab("scanner")}
             className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${activeTab === "scanner" ? "bg-card text-card-foreground text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
@@ -576,6 +584,11 @@ export function CatalogManager() {
             Input Manual
           </button>
         </div>
+
+        {/* ========== VISUAL CATALOG TAB ========== */}
+        {activeTab === "visual" && (
+          <VisualCatalog />
+        )}
 
         {/* ========== DATABASE TAB ========== */}
         {activeTab === "database" && (
