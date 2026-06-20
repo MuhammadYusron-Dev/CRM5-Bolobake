@@ -24,6 +24,19 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   const [isAccessDeniedOpen, setIsAccessDeniedOpen] = useState(false);
   const router = useRouter();
 
+  const getRoleDisplayName = (role?: string) => {
+    if (!role) return 'User Profile';
+    switch (role) {
+      case 'SYSTEM_ADMIN': return 'Developer & Admin';
+      case 'OWNER': return 'Owner / Management';
+      case 'ADMIN': return 'Admin Sales';
+      case 'PRODUCTION': return 'Divisi Produksi';
+      case 'PACKING': return 'Divisi Packing';
+      case 'DELIVERY': return 'Logistik & Pengiriman';
+      default: return role.replace('_', ' ');
+    }
+  };
+
   React.useEffect(() => {
     fetch('/api/auth/me')
       .then(res => res.json())
@@ -200,15 +213,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               <div className={`flex flex-col flex-1 min-w-0 transition-all duration-300 ease-in-out overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0 ml-0' : 'opacity-100 ml-3'}`}>
                 <span className="font-bold text-slate-900 truncate leading-tight block" style={{ fontSize: 'var(--text-sm)' }}>{user?.fullName || user?.username || 'Admin'}</span>
                 <span className="text-slate-500 truncate leading-tight block mt-0.5" style={{ fontSize: 'var(--text-3xs)' }}>
-                  {user?.role ? (
-                    user.role === 'SYSTEM_ADMIN' ? 'System Admin' :
-                    user.role === 'OWNER' ? 'Owner' :
-                    user.role === 'ADMIN' ? 'Admin Sales' :
-                    user.role === 'PRODUCTION' ? 'Kepala Produksi' :
-                    user.role === 'PACKING' ? 'Divisi Packing' :
-                    user.role === 'DELIVERY' ? 'Logistik & Pengiriman' :
-                    user.role.replace('_', ' ')
-                  ) : 'User Profile'}
+                  {getRoleDisplayName(user?.role)}
                 </span>
               </div>
             </button>
@@ -261,7 +266,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
               </label>
             </div>
             <h2 className="text-primary-foreground font-bold text-xl mt-4">{user?.username}</h2>
-            <p className="text-primary-foreground/80 text-sm font-medium">Admin store</p>
+            <p className="text-primary-foreground/80 text-sm font-medium">{getRoleDisplayName(user?.role)}</p>
           </div>
           
           <div className="bg-background px-8 pb-8 pt-8 -mt-6 rounded-t-3xl relative z-10 flex flex-col gap-5">
