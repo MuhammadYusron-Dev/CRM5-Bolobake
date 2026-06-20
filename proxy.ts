@@ -50,11 +50,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // If fully authenticated user tries to go to select-profile, redirect them to dashboard
-    if (isSelectProfilePage) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-    
+    // Allow fully authenticated users to access select-profile so they can switch profiles
     return NextResponse.next();
   } catch (error) {
     // Invalid token
