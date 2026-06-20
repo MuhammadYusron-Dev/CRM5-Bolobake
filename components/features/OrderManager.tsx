@@ -637,8 +637,7 @@ export function OrderManager({
 
   const getGreetingInfo = () => {
     const name = currentUser?.fullName || currentUser?.username || 'Admin';
-    const role = currentUser?.role ? ` (${getRoleDisplayName(currentUser.role)})` : '';
-    const greetingName = `${name}${role}`;
+    const greetingName = name;
     
     if (currentHour >= 5 && currentHour < 12) return { text: `Selamat Pagi, ${greetingName}`, Icon: Sun, colorClass: 'text-amber-500' };
     if (currentHour >= 12 && currentHour < 15) return { text: `Selamat Siang, ${greetingName}`, Icon: CloudSun, colorClass: 'text-orange-500' };
