@@ -225,7 +225,7 @@ export function DashboardAnalytics({
 
         {/* Card 2: Jumlah Transaksi */}
         <div className="glass-panel p-6 flex flex-col relative overflow-hidden group !bg-gradient-to-br !from-[#0D0F12]/95 !to-[#1C1E26]/95 backdrop-blur-3xl !border-white/5 shadow-[0_8px_30px_rgb(0,0,0,0.3)]">
-          <AnimatedBarsBg colorClass="text-violet-400" />
+          <AnimatedBarsBg colorClass="text-brand-green-dark" />
           <div className="flex justify-between items-start mb-6 z-10">
             <div className="w-10 h-10 rounded-[14px] bg-white/10 flex items-center justify-center text-white backdrop-blur-sm">
                <ShoppingBag className="w-5 h-5" />

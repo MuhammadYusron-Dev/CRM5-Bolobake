@@ -302,9 +302,9 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
               <CardContent className="p-5">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-indigo-100 print:text-black font-medium text-[11px] mb-1 uppercase tracking-wider">Avg Time-to-Convert</p>
+                    <p className="text-white/90 print:text-black font-medium text-[11px] mb-1 uppercase tracking-wider">Avg Time-to-Convert</p>
                     <h3 className="text-3xl font-bold">{sampleData.avgConvertDays.toFixed(1)} <span className="text-lg font-normal opacity-80">Hari</span></h3>
-                    <p className="text-[10px] text-indigo-100 print:text-black mt-1">Rata-rata waktu order rutin</p>
+                    <p className="text-[10px] text-white/90 print:text-black mt-1">Rata-rata waktu order rutin</p>
                   </div>
                   <div className="p-2.5 bg-white/20 print:hidden rounded-2xl backdrop-blur-sm">
                     <Clock className="w-6 h-6 text-white" />

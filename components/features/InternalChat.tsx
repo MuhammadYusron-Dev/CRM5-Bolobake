@@ -229,7 +229,7 @@ export function InternalChat() {
     <>
       <button 
         onClick={isOpen ? () => setIsOpen(false) : handleOpen}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all z-50 print:hidden ${isOpen ? 'bg-slate-800 hover:bg-slate-900' : 'bg-primary hover:bg-primary/90 hover:scale-105'}`}
+        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all z-50 print:hidden ${isOpen ? 'bg-slate-800 hover:bg-slate-900' : 'bg-gradient-to-br from-brand-green-dark to-brand-green-light hover:opacity-90 hover:scale-105'}`}
       >
         {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
         {!isOpen && hasUnread && (

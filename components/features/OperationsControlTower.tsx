@@ -10,9 +10,9 @@ export function OperationsControlTower({ intelligence }: { intelligence: Intelli
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-6 h-6 text-indigo-600" />
+        <Activity className="w-6 h-6 text-brand-green-dark" />
         <h2 className="text-xl font-bold text-slate-800">Operations Control Tower</h2>
-        <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 uppercase tracking-widest text-[10px]">Intelligence Active</Badge>
+        <Badge className="bg-brand-green-light/40 text-brand-green-dark border-brand-green-light/50 uppercase tracking-widest text-[10px]">Intelligence Active</Badge>
       </div>
 
       {/* SLA Early Warnings */}

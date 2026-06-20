@@ -28,7 +28,7 @@ function getBatchLabel(timestamp: string): { label: string, color: string } {
   if (hour < 8) return { label: 'Batch Pagi (08:00)', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' };
   if (hour >= 8 && hour < 10) return { label: 'Tambahan (09:00)', color: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300' };
   if (hour >= 10 && hour < 15) return { label: 'Update Siang (14:00)', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' };
-  return { label: 'Final Malam (22:00)', color: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300' };
+  return { label: 'Final Malam (22:00)', color: 'bg-brand-green-light/40 text-brand-green-dark dark:bg-brand-green-dark/40 dark:text-brand-green-light' };
 }
 
 interface KanbanBoardProps {

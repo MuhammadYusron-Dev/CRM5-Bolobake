@@ -64,7 +64,7 @@ export function UserManager({ currentUser }: { currentUser?: { userId: string; n
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-4" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-green-dark mb-4" />
         <p className="text-sm text-slate-500">Memuat data pengguna...</p>
       </div>
     );
@@ -81,7 +81,7 @@ export function UserManager({ currentUser }: { currentUser?: { userId: string; n
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center gap-2 mb-4">
-        <Shield className="w-6 h-6 text-indigo-600" />
+        <Shield className="w-6 h-6 text-brand-green-dark" />
         <h2 className="text-xl font-bold text-slate-800">Manajemen Pengguna (Hak Akses)</h2>
       </div>
 
@@ -117,7 +117,7 @@ export function UserManager({ currentUser }: { currentUser?: { userId: string; n
                   <td className="px-4 py-3 text-slate-600">{u.email}</td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant="outline" className={
-                      u.role === 'SYSTEM_ADMIN' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                      u.role === 'SYSTEM_ADMIN' ? 'bg-brand-green-light/40 text-brand-green-dark border-brand-green-light/50' :
                       u.role === 'OWNER' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                       u.role === 'ADMIN' ? 'bg-slate-100 text-slate-700' :
                       'bg-blue-50 text-blue-700 border-blue-200'

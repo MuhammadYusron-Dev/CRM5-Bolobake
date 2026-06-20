@@ -390,7 +390,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
     <div className="w-full max-w-7xl mx-auto space-y-6 min-w-0">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-indigo-500" />
+            <BarChart3 className="w-6 h-6 text-brand-green-dark" />
             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Sales & Marketing CRM</h2>
           </div>
         </header>
@@ -405,7 +405,7 @@ export function SalesCRM({ initialOrders }: SalesCRMProps) {
                         <p className="text-xs text-white/80 uppercase font-bold tracking-wider mt-1">Champions</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-violet-600 to-fuchsia-500 border-0 shadow-lg">
+                <Card className="bg-gradient-to-br from-brand-green-dark to-brand-green-light border-0 shadow-lg">
                     <CardContent className="p-4 flex flex-col justify-center items-center text-center">
                         <Users className="w-8 h-8 text-white/90 mb-2" />
                         <h4 className="text-2xl font-bold text-white">{rfmData.summary.loyal}</h4>

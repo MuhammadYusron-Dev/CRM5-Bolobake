@@ -157,7 +157,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
       >
         <div className="p-4 flex items-center h-16 shrink-0 mt-4 md:mt-6 mb-2">
           <div className="flex items-center overflow-hidden w-full px-2">
-            <ChefHat className={`w-8 h-8 text-indigo-500 flex-shrink-0 transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
+            <ChefHat className={`w-8 h-8 text-brand-green-dark flex-shrink-0 transition-all duration-300 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
             <div className={`flex flex-col whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
               <span className="font-sans font-extrabold leading-tight tracking-tight text-slate-900" style={{ fontSize: 'var(--text-xl)' }}>Bolobake.</span>
             </div>
