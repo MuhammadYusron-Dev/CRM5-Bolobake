@@ -19,10 +19,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Akses Workspace tidak ditemukan. Silakan login kembali.' }, { status: 401 });
     }
 
-    // Verify workspace access
+    // Verify token validity
     const payload = await verifyToken(token);
-    if (!payload || payload.role !== 'WORKSPACE') {
-      return NextResponse.json({ success: false, message: 'Token tidak valid untuk pemilihan profil.' }, { status: 403 });
+    if (!payload) {
+      return NextResponse.json({ success: false, message: 'Token tidak valid.' }, { status: 403 });
     }
 
     const profile = TEAM_PROFILES.find(p => p.id === profileId);

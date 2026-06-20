@@ -50,8 +50,8 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   }, []);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
+    // Redirect to profile selection instead of destroying the token entirely
+    router.push('/select-profile');
   };
 
   const handleUpdateProfile = async () => {
