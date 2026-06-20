@@ -12,7 +12,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { formatDate } from '@/lib/utils';
 
-export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }) {
+export function ProductionSchedule({ initialOrders, filterStart, filterEnd }: { initialOrders: Order[], filterStart?: string, filterEnd?: string }) {
   const { data: orders = initialOrders } = useSWR<Order[]>('/api/orders', fetcher, { fallbackData: initialOrders });
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [rejects, setRejects] = useState<Record<string, number>>({});
@@ -32,21 +32,13 @@ export function ProductionSchedule({ initialOrders }: { initialOrders: Order[] }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  });
-  const [endDate, setEndDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  });
+  const [startDate, setStartDate] = useState(filterStart || '');
+  const [endDate, setEndDate] = useState(filterEnd || '');
+
+  useEffect(() => {
+    if (filterStart) setStartDate(filterStart);
+    if (filterEnd) setEndDate(filterEnd);
+  }, [filterStart, filterEnd]);
 
   const toggleNotes = (key: string) => {
     setHiddenNotes(prev => ({ ...prev, [key]: !prev[key] }));
