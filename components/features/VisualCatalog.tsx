@@ -1,39 +1,129 @@
-import React, { useState, useMemo } from 'react';
-import { visualCatalogData, VisualProduct } from '@/lib/visual-catalog-data';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { X, Info, Clock, Utensils, Tag } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { X, Info, Clock, Utensils, Tag, Edit3, Settings2, Save, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
+export interface VisualProduct {
+  id: string;
+  nama: string;
+  kategori: string;
+  harga: number;
+  gambar: string;
+  spesifikasi: string;
+  masaSimpan: string;
+  saranPenyajian: string;
+}
+
 export function VisualCatalog() {
+  const [productsData, setProductsData] = useState<VisualProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // View states
   const [selectedProduct, setSelectedProduct] = useState<VisualProduct | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  // Edit states
+  const [editingProduct, setEditingProduct] = useState<VisualProduct | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch data on mount
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        const res = await fetch('/api/visual-catalog');
+        const result = await res.json();
+        if (result.success) {
+          setProductsData(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch visual catalog:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCatalog();
+  }, []);
 
   // Group products by category
   const groupedProducts = useMemo(() => {
     const groups: Record<string, VisualProduct[]> = {};
-    visualCatalogData.forEach(product => {
+    productsData.forEach(product => {
       if (!groups[product.kategori]) {
         groups[product.kategori] = [];
       }
       groups[product.kategori].push(product);
     });
     return groups;
-  }, []);
+  }, [productsData]);
 
   const formatRp = (num: number) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(num);
 
-  return (
-    <div className="w-full bg-[#FAFAFA] min-h-screen pb-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
-        
-        {/* Header Section (Optional, to give context) */}
-        <div className="mb-12 text-center md:text-right border-b border-slate-200 pb-6">
-          <h2 className="text-xl md:text-2xl font-bold tracking-widest text-slate-800 uppercase">
-            Bolobake Catalog <span className="font-normal text-slate-500">- Reference</span>
-          </h2>
-        </div>
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
 
-        <div className="flex flex-col space-y-16">
+    setIsSaving(true);
+    try {
+      // Optimistic update
+      const newProductsData = productsData.map(p => p.id === editingProduct.id ? editingProduct : p);
+      
+      const res = await fetch('/api/visual-catalog', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProductsData)
+      });
+      
+      if (!res.ok) throw new Error("Failed to save changes");
+      
+      setProductsData(newProductsData);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error("Error saving:", error);
+      alert("Gagal menyimpan perubahan.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleInputChange = (field: keyof VisualProduct, value: string | number) => {
+    if (editingProduct) {
+      setEditingProduct({ ...editingProduct, [field]: value });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-96 flex flex-col items-center justify-center bg-[#FAFAFA]">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+        <p className="text-slate-500 font-medium">Memuat Katalog Visual...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full bg-[#FAFAFA] min-h-screen pb-20 relative">
+      
+      {/* Edit Mode Toggle - Sticky Header */}
+      <div className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-3 px-6 flex justify-between items-center">
+        <div className="text-sm font-bold text-slate-800 tracking-wider uppercase flex items-center gap-2">
+          BOLOBÄKE <span className="text-slate-400 font-normal hidden sm:inline">| Visual Catalog</span>
+        </div>
+        <button 
+          onClick={() => setIsEditMode(!isEditMode)}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-full transition-all duration-300 ${isEditMode ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+        >
+          <Settings2 className="w-4 h-4" />
+          {isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
+        </button>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
+        <div className="flex flex-col space-y-16 mt-8">
           {Object.entries(groupedProducts).map(([category, products], index) => (
             <div key={category} className="flex flex-col md:flex-row border-b border-slate-200 pb-16 last:border-0 relative">
               
@@ -69,32 +159,48 @@ export function VisualCatalog() {
                   {products.map((product) => (
                     <div 
                       key={product.id} 
-                      className="group cursor-pointer flex flex-col items-center text-center"
-                      onClick={() => setSelectedProduct(product)}
+                      className="group relative flex flex-col items-center text-center"
                     >
                       {/* Image Container */}
-                      <div className="w-full aspect-square mb-4 overflow-hidden rounded-xl bg-white shadow-sm border border-slate-100 relative group-hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
+                      <div 
+                        className="w-full aspect-square mb-4 overflow-hidden rounded-xl bg-white shadow-sm border border-slate-100 relative group-hover:shadow-md transition-all duration-300 cursor-pointer"
+                        onClick={() => !isEditMode ? setSelectedProduct(product) : setEditingProduct(product)}
+                      >
                         <img 
                           src={product.gambar} 
                           alt={product.nama} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          className={`w-full h-full object-cover transition-transform duration-700 ${!isEditMode ? 'group-hover:scale-110' : 'group-hover:brightness-50'}`}
                         />
-                        {/* Overlay for hover */}
-                        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                           <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-bold text-slate-800 shadow-sm translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                             Lihat Detail
-                           </div>
-                        </div>
+                        
+                        {/* Overlay: View Details */}
+                        {!isEditMode && (
+                          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                             <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-xs font-bold text-slate-800 shadow-sm translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                               Lihat Detail
+                             </div>
+                          </div>
+                        )}
+
+                        {/* Overlay: Edit Mode */}
+                        {isEditMode && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                             <div className="bg-primary text-white p-3 rounded-full shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-200">
+                               <Edit3 className="w-6 h-6" />
+                             </div>
+                          </div>
+                        )}
                       </div>
                       
-                      {/* Product Name & Price */}
-                      <div className="px-2">
-                        <h3 className="font-serif italic text-lg text-slate-800 mb-1 leading-tight group-hover:text-primary transition-colors">
+                      {/* Product Name */}
+                      <div className="px-2 w-full">
+                        <h3 className={`font-serif italic text-lg mb-1 leading-tight transition-colors ${isEditMode ? 'text-primary' : 'text-slate-800 group-hover:text-primary'}`}>
                           {product.nama}
                         </h3>
-                        {/* <p className="text-sm font-semibold text-slate-500">
-                          {formatRp(product.harga)}
-                        </p> */}
+                        {isEditMode && (
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
+                            Klik untuk Edit
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -104,11 +210,10 @@ export function VisualCatalog() {
             </div>
           ))}
         </div>
-
       </div>
 
-      {/* Product Detail Modal */}
-      <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
+      {/* Product Detail Modal (View Mode) */}
+      <Dialog open={!!selectedProduct && !isEditMode} onOpenChange={(open) => !open && setSelectedProduct(null)}>
         <DialogContent className="sm:max-w-2xl p-0 overflow-hidden bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl rounded-3xl">
           {selectedProduct && (
             <div className="flex flex-col md:flex-row">
@@ -168,6 +273,126 @@ export function VisualCatalog() {
 
               </div>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Form Modal */}
+      <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+        <DialogContent className="sm:max-w-xl bg-white border-slate-200 shadow-2xl rounded-2xl p-0 overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <DialogTitle className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Edit3 className="w-5 h-5 text-primary" />
+              Edit Visual Product
+            </DialogTitle>
+            <button 
+              onClick={() => setEditingProduct(null)}
+              className="p-1.5 bg-slate-200 hover:bg-slate-300 rounded-full text-slate-500 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          
+          {editingProduct && (
+            <form onSubmit={handleSaveEdit} className="p-6 flex flex-col gap-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="nama" className="text-xs font-bold text-slate-600 uppercase tracking-wider">Nama Produk</Label>
+                  <Input 
+                    id="nama" 
+                    value={editingProduct.nama} 
+                    onChange={(e) => handleInputChange('nama', e.target.value)} 
+                    className="border-slate-200 bg-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="kategori" className="text-xs font-bold text-slate-600 uppercase tracking-wider">Kategori</Label>
+                  <Input 
+                    id="kategori" 
+                    value={editingProduct.kategori} 
+                    onChange={(e) => handleInputChange('kategori', e.target.value)} 
+                    className="border-slate-200 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="harga" className="text-xs font-bold text-slate-600 uppercase tracking-wider">Harga (Rp)</Label>
+                  <Input 
+                    id="harga" 
+                    type="number"
+                    value={editingProduct.harga} 
+                    onChange={(e) => handleInputChange('harga', Number(e.target.value))} 
+                    className="border-slate-200 bg-white"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="gambar" className="text-xs font-bold text-slate-600 uppercase tracking-wider">URL Gambar</Label>
+                  <Input 
+                    id="gambar" 
+                    value={editingProduct.gambar} 
+                    onChange={(e) => handleInputChange('gambar', e.target.value)} 
+                    className="border-slate-200 bg-white text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Image Preview Block */}
+              {editingProduct.gambar && (
+                <div className="w-full h-32 rounded-lg bg-slate-100 overflow-hidden relative border border-slate-200">
+                   <img src={editingProduct.gambar} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center backdrop-blur-[2px]">
+                     <span className="bg-black/50 text-white text-xs px-3 py-1 rounded-full font-medium">Image Preview</span>
+                   </div>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <Label htmlFor="spesifikasi" className="text-xs font-bold text-slate-600 uppercase tracking-wider">Spesifikasi Produk</Label>
+                <Textarea 
+                  id="spesifikasi" 
+                  value={editingProduct.spesifikasi} 
+                  onChange={(e) => handleInputChange('spesifikasi', e.target.value)} 
+                  className="border-slate-200 bg-white resize-none h-24"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="masaSimpan" className="text-xs font-bold text-slate-600 uppercase tracking-wider">Masa Simpan</Label>
+                <Input 
+                  id="masaSimpan" 
+                  value={editingProduct.masaSimpan} 
+                  onChange={(e) => handleInputChange('masaSimpan', e.target.value)} 
+                  className="border-slate-200 bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="saranPenyajian" className="text-xs font-bold text-slate-600 uppercase tracking-wider">Saran Penyajian</Label>
+                <Textarea 
+                  id="saranPenyajian" 
+                  value={editingProduct.saranPenyajian} 
+                  onChange={(e) => handleInputChange('saranPenyajian', e.target.value)} 
+                  className="border-slate-200 bg-white resize-none"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 mt-2 flex justify-end gap-3">
+                <Button type="button" variant="outline" onClick={() => setEditingProduct(null)}>
+                  Batal
+                </Button>
+                <Button type="submit" disabled={isSaving} className="bg-primary text-primary-foreground min-w-[120px] font-bold">
+                  {isSaving ? (
+                    <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...</span>
+                  ) : (
+                    <span className="flex items-center gap-2"><Save className="w-4 h-4" /> Simpan Perubahan</span>
+                  )}
+                </Button>
+              </div>
+
+            </form>
           )}
         </DialogContent>
       </Dialog>
