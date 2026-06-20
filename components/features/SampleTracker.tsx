@@ -241,7 +241,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
     <div className="w-full max-w-7xl mx-auto space-y-6 print:p-0 print:space-y-0 print:block min-w-0">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
           <div className="flex items-center gap-2">
-            <Gift className="w-6 h-6 text-purple-500" />
+            <Gift className="w-6 h-6 text-brand-green-dark" />
             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Tracking & Analytics Sample</h2>
           </div>
           <div className="flex gap-2">
@@ -298,7 +298,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
             </Card>
 
             {/* Card 2: Time to Conversion */}
-            <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0 shadow-lg print:border print:border-black print:text-black print:bg-none print:shadow-none">
+            <Card className="bg-gradient-to-br from-brand-green-dark to-brand-green-light text-white border-0 shadow-lg print:border print:border-black print:text-black print:bg-none print:shadow-none">
               <CardContent className="p-5">
                 <div className="flex justify-between items-start">
                   <div>
@@ -381,7 +381,7 @@ export function SampleTracker({ initialOrders: serverOrders, initialCatalog }: S
             <Card className="border-border/50 shadow-sm overflow-hidden print:border-black print:shadow-none">
               <div className="bg-slate-100/50 dark:bg-slate-900/50 p-4 border-b border-border print:border-black">
                 <h3 className="font-bold text-sm flex items-center gap-2 print:text-black">
-                  <PieChart className="w-4 h-4 text-purple-500 print:hidden" /> Top 5 Produk Sampel (Qty)
+                  <PieChart className="w-4 h-4 text-brand-green-dark print:hidden" /> Top 5 Produk Sampel (Qty)
                 </h3>
               </div>
               <div className="p-0">

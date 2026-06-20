@@ -90,7 +90,7 @@ export default function InventoryPage() {
       case 'FULFILLMENT':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
       case 'ADJUSTMENT':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300';
+        return 'bg-brand-green-light/40 text-brand-green-dark dark:bg-brand-green-dark/40 dark:text-brand-green-light';
       default:
         return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
     }
@@ -149,15 +149,15 @@ export default function InventoryPage() {
               <span className="text-4xl font-black text-amber-950 dark:text-white tracking-tight">{lowStockCount}</span>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-50 to-pink-100/50 dark:from-purple-900/20 dark:to-pink-900/10 rounded-2xl shadow-sm border border-purple-100/50 dark:border-purple-800/30 p-6 flex flex-col relative overflow-hidden group transition-all duration-300 hover:shadow-md">
-              <div className="absolute right-0 top-0 w-24 h-24 bg-purple-500/5 dark:bg-purple-400/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-colors"></div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-xl">
-                  <Bookmark className="w-5 h-5" />
+            <div className="bg-gradient-to-br from-brand-green-dark to-brand-green-light dark:from-brand-green-dark/60 dark:to-brand-green-dark/20 rounded-2xl shadow-sm border border-brand-green-light/30 dark:border-brand-green-dark/50 p-6 flex flex-col relative overflow-hidden group transition-all duration-300 hover:shadow-md">
+              <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 dark:bg-brand-green-light/5 rounded-full blur-xl group-hover:bg-white/20 transition-colors"></div>
+              <div className="flex items-center gap-3 mb-2 relative z-10">
+                <div className="p-2.5 bg-white/20 dark:bg-black/20 text-white dark:text-brand-green-light rounded-xl">
+                  <Archive className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-bold uppercase tracking-wider text-purple-800/70 dark:text-purple-300/70">Total Direservasi</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-white/90 dark:text-brand-green-light/80">Total Direservasi</span>
               </div>
-              <span className="text-4xl font-black text-purple-950 dark:text-white tracking-tight">{reservedTotal}</span>
+              <span className="text-4xl font-black text-white dark:text-white tracking-tight">{reservedTotal}</span>
             </div>
           </div>
 

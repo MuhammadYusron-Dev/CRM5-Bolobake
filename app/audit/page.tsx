@@ -71,7 +71,7 @@ function getModuleBorderColor(module: string) {
   switch (module) {
     case 'ORDER': return 'border-l-emerald-500';
     case 'PRODUCTION': return 'border-l-blue-500';
-    case 'PACKING': return 'border-l-purple-500';
+    case 'PACKING': return 'border-l-brand-green-dark';
     case 'QA': return 'border-l-rose-500';
     case 'INVENTORY': return 'border-l-amber-500';
     case 'CATALOG': return 'border-l-pink-500';

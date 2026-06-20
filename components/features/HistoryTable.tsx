@@ -152,7 +152,7 @@ export function HistoryTable({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Dikonfirmasi': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'Produksi': return 'bg-purple-100 text-purple-700 border-purple-200';
+      case 'Produksi': return 'bg-brand-green-light/60 text-brand-green-dark border-brand-green-light/50';
       case 'Packing': return 'bg-orange-100 text-orange-700 border-orange-200';
       case 'Delivery': return 'bg-teal-100 text-teal-700 border-teal-200';
       case 'Diterima': return 'bg-green-100 text-green-700 border-green-200';

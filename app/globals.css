@@ -22,6 +22,8 @@
   --color-ring: #5A57FF;
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-serif: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
+  --color-brand-green-dark: #336A29;
+  --color-brand-green-light: #EAEF9D;
 
   
   --animate-blob: blob 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);

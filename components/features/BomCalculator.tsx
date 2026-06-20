@@ -213,10 +213,10 @@ export function BomCalculator({
                   <div className="mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                     <div className="flex justify-between items-center text-sm">
                       <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase cursor-help" title="Total waktu yang dibutuhkan jika menggunakan 1 oven, berdasarkan kapasitas dan lama panggang per batch.">
-                        <Clock className="w-4 h-4 text-purple-500" /> Estimasi Waktu Oven
+                        <Clock className="w-4 h-4 text-brand-green-dark" /> Estimasi Waktu Oven
                         <Info className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 inline" />
                       </span>
-                      <span className="font-bold text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 rounded text-xs">
+                      <span className="font-bold text-brand-green-dark dark:text-brand-green-light bg-brand-green-light/30 dark:bg-brand-green-dark/30 px-2 py-0.5 rounded text-xs">
                         {Math.floor(totalBakeTime / 60)}j {totalBakeTime % 60}m
                       </span>
                     </div>

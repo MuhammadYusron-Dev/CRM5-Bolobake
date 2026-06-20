@@ -21,7 +21,7 @@ const COMMON_EMOJIS = ['👍', '❤️', '😂', '😮', '🙏', '✅'];
 const getDivisionColor = (division: string) => {
   switch(division) {
     case 'Admin / Sales': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 border-blue-200';
-    case 'Produksi': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 border-purple-200';
+    case 'Produksi': return 'bg-brand-green-light/60 text-brand-green-dark dark:bg-brand-green-dark/50 dark:text-brand-green-light border-brand-green-light/50';
     case 'Packing': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300 border-orange-200';
     case 'Logistik': return 'bg-E0F2FE text-0369A1 dark:bg-sky-900/50 dark:text-sky-300 border-sky-200';
     default: return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-200';

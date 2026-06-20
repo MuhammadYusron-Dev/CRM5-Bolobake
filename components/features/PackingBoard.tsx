@@ -16,7 +16,7 @@ export function PackingBoard({ initialOrders, currentUser }: { initialOrders: an
       id: 'packing_proses',
       title: 'Sedang Dipacking',
       filterFn: (o: any) => o.currentStage === 'PACKING' && (o.currentState === 'IN_PROGRESS' || o.currentState === 'ACCEPTED' || o.currentState === 'QC_PENDING'),
-      colorClass: 'bg-gradient-to-br from-indigo-600 to-purple-500 text-white border-transparent shadow-md'
+      colorClass: 'bg-gradient-to-br from-brand-green-dark to-brand-green-light text-white border-transparent shadow-md'
     },
     {
       id: 'delivery',
