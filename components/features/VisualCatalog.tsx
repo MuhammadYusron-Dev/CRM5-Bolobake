@@ -132,8 +132,8 @@ export function VisualCatalog() {
   return (
     <div className="w-full bg-[#FAFAFA] min-h-screen pb-20 relative">
       
-      {/* Edit Mode Toggle - Sticky Header */}
-      <div className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-3 px-6 flex justify-between items-center">
+      {/* Edit Mode Toggle - Header */}
+      <div className="relative z-10 w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm py-3 px-6 flex justify-between items-center">
         <div className="text-sm font-bold text-slate-800 tracking-wider uppercase flex items-center gap-2">
           BOLOBÄKE <span className="text-slate-400 font-normal hidden sm:inline">| Visual Catalog</span>
         </div>
