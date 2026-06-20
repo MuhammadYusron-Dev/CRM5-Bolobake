@@ -153,7 +153,7 @@ export default function InventoryPage() {
               <div className="absolute right-0 top-0 w-24 h-24 bg-white/10 dark:bg-brand-green-light/5 rounded-full blur-xl group-hover:bg-white/20 transition-colors"></div>
               <div className="flex items-center gap-3 mb-2 relative z-10">
                 <div className="p-2.5 bg-white/20 dark:bg-black/20 text-white dark:text-brand-green-light rounded-xl">
-                  <Archive className="w-5 h-5" />
+                  <Bookmark className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-bold uppercase tracking-wider text-white/90 dark:text-brand-green-light/80">Total Direservasi</span>
               </div>
