@@ -314,17 +314,6 @@ export function HistoryTable({
                       {order.deliveryNotes}
                     </div>
                   )}
-
-                  <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700 space-y-1 text-[10px]">
-                    <div className="flex justify-between font-bold">
-                      <span>Logistik:</span>
-                      <span>{order.isFreeShipping ? 'Gratis Ongkir' : `Rp ${formatRp(order.shippingCost || 0).replace('Rp', '').trim()}`}</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-primary border-t border-slate-200 dark:border-slate-700 pt-1 mt-1">
-                      <span>Grand Total:</span>
-                      <span>{formatRp(order.grandTotal || 0)}</span>
-                    </div>
-                  </div>
                 </div>
               </td>
               <td className="px-4 py-4 align-top border-b border-slate-100 dark:border-slate-800/60">
@@ -368,6 +357,17 @@ export function HistoryTable({
                       </ul>
                     </div>
                   )}
+
+                  <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700 space-y-1 text-[10px] mt-1">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-slate-600 dark:text-slate-400">Logistik:</span>
+                      <span className="text-slate-700 dark:text-slate-300">{order.isFreeShipping ? 'Gratis Ongkir' : `Rp ${formatRp(order.shippingCost || 0).replace('Rp', '').trim()}`}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-primary border-t border-slate-200 dark:border-slate-700 pt-1 mt-1">
+                      <span>Grand Total:</span>
+                      <span>{formatRp(order.grandTotal || 0)}</span>
+                    </div>
+                  </div>
                 </div>
               </td>
               <td className="px-4 py-4 align-top border-b border-slate-100 dark:border-slate-800/60">
