@@ -5,39 +5,47 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Clock, AlertTriangle, CheckCircle2, User, ArrowRight, Play, RefreshCcw, XCircle, FileText } from 'lucide-react';
+import { Clock, AlertTriangle, CheckCircle2, User, ArrowRight, Play, RefreshCcw, XCircle, FileText, Timer, ChefHat, AlertOctagon, BadgeCheck, ClipboardList } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export function StatusBadge({ stage, state, health, iconOnly }: { stage?: OrderStage, state?: OrderState, health?: OrderHealth, iconOnly?: boolean }) {
   if (!stage || !state) return <Badge variant="outline" className="bg-slate-100 text-slate-700">Legacy Mode</Badge>;
 
   let bgColor = 'bg-slate-100 text-slate-700';
+  let iconColor = 'text-slate-500';
   let icon = null;
+
+  const sizeClass = iconOnly ? "w-[18px] h-[18px]" : "w-3 h-3 mr-1";
 
   if (state === 'WAITING') {
     bgColor = 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    icon = <Clock className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
+    iconColor = 'text-yellow-500';
+    icon = <Timer className={sizeClass} />;
   } else if (state === 'ACCEPTED' || state === 'IN_PROGRESS') {
     bgColor = 'bg-blue-100 text-blue-800 border-blue-300';
-    icon = <Play className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
+    iconColor = 'text-blue-500';
+    icon = <ChefHat className={sizeClass} />;
   } else if (state === 'REVIEW_REQUIRED' || state === 'REWORK_REQUIRED' || state === 'QC_FAILED') {
     bgColor = 'bg-red-100 text-red-800 border-red-300';
-    icon = <XCircle className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
+    iconColor = 'text-red-500';
+    icon = <AlertOctagon className={sizeClass} />;
   } else if (state === 'COMPLETED' || state === 'QC_PASSED') {
     bgColor = 'bg-green-100 text-green-800 border-green-300';
-    icon = <CheckCircle2 className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
+    iconColor = 'text-green-600';
+    icon = <BadgeCheck className={sizeClass} />;
   } else if (state === 'QC_PENDING') {
     bgColor = 'bg-cyan-100 text-cyan-800 border-cyan-300 animate-pulse';
-    icon = <FileText className={`w-3 h-3 ${iconOnly ? '' : 'mr-1'}`} />;
+    iconColor = 'text-cyan-500 animate-pulse';
+    icon = <ClipboardList className={sizeClass} />;
   }
 
   let healthIndicator = null;
   if (health === 'AT_RISK') {
-    healthIndicator = <span className="ml-2 flex items-center text-orange-600 animate-pulse"><AlertTriangle className="w-3 h-3 mr-0.5" /> AT RISK</span>;
+    healthIndicator = <span className="ml-2 flex items-center text-[10px] font-bold text-orange-600 animate-pulse"><AlertTriangle className="w-3 h-3 mr-0.5" /> AT RISK</span>;
   } else if (health === 'BLOCKED') {
-    healthIndicator = <span className="ml-2 flex items-center text-red-600 font-bold"><XCircle className="w-3 h-3 mr-0.5" /> BLOCKED</span>;
+    healthIndicator = <span className="ml-2 flex items-center text-[10px] font-bold text-red-600"><XCircle className="w-3 h-3 mr-0.5" /> BLOCKED</span>;
   } else if (health === 'OVERDUE') {
-    healthIndicator = <span className="ml-2 flex items-center text-red-600 font-bold animate-bounce"><AlertTriangle className="w-3 h-3 mr-0.5" /> OVERDUE</span>;
+    healthIndicator = <span className="ml-2 flex items-center text-[10px] font-bold text-red-600 animate-bounce"><AlertTriangle className="w-3 h-3 mr-0.5" /> OVERDUE</span>;
   }
 
   let label = `${stage} ${state !== 'IN_PROGRESS' ? `- ${state}` : ''}`;
@@ -47,10 +55,8 @@ export function StatusBadge({ stage, state, health, iconOnly }: { stage?: OrderS
 
   if (iconOnly) {
     return (
-      <div className="flex items-center text-[10px] font-bold" title={label}>
-        <div className={`flex items-center justify-center w-5 h-5 rounded-full ${bgColor} border cursor-help shadow-sm`}>
-          {icon}
-        </div>
+      <div className={`flex items-center cursor-help ${iconColor} drop-shadow-sm`} title={label}>
+        {icon}
         {healthIndicator}
       </div>
     );
