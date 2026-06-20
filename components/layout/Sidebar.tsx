@@ -29,7 +29,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
     switch (role) {
       case 'SYSTEM_ADMIN': return 'Developer & Admin';
       case 'OWNER': return 'Owner / Management';
-      case 'ADMIN': return 'Admin Sales';
+      case 'ADMIN': return 'Customer Service';
       case 'PRODUCTION': return 'Divisi Produksi';
       case 'PACKING': return 'Divisi Packing';
       case 'DELIVERY': return 'Logistik & Pengiriman';
