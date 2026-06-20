@@ -21,6 +21,7 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>('');
+  const [isWaving, setIsWaving] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAccessDeniedOpen, setIsAccessDeniedOpen] = useState(false);
   const router = useRouter();
@@ -245,29 +246,29 @@ export function Sidebar({ activeMenu, setActiveMenu, isMobileOpen, setIsMobileOp
           <DialogTitle className="sr-only">Pengaturan Profil</DialogTitle>
           <DialogDescription className="sr-only">Formulir pengaturan foto profil dan password.</DialogDescription>
           <div className="bg-primary pt-12 pb-10 flex flex-col items-center relative">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full border-4 border-background overflow-hidden bg-muted shadow-md">
+            <div 
+              className="relative cursor-pointer group"
+              onClick={() => {
+                if (isWaving) return;
+                setIsWaving(true);
+                setTimeout(() => setIsWaving(false), 2000);
+              }}
+            >
+              {/* The base circle to act as the original frame */}
+              <div className="w-24 h-24 rounded-full border-4 border-background bg-muted shadow-md relative z-0"></div>
+              
+              {/* The avatar image that will pop out and wave */}
+              <div className="absolute inset-0 flex items-end justify-center z-10 pointer-events-none">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img 
+                    src={avatarPreview} 
+                    alt="Preview" 
+                    className={`w-full h-full object-cover rounded-full ${isWaving ? 'animate-avatar-wave' : 'group-hover:scale-110 group-hover:-translate-y-2'} transition-all duration-300`} 
+                  />
                 ) : (
-                  <User className="w-full h-full p-4 text-muted-foreground" />
+                  <User className={`w-full h-full p-4 text-muted-foreground bg-muted rounded-full ${isWaving ? 'animate-avatar-wave' : 'group-hover:scale-110 group-hover:-translate-y-2'} transition-all duration-300`} />
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 bg-background p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition-transform">
-                <Pencil className="w-4 h-4 text-primary" />
-                <Input 
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setAvatarFile(file);
-                      setAvatarPreview(URL.createObjectURL(file));
-                    }
-                  }} 
-                />
-              </label>
             </div>
             <h2 className="text-primary-foreground font-bold text-xl mt-4">{user?.fullName || user?.username}</h2>
             <p className="text-primary-foreground/80 text-sm font-medium">{getRoleDisplayName(user?.role)}</p>
